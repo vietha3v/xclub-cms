@@ -1,0 +1,13 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { callBackendApi, createNextResponse } from '@/lib/backend-api';
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  
+  const result = await callBackendApi(request, '/api/auth/refresh', {
+    method: 'POST',
+    body,
+  });
+  
+  return createNextResponse(result, 'Làm mới token thất bại');
+}
