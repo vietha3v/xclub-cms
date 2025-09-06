@@ -1,5 +1,6 @@
 'use client'
 import { mockFundraising, mockEvents, formatCurrency } from '../../../data/mockData';
+import dlv from 'dlv';
 
 export default function FundraisingPage() {
   // Phân loại chiến dịch gây quỹ
@@ -54,7 +55,7 @@ export default function FundraisingPage() {
               </svg>
             </div>
             <div className="stat-title">Người tham gia</div>
-            <div className="stat-value text-secondary">{totalParticipants.toLocaleString()}</div>
+            <div className="stat-value text-secondary">{dlv({ totalParticipants }, 'totalParticipants', 0).toLocaleString()}</div>
             <div className="stat-desc">Tổng cộng</div>
           </div>
 
@@ -77,7 +78,7 @@ export default function FundraisingPage() {
             <button className="btn btn-accent">Tạo chiến dịch mới</button>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {activeCampaigns.map((campaign) => (
+            {dlv({ activeCampaigns }, 'activeCampaigns', []).map((campaign) => (
               <div key={campaign.id} className="card bg-base-100 shadow-lg border-l-4 border-accent">
                 <div className="card-body">
                   <div className="flex items-center justify-between mb-4">
@@ -98,7 +99,7 @@ export default function FundraisingPage() {
                     </div>
                     <div className="flex justify-between">
                       <span>Người tham gia:</span>
-                      <span className="font-medium">{campaign.participants.toLocaleString()}</span>
+                      <span className="font-medium">{dlv(campaign, 'participants', 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Thời gian còn lại:</span>
@@ -126,7 +127,7 @@ export default function FundraisingPage() {
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-primary mb-6">📅 Chiến dịch sắp diễn ra</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {upcomingCampaigns.map((campaign) => (
+            {dlv({ upcomingCampaigns }, 'upcomingCampaigns', []).map((campaign) => (
               <div key={campaign.id} className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
                 <figure className="h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                   <div className="text-6xl">{campaign.icon}</div>
@@ -170,7 +171,7 @@ export default function FundraisingPage() {
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-success mb-6">✅ Chiến dịch đã hoàn thành</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {completedCampaigns.map((campaign) => (
+            {dlv({ completedCampaigns }, 'completedCampaigns', []).map((campaign) => (
               <div key={campaign.id} className="card bg-base-100 shadow-lg opacity-75">
                 <div className="card-body">
                   <div className="flex items-center justify-between mb-4">
@@ -191,7 +192,7 @@ export default function FundraisingPage() {
                     </div>
                     <div className="flex justify-between">
                       <span>Người tham gia:</span>
-                      <span className="font-medium">{campaign.participants.toLocaleString()}</span>
+                      <span className="font-medium">{dlv(campaign, 'participants', 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Ngày kết thúc:</span>

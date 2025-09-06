@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Challenge, ChallengeType } from '@/types/challenge';
+import dlv from 'dlv';
 
 interface ChallengeListProps {
   selectedType?: string;
@@ -71,7 +72,7 @@ export default function ChallengeList({ selectedType = 'all', searchTerm = '' }:
     );
   }
 
-  if (filteredChallenges.length === 0) {
+  if (dlv({ filteredChallenges }, 'filteredChallenges.length', 0) === 0) {
     return (
       <div className="text-center py-20">
         <div className="text-6xl mb-6">🔍</div>
@@ -83,7 +84,7 @@ export default function ChallengeList({ selectedType = 'all', searchTerm = '' }:
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {filteredChallenges.map((challenge, index) => (
+      {dlv({ filteredChallenges }, 'filteredChallenges', []).map((challenge, index) => (
         <div
           key={challenge.id}
           className="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"

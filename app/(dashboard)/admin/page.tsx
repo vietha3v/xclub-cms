@@ -7,6 +7,7 @@ import AdminChallenges from '@/components/admin/AdminChallenges';
 import AdminRaces from '@/components/admin/AdminRaces';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminClubs from '@/components/admin/AdminClubs';
+import Tabs from '@/components/common/Tabs';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -17,12 +18,12 @@ export default function AdminPage() {
   }, []);
 
   const tabs = [
-    { key: 'dashboard', label: 'Tổng quan', icon: '📊' },
-    { key: 'events', label: 'Sự kiện', icon: '🎯' },
-    { key: 'challenges', label: 'Thử thách', icon: '🏆' },
-    { key: 'races', label: 'Giải chạy', icon: '🏁' },
-    { key: 'clubs', label: 'Câu lạc bộ', icon: '🏃‍♂️' },
-    { key: 'users', label: 'Người dùng', icon: '👥' },
+    { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
+    { id: 'events', label: 'Sự kiện', icon: '🎯' },
+    { id: 'challenges', label: 'Thử thách', icon: '🏆' },
+    { id: 'races', label: 'Giải chạy', icon: '🏁' },
+    { id: 'clubs', label: 'Câu lạc bộ', icon: '🏃‍♂️' },
+    { id: 'users', label: 'Người dùng', icon: '👥' },
   ];
 
   const renderContent = () => {
@@ -60,34 +61,20 @@ export default function AdminPage() {
         </section>
 
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="card bg-base-100 shadow-lg">
-                <div className="card-body p-4">
-                  <h2 className="card-title text-lg mb-4">📋 Menu quản trị</h2>
-                  <div className="space-y-2">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`btn btn-block justify-start ${
-                          activeTab === tab.key ? 'btn-primary' : 'btn-ghost'
-                        }`}
-                      >
-                        <span className="mr-2">{tab.icon}</span>
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Admin Tabs */}
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            variant="pills"
+            size="sm"
+            fullWidth
+            className="mb-8"
+          />
 
-            {/* Main Content */}
-            <div className="lg:col-span-3">
-              {renderContent()}
-            </div>
+          {/* Main Content */}
+          <div>
+            {renderContent()}
           </div>
         </div>
       </div>

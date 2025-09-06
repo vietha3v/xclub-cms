@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useAxios from '@/hooks/useAxios';
 import { Race } from '@/types/race';
+import dlv from 'dlv';
 
 interface RaceDetailActionsProps {
   race: Race;
@@ -186,7 +187,7 @@ export default function RaceDetailActions({ race, onUpdate }: RaceDetailActionsP
         <div className="text-center">
           <div className="text-sm text-base-content/70 mb-2">Phí tham gia</div>
           <div className="text-2xl font-bold text-success">
-            {race.registrationFee === 0 ? 'Miễn phí' : `${race.registrationFee?.toLocaleString()}đ`}
+            {dlv(race, 'registrationFee', 0) === 0 ? 'Miễn phí' : `${dlv(race, 'registrationFee', 0).toLocaleString()}đ`}
           </div>
         </div>
       </div>

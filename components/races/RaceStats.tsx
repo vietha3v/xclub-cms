@@ -1,15 +1,17 @@
 'use client';
 
 import { Race } from '@/types/race';
+import dlv from 'dlv';
 
 interface RaceStatsProps {
   races: Race[];
 }
 
 export default function RaceStats({ races }: RaceStatsProps) {
-  const upcomingRaces = races.filter(r => r.status === 'published' || r.status === 'registration_open').length;
-  const activeRaces = races.filter(r => r.status === 'active').length;
-  const totalParticipants = races.reduce((sum, r) => sum + (r.maxParticipants || 0), 0);
+  // Chỉ hiển thị dữ liệu từ BE, không tính toán
+  const upcomingRaces = dlv({ races }, 'races.upcomingCount', 0);
+  const activeRaces = dlv({ races }, 'races.activeCount', 0);
+  const totalParticipants = dlv({ races }, 'races.totalParticipants', 0);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

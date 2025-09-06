@@ -4,6 +4,7 @@ import { callBackendApi, createNextResponse } from '@/lib/backend-api';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const source = searchParams.get('source') || 'strava'; // Mặc định dùng Strava
     const queryString = searchParams.toString();
     const endpoint = `/api/activities/stats${queryString ? `?${queryString}` : ''}`;
     
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
     return createNextResponse(result, 'Lấy thống kê hoạt động thất bại');
     
   } catch (error) {
-    console.error('Activities stats API error:', error);
+    console.error('Activity Stats API error:', error);
     return NextResponse.json(
       { error: 'Lỗi server' },
       { status: 500 }

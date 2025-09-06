@@ -204,65 +204,7 @@ export const mockBadges: Badge[] = [
 ];
 
 // Mock Running Activities
-export const mockActivities: RunningActivity[] = [
-  {
-    id: '1',
-    userId: '1',
-    userName: 'Nguyễn Văn A',
-    userAvatar: 'https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg',
-    distance: 10.2,
-    duration: 3150, // 52:30 in seconds
-    pace: 309, // 5:09 min/km
-    calories: 145,
-    location: 'Hồ Tây, Hà Nội',
-    route: 'Hồ Tây Loop',
-    weather: 'Nắng đẹp, 25°C',
-    mood: 'Energetic',
-    notes: 'Vừa hoàn thành chạy 10K tại Hồ Tây với thời gian tuyệt vời! 🏃‍♂️💪',
-    createdAt: '2024-12-10T08:30:00Z',
-    likes: 24,
-    comments: 8,
-    shares: 3
-  },
-  {
-    id: '2',
-    userId: '2',
-    userName: 'Trần Thị B',
-    userAvatar: 'https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg',
-    distance: 5.0,
-    duration: 1485, // 24:45 in seconds
-    pace: 297, // 4:57 min/km
-    calories: 78,
-    location: 'Công viên Thống Nhất',
-    route: 'Công viên Loop',
-    weather: 'Mát mẻ, 22°C',
-    mood: 'Accomplished',
-    notes: 'Đạt mục tiêu chạy 5K trong 25 phút! Cảm thấy thật tuyệt vời! 🎯✨',
-    createdAt: '2024-12-10T06:00:00Z',
-    likes: 18,
-    comments: 5,
-    shares: 2
-  },
-  {
-    id: '3',
-    userId: '3',
-    userName: 'Lê Văn C',
-    userAvatar: 'https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg',
-    distance: 21.1,
-    duration: 6330, // 1:45:30 in seconds
-    pace: 300, // 5:00 min/km
-    calories: 312,
-    location: 'Đường Láng, Hà Nội',
-    route: 'Half Marathon Route',
-    weather: 'Mát mẻ, 20°C',
-    mood: 'Proud',
-    notes: 'Hoàn thành nửa marathon đầu tiên! Cảm ơn mọi người đã ủng hộ! 🏃‍♂️🏆',
-    createdAt: '2024-12-10T04:00:00Z',
-    likes: 45,
-    comments: 12,
-    shares: 8
-  }
-];
+export const mockActivities: RunningActivity[] = [];
 
 // Mock Clubs
 export const mockClubs: Club[] = [

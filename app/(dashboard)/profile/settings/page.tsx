@@ -16,11 +16,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Settings Tabs */}
-        <div className="tabs tabs-boxed justify-center mb-8">
-          <button className="tab tab-active">🔗 Tích hợp thiết bị</button>
-          <button className="tab">👤 Thông tin cá nhân</button>
-          <button className="tab">🔔 Thông báo</button>
-          <button className="tab">🔒 Bảo mật</button>
+        <div className="flex justify-center mb-8">
+          <div className="tabs tabs-boxed gap-2">
+            <button className="tab px-6 py-3 tab-active">🔗 Tích hợp thiết bị</button>
+            <button className="tab px-6 py-3">👤 Thông tin cá nhân</button>
+            <button className="tab px-6 py-3">🔔 Thông báo</button>
+            <button className="tab px-6 py-3">🔒 Bảo mật</button>
+          </div>
         </div>
 
         {/* Integrations Section */}

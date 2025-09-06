@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Club } from '@/types/club';
+import { ListSkeleton } from '@/components/common/LoadingSkeleton';
 
 export default function AdminClubs() {
   const [clubs, setClubs] = useState<Club[]>([]);
@@ -68,18 +69,7 @@ export default function AdminClubs() {
     return (
       <div className="card bg-base-100 shadow-lg">
         <div className="card-body">
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-4 border border-base-300 rounded-lg animate-pulse">
-                <div className="w-12 h-12 bg-base-300 rounded-full"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-base-300 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-base-300 rounded w-1/2"></div>
-                </div>
-                <div className="h-6 bg-base-300 rounded w-20"></div>
-              </div>
-            ))}
-          </div>
+          <ListSkeleton items={5} />
         </div>
       </div>
     );

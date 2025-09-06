@@ -1,6 +1,7 @@
 'use client';
 
 import { Challenge } from '@/types/challenge';
+import dlv from 'dlv';
 
 interface ChallengeDetailInfoProps {
   challenge: Challenge;
@@ -52,7 +53,7 @@ export default function ChallengeDetailInfo({ challenge }: ChallengeDetailInfoPr
                 <div>
                   <div className="font-medium">Bắt đầu</div>
                   <div className="text-sm text-base-content/70">
-                    {new Date(challenge.startDate).toLocaleString('vi-VN')}
+                    {dlv(challenge, 'startDate') ? new Date(dlv(challenge, 'startDate')).toLocaleString('vi-VN') : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -62,7 +63,7 @@ export default function ChallengeDetailInfo({ challenge }: ChallengeDetailInfoPr
                 <div>
                   <div className="font-medium">Kết thúc</div>
                   <div className="text-sm text-base-content/70">
-                    {new Date(challenge.endDate).toLocaleString('vi-VN')}
+                    {dlv(challenge, 'endDate') ? new Date(dlv(challenge, 'endDate')).toLocaleString('vi-VN') : 'N/A'}
                   </div>
                 </div>
               </div>

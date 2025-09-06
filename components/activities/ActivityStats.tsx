@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ActivityStats as Stats } from '@/types/activity';
 import { activityUtils } from '@/utils/activityUtils';
-import axiosInstance from '@/lib/axios';
+import useAxios from '@/hooks/useAxios';
+import dlv from 'dlv';
+import { ActivityStatsSkeleton } from '@/components/common/LoadingSkeleton';
 
 interface ActivityStatsProps {
   period?: 'week' | 'month' | 'year' | 'all';
@@ -11,72 +13,52 @@ interface ActivityStatsProps {
 }
 
 export default function ActivityStats({ period = 'all', className = '' }: ActivityStatsProps) {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Build query parameters
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+  
+  if (period !== 'all') {
+    const now = new Date();
+    endDate = now.toISOString();
+    
+    switch (period) {
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1).toISOString();
+        break;
+    }
+  }
+  
+  const params = new URLSearchParams();
+  params.append('source', 'strava'); // Mặc định lấy từ Strava
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  
+  const queryString = params.toString();
+  const url = `/api/activities/stats?${queryString}`;
+
+  const [{ data: stats, loading, error: apiError }, refetch] = useAxios<Stats>(url, { manual: true });
 
   useEffect(() => {
-    loadStats();
+    refetch();
   }, [period]);
 
-  const loadStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let startDate: string | undefined;
-      let endDate: string | undefined;
-      
-      if (period !== 'all') {
-        const now = new Date();
-        endDate = now.toISOString();
-        
-        switch (period) {
-          case 'week':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-            break;
-          case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            break;
-          case 'year':
-            startDate = new Date(now.getFullYear(), 0, 1).toISOString();
-            break;
-        }
-      }
-      
-      const statsData = startDate && endDate 
-        ? await axiosInstance.get(`/api/activities/stats?startDate=${startDate}&endDate=${endDate}`)
-        : await axiosInstance.get('/api/activities/stats');
-        
-      setStats(statsData.data);
-    } catch (err: any) {
-      setError('Không thể tải thống kê');
-      console.error('Load stats error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
-    return (
-      <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${className}`}>
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="stat bg-base-200 animate-pulse">
-            <div className="stat-title h-4 bg-base-300 rounded"></div>
-            <div className="stat-value h-8 bg-base-300 rounded mt-2"></div>
-          </div>
-        ))}
-      </div>
-    );
+    return <ActivityStatsSkeleton className={className} />;
   }
 
-  if (error || !stats) {
+  if (apiError || !stats) {
     return (
       <div className={`alert alert-error ${className}`}>
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span>{error || 'Không có dữ liệu thống kê'}</span>
+        <span>{apiError?.message || 'Không có dữ liệu thống kê'}</span>
       </div>
     );
   }
@@ -92,13 +74,6 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="text-center">
-        <h3 className="text-2xl font-bold text-base-content mb-2">
-          📊 Thống kê hoạt động
-        </h3>
-        <p className="text-base-content/70">{getPeriodLabel()}</p>
-      </div>
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -109,7 +84,7 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
             </svg>
           </div>
           <div className="stat-title">Tổng hoạt động</div>
-          <div className="stat-value text-primary">{stats.totalActivities}</div>
+          <div className="stat-value text-primary">{dlv(stats, 'totalActivities', 0)}</div>
           <div className="stat-desc">lần chạy</div>
         </div>
 
@@ -121,7 +96,7 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
           </div>
           <div className="stat-title">Tổng quãng đường</div>
           <div className="stat-value text-secondary">
-            {activityUtils.formatDistance(stats.totalDistance)}
+            {activityUtils.formatDistance(dlv(stats, 'totalDistance', 0))}
           </div>
           <div className="stat-desc">đã chạy</div>
         </div>
@@ -134,7 +109,7 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
           </div>
           <div className="stat-title">Tổng thời gian</div>
           <div className="stat-value text-accent">
-            {activityUtils.formatDuration(stats.totalDuration)}
+            {activityUtils.formatDuration(dlv(stats, 'totalDuration', 0))}
           </div>
           <div className="stat-desc">tập luyện</div>
         </div>
@@ -147,7 +122,7 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
           </div>
           <div className="stat-title">Tổng calories</div>
           <div className="stat-value text-success">
-            {activityUtils.formatCalories(stats.totalCalories)}
+            {activityUtils.formatCalories(dlv(stats, 'totalCalories', 0))}
           </div>
           <div className="stat-desc">đã đốt</div>
         </div>
@@ -162,19 +137,19 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-base-content/70">Pace trung bình:</span>
-                <span className="font-medium">{activityUtils.formatPace(stats.averagePace)}</span>
+                <span className="font-medium">{activityUtils.formatPace(dlv(stats, 'averagePace'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Tốc độ trung bình:</span>
-                <span className="font-medium">{activityUtils.formatSpeed(stats.averageSpeed)}</span>
+                <span className="font-medium">{activityUtils.formatSpeed(dlv(stats, 'averageSpeed'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Nhịp tim TB:</span>
-                <span className="font-medium">{activityUtils.formatHeartRate(stats.averageHeartRate)}</span>
+                <span className="font-medium">{activityUtils.formatHeartRate(dlv(stats, 'averageHeartRate'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Độ cao tích lũy:</span>
-                <span className="font-medium">{activityUtils.formatElevation(stats.totalElevationGain)}</span>
+                <span className="font-medium">{activityUtils.formatElevation(dlv(stats, 'totalElevationGain'))}</span>
               </div>
             </div>
           </div>
@@ -187,39 +162,143 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-base-content/70">Quãng đường dài nhất:</span>
-                <span className="font-medium">{activityUtils.formatDistance(stats.longestDistance)}</span>
+                <span className="font-medium">{activityUtils.formatDistance(dlv(stats, 'longestDistance'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Thời gian dài nhất:</span>
-                <span className="font-medium">{activityUtils.formatDuration(stats.longestDuration)}</span>
+                <span className="font-medium">{activityUtils.formatDuration(dlv(stats, 'longestDuration'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Pace nhanh nhất:</span>
-                <span className="font-medium">{activityUtils.formatPace(stats.fastestPace)}</span>
+                <span className="font-medium">{activityUtils.formatPace(dlv(stats, 'fastestPace'))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-base-content/70">Calories nhiều nhất:</span>
-                <span className="font-medium">{activityUtils.formatCalories(stats.mostCalories)}</span>
+                <span className="font-medium">{activityUtils.formatCalories(dlv(stats, 'mostCalories'))}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Activities by Type */}
+      {/* Activities by Type - Enhanced with Strava data */}
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
           <h4 className="card-title text-lg">📈 Hoạt động theo loại</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Object.entries(stats.activitiesByType).map(([type, count]) => (
-              <div key={type} className="text-center">
-                <div className="text-2xl mb-1">{activityUtils.getActivityIcon(type)}</div>
-                <div className="text-sm text-base-content/70">{activityUtils.getActivityName(type)}</div>
-                <div className="font-semibold">{count}</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(dlv(stats, 'activitiesByType', {})).map(([type, data]: [string, any]) => (
+              <div key={type} className="card bg-base-200 shadow-sm">
+                <div className="card-body p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl">{activityUtils.getActivityIcon(type as any)}</div>
+                    <div className="text-right">
+                      <div className="text-sm text-base-content/70">{activityUtils.getActivityName(type as any)}</div>
+                      <div className="text-2xl font-bold">{dlv(data, 'count', 0)}</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Quãng đường:</span>
+                      <span className="font-medium">{activityUtils.formatDistance(dlv(data, 'distance', 0))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Thời gian:</span>
+                      <span className="font-medium">{activityUtils.formatDuration(dlv(data, 'duration', 0))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Calories:</span>
+                      <span className="font-medium">{activityUtils.formatCalories(dlv(data, 'calories', 0))}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Recent vs YTD Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Recent Stats */}
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <h4 className="card-title text-lg">📅 Thống kê gần đây</h4>
+            <div className="space-y-3">
+              {Object.entries(dlv(stats, 'recentStats', {})).map(([type, data]: [string, any]) => (
+                <div key={type} className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{activityUtils.getActivityIcon(type as any)}</span>
+                    <span className="text-sm">{activityUtils.getActivityName(type as any)}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">{dlv(data, 'count', 0)}</div>
+                    <div className="text-xs text-base-content/70">
+                      {activityUtils.formatDistance(dlv(data, 'distance', 0))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* YTD Stats */}
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <h4 className="card-title text-lg">📊 Năm nay (YTD)</h4>
+            <div className="space-y-3">
+              {Object.entries(dlv(stats, 'ytdStats', {})).map(([type, data]: [string, any]) => (
+                <div key={type} className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{activityUtils.getActivityIcon(type as any)}</span>
+                    <span className="text-sm">{activityUtils.getActivityName(type as any)}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">{dlv(data, 'count', 0)}</div>
+                    <div className="text-xs text-base-content/70">
+                      {activityUtils.formatDistance(dlv(data, 'distance', 0))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Club & Challenge Stats */}
+      {dlv(stats, 'clubStats') && (
+        <div className="card bg-base-100 shadow-sm">
+          <div className="card-body">
+            <h4 className="card-title text-lg">🏆 Thống kê CLB & Thử thách</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="stat bg-primary/10 rounded-lg">
+                <div className="stat-title">Hoạt động CLB</div>
+                <div className="stat-value text-primary">{dlv(stats, 'clubStats.clubActivities', 0)}</div>
+              </div>
+              <div className="stat bg-secondary/10 rounded-lg">
+                <div className="stat-title">Tham gia sự kiện</div>
+                <div className="stat-value text-secondary">{dlv(stats, 'clubStats.eventParticipations', 0)}</div>
+              </div>
+              <div className="stat bg-accent/10 rounded-lg">
+                <div className="stat-title">Hoàn thành thử thách</div>
+                <div className="stat-value text-accent">{dlv(stats, 'clubStats.challengeCompletions', 0)}</div>
+              </div>
+              <div className="stat bg-success/10 rounded-lg">
+                <div className="stat-title">Tham gia giải đấu</div>
+                <div className="stat-value text-success">{dlv(stats, 'clubStats.raceParticipations', 0)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Data Source Info */}
+      <div className="text-center text-sm text-base-content/50">
+        <p>📡 Dữ liệu từ {dlv(stats, 'source') === 'strava' ? 'Strava API' : 'Database nội bộ'}</p>
+        {dlv(stats, 'source') === 'strava' && (
+          <p className="mt-1">✨ Tận dụng tối đa thống kê từ Strava</p>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import RaceCard from './RaceCard';
 import RaceFilters from './RaceFilters';
 import RaceCreateModal from './RaceCreateModal';
 import { Race, RaceFilters as RaceFiltersType } from '@/types/race';
+import dlv from 'dlv';
 
 interface RaceListProps {
   initialFilters?: RaceFiltersType;
@@ -74,9 +75,9 @@ export default function RaceList({ initialFilters = {} }: RaceListProps) {
         onFilterChange={handleFilterChange}
       />
 
-      {data?.data && data.data.length > 0 ? (
+      {dlv(data, 'data') && dlv({ data }, 'data.length', 0) > 0 ? (
         <div className="grid gap-4">
-          {data.data.map((race: Race) => (
+          {dlv(data, 'data', []).map((race: Race) => (
             <RaceCard 
               key={race.id} 
               race={race}

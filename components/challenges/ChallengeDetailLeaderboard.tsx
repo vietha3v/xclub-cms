@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
+import dlv from 'dlv';
 
 interface LeaderboardEntry {
   rank: number;
@@ -113,18 +114,18 @@ export default function ChallengeDetailLeaderboard({ challengeId }: ChallengeDet
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">🏆 Bảng xếp hạng</h2>
           <div className="badge badge-primary badge-lg">
-            {leaderboard.length} người
+            {dlv({ leaderboard }, 'leaderboard.length', 0)} người
           </div>
         </div>
 
-        {leaderboard.length === 0 ? (
+        {dlv({ leaderboard }, 'leaderboard.length', 0) === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">🏆</div>
             <p className="text-base-content/70">Chưa có dữ liệu xếp hạng</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {leaderboard.map((entry) => (
+            {dlv({ leaderboard }, 'leaderboard', []).map((entry) => (
               <div
                 key={entry.userId}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
@@ -177,7 +178,7 @@ export default function ChallengeDetailLeaderboard({ challengeId }: ChallengeDet
           </div>
         )}
 
-        {leaderboard.length > 0 && (
+        {dlv({ leaderboard }, 'leaderboard.length', 0) > 0 && (
           <div className="divider"></div>
         )}
 

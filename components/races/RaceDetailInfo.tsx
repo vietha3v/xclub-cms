@@ -1,6 +1,7 @@
 'use client';
 
 import { Race } from '@/types/race';
+import dlv from 'dlv';
 
 interface RaceDetailInfoProps {
   race: Race;
@@ -22,42 +23,42 @@ export default function RaceDetailInfo({ race }: RaceDetailInfoProps) {
                 <div>
                   <div className="font-medium">Bắt đầu</div>
                   <div className="text-sm text-base-content/70">
-                    {new Date(race.startDate).toLocaleString('vi-VN')}
+                    {dlv(race, 'startDate') ? new Date(dlv(race, 'startDate')).toLocaleString('vi-VN') : 'N/A'}
                   </div>
                 </div>
               </div>
 
-              {race.endDate && (
+              {dlv(race, 'endDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-secondary rounded-full"></div>
                   <div>
                     <div className="font-medium">Kết thúc</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(race.endDate).toLocaleString('vi-VN')}
+                      {dlv(race, 'endDate') ? new Date(dlv(race, 'endDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
               )}
 
-              {race.registrationStartDate && (
+              {dlv(race, 'registrationStartDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-accent rounded-full"></div>
                   <div>
                     <div className="font-medium">Mở đăng ký</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(race.registrationStartDate).toLocaleString('vi-VN')}
+                      {dlv(race, 'registrationStartDate') ? new Date(dlv(race, 'registrationStartDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
               )}
 
-              {race.registrationEndDate && (
+              {dlv(race, 'registrationEndDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-warning rounded-full"></div>
                   <div>
                     <div className="font-medium">Đóng đăng ký</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(race.registrationEndDate).toLocaleString('vi-VN')}
+                      {dlv(race, 'registrationEndDate') ? new Date(dlv(race, 'registrationEndDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
@@ -146,15 +147,15 @@ export default function RaceDetailInfo({ race }: RaceDetailInfoProps) {
           )}
         </div>
 
-        {race.registrationFee !== undefined && (
+        {dlv(race, 'registrationFee') !== undefined && (
           <div className="divider"></div>
         )}
 
-        {race.registrationFee !== undefined && (
+        {dlv(race, 'registrationFee') !== undefined && (
           <div className="text-center">
             <h3 className="text-lg font-semibold text-primary mb-2">💰 Phí tham gia</h3>
             <div className="text-3xl font-bold text-success">
-              {race.registrationFee === 0 ? 'Miễn phí' : `${race.registrationFee.toLocaleString()}đ`}
+              {dlv(race, 'registrationFee', 0) === 0 ? 'Miễn phí' : `${dlv(race, 'registrationFee', 0).toLocaleString()}đ`}
             </div>
           </div>
         )}

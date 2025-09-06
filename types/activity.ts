@@ -69,28 +69,30 @@ export interface Activity {
 }
 
 export enum ActivityType {
-  RUNNING = 'running',
-  CYCLING = 'cycling',
-  SWIMMING = 'swimming',
-  WALKING = 'walking',
-  HIKING = 'hiking',
-  YOGA = 'yoga',
-  WEIGHT_TRAINING = 'weight_training',
-  OTHER = 'other'
+  RUNNING = 'Run',
+  WALKING = 'Walk',
+  HIKING = 'Hike',
+  TRAIL_RUNNING = 'TrailRun',
+  JOGGING = 'Jog',
+  CYCLING = 'Ride',
+  MOUNTAIN_BIKING = 'MountainBikeRide',
+  SWIMMING = 'Swim',
+  YOGA = 'Yoga',
+  WEIGHT_TRAINING = 'WeightTraining',
+  OTHER = 'Other'
 }
 
 export enum ActivityStatus {
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-  DRAFT = 'draft'
+  SYNCED = 'synced',
+  PROCESSING = 'processing',
+  ERROR = 'error'
 }
 
 export enum ActivityVisibility {
-  PUBLIC = 'public',
   PRIVATE = 'private',
   FRIENDS = 'friends',
-  CLUB_ONLY = 'club_only'
+  CLUB = 'club',
+  PUBLIC = 'public'
 }
 
 export interface CreateActivityDto {

@@ -142,19 +142,21 @@ export default function ClubList() {
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+          <div className="flex-1 min-w-0">
             <ClubSearch onSearch={handleSearch} />
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Tạo CLB mới
-          </button>
+          <div className="flex-shrink-0">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn btn-primary w-full lg:w-auto"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Tạo CLB mới
+            </button>
+          </div>
         </div>
         <ClubFilters 
           filters={{

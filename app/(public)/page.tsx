@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import dlv from 'dlv';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -122,7 +123,7 @@ export default function HomePage() {
         <section className="py-16 px-4 bg-base-100/50 backdrop-blur-sm">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {stats.map((stat, index) => (
+              {dlv({ stats }, 'stats', []).map((stat, index) => (
                 <div 
                   key={index}
                   className={`text-center transition-all duration-700 hover:scale-110 cursor-pointer`}
@@ -150,7 +151,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {features.map((feature, index) => (
+              {dlv({ features }, 'features', []).map((feature, index) => (
                 <Link 
                   key={index}
                   href={feature.link}

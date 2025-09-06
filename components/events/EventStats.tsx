@@ -1,15 +1,17 @@
 'use client';
 
 import { Event } from '@/types/event';
+import dlv from 'dlv';
 
 interface EventStatsProps {
   events: Event[];
 }
 
 export default function EventStats({ events }: EventStatsProps) {
-  const upcomingEvents = events.filter(e => e.status === 'published' || e.status === 'registration_open').length;
-  const activeEvents = events.filter(e => e.status === 'active').length;
-  const totalParticipants = events.reduce((sum, e) => sum + (e.maxParticipants || 0), 0);
+  // Chỉ hiển thị dữ liệu từ BE, không tính toán
+  const upcomingEvents = dlv({ events }, 'events.upcomingCount', 0);
+  const activeEvents = dlv({ events }, 'events.activeCount', 0);
+  const totalParticipants = dlv({ events }, 'events.totalParticipants', 0);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

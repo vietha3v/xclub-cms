@@ -1,6 +1,7 @@
 'use client';
 
 import { ChallengeType } from '@/types/challenge';
+import dlv from 'dlv';
 
 interface ChallengeFiltersProps {
   selectedType: string;
@@ -28,7 +29,7 @@ export default function ChallengeFilters({
     <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
       {/* Type Filter */}
       <div className="flex flex-wrap gap-2">
-        {types.map((type) => (
+        {dlv({ types }, 'types', []).map((type) => (
           <button
             key={type.key}
             onClick={() => onTypeChange(type.key)}

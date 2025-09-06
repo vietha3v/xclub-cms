@@ -1,7 +1,18 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import IntegrationSettings from '@/components/settings/IntegrationSettings';
+import Tabs from '@/components/common/Tabs';
 
 export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState('integrations');
+
+  const tabs = [
+    { id: 'integrations', label: 'Tích hợp thiết bị', icon: '🔗' },
+    { id: 'profile', label: 'Thông tin cá nhân', icon: '👤' },
+    { id: 'notifications', label: 'Thông báo', icon: '🔔' },
+    { id: 'security', label: 'Bảo mật', icon: '🔒' }
+  ];
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -17,15 +28,40 @@ export default function SettingsPage() {
         </div>
 
         {/* Settings Tabs */}
-        <div className="tabs tabs-boxed justify-center mb-8">
-          <button className="tab tab-active">🔗 Tích hợp thiết bị</button>
-          <button className="tab">👤 Thông tin cá nhân</button>
-          <button className="tab">🔔 Thông báo</button>
-          <button className="tab">🔒 Bảo mật</button>
-        </div>
+        <Tabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          variant="default"
+          size="md"
+        />
 
-        {/* Integrations Section */}
-        <IntegrationSettings />
+        {/* Content based on active tab */}
+        {activeTab === 'integrations' && <IntegrationSettings />}
+        {activeTab === 'profile' && (
+          <div className="card bg-base-100 shadow-sm">
+            <div className="card-body">
+              <h3 className="card-title">👤 Thông tin cá nhân</h3>
+              <p className="text-base-content/70">Chức năng đang phát triển...</p>
+            </div>
+          </div>
+        )}
+        {activeTab === 'notifications' && (
+          <div className="card bg-base-100 shadow-sm">
+            <div className="card-body">
+              <h3 className="card-title">🔔 Thông báo</h3>
+              <p className="text-base-content/70">Chức năng đang phát triển...</p>
+            </div>
+          </div>
+        )}
+        {activeTab === 'security' && (
+          <div className="card bg-base-100 shadow-sm">
+            <div className="card-body">
+              <h3 className="card-title">🔒 Bảo mật</h3>
+              <p className="text-base-content/70">Chức năng đang phát triển...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

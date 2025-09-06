@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Event, EventType } from '@/types/event';
+import dlv from 'dlv';
 
 interface EventListProps {
   selectedCategory?: string;
@@ -72,7 +73,7 @@ export default function EventList({ selectedCategory = 'all', searchTerm = '' }:
     );
   }
 
-  if (filteredEvents.length === 0) {
+  if (dlv({ filteredEvents }, 'filteredEvents.length', 0) === 0) {
     return (
       <div className="text-center py-20">
         <div className="text-6xl mb-6">🔍</div>
@@ -84,7 +85,7 @@ export default function EventList({ selectedCategory = 'all', searchTerm = '' }:
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {filteredEvents.map((event, index) => (
+      {dlv({ filteredEvents }, 'filteredEvents', []).map((event, index) => (
         <div
           key={event.id}
           className="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"
@@ -156,7 +157,7 @@ export default function EventList({ selectedCategory = 'all', searchTerm = '' }:
                 {event.registrationFee === 0 || !event.registrationFee ? (
                   <span className="text-success">Miễn phí</span>
                 ) : (
-                  <span className="text-primary">{event.registrationFee.toLocaleString()}đ</span>
+                  <span className="text-primary">{dlv(event, 'registrationFee', 0).toLocaleString()}đ</span>
                 )}
               </div>
               <div className="text-sm text-base-content/50">

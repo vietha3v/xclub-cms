@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Challenge } from '@/types/challenge';
+import dlv from 'dlv';
 
 interface EventDetailChallengesProps {
   eventId: string;
@@ -72,18 +73,18 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">🏆 Thử thách</h2>
           <div className="badge badge-primary badge-lg">
-            {challenges.length}
+            {dlv({ challenges }, 'challenges.length', 0)}
           </div>
         </div>
 
-        {challenges.length === 0 ? (
+        {dlv({ challenges }, 'challenges.length', 0) === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">🏆</div>
             <p className="text-base-content/70">Sự kiện này chưa có thử thách nào</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {challenges.map((challenge) => (
+            {dlv({ challenges }, 'challenges', []).map((challenge) => (
               <div key={challenge.id} className="p-4 border border-base-300 rounded-lg hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -157,7 +158,7 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
           </div>
         )}
 
-        {challenges.length > 0 && (
+        {dlv({ challenges }, 'challenges.length', 0) > 0 && (
           <div className="divider"></div>
         )}
 

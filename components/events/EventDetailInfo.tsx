@@ -1,6 +1,7 @@
 'use client';
 
 import { Event } from '@/types/event';
+import dlv from 'dlv';
 
 interface EventDetailInfoProps {
   event: Event;
@@ -22,42 +23,42 @@ export default function EventDetailInfo({ event }: EventDetailInfoProps) {
                 <div>
                   <div className="font-medium">Bắt đầu</div>
                   <div className="text-sm text-base-content/70">
-                    {new Date(event.startDate).toLocaleString('vi-VN')}
+                    {dlv(event, 'startDate') ? new Date(dlv(event, 'startDate')).toLocaleString('vi-VN') : 'N/A'}
                   </div>
                 </div>
               </div>
 
-              {event.endDate && (
+              {dlv(event, 'endDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-secondary rounded-full"></div>
                   <div>
                     <div className="font-medium">Kết thúc</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(event.endDate).toLocaleString('vi-VN')}
+                      {dlv(event, 'endDate') ? new Date(dlv(event, 'endDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
               )}
 
-              {event.registrationStartDate && (
+              {dlv(event, 'registrationStartDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-accent rounded-full"></div>
                   <div>
                     <div className="font-medium">Mở đăng ký</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(event.registrationStartDate).toLocaleString('vi-VN')}
+                      {dlv(event, 'registrationStartDate') ? new Date(dlv(event, 'registrationStartDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
               )}
 
-              {event.registrationEndDate && (
+              {dlv(event, 'registrationEndDate') && (
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-warning rounded-full"></div>
                   <div>
                     <div className="font-medium">Đóng đăng ký</div>
                     <div className="text-sm text-base-content/70">
-                      {new Date(event.registrationEndDate).toLocaleString('vi-VN')}
+                      {dlv(event, 'registrationEndDate') ? new Date(dlv(event, 'registrationEndDate')).toLocaleString('vi-VN') : 'N/A'}
                     </div>
                   </div>
                 </div>
@@ -131,11 +132,11 @@ export default function EventDetailInfo({ event }: EventDetailInfoProps) {
             </div>
           )}
 
-          {event.registrationFee !== undefined && (
+          {dlv(event, 'registrationFee') !== undefined && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">💰 Phí tham gia</h3>
               <div className="text-2xl font-bold text-success">
-                {event.registrationFee === 0 ? 'Miễn phí' : `${event.registrationFee.toLocaleString()}đ`}
+                {dlv(event, 'registrationFee', 0) === 0 ? 'Miễn phí' : `${dlv(event, 'registrationFee', 0).toLocaleString()}đ`}
               </div>
             </div>
           )}

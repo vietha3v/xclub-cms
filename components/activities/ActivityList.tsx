@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, QueryActivityDto } from '@/types/activity';
 import { activityUtils } from '@/utils/activityUtils';
+import { validationUtils } from '@/utils/validation';
+import dlv from 'dlv';
 import ActivityCard from './ActivityCard';
 import ActivityFiltersComponent from './ActivityFilters';
 import { SyncButton } from '@/components/SyncButton';
 import useAxios from '@/hooks/useAxios';
+import { ActivityListSkeleton } from '@/components/common/LoadingSkeleton';
 
 interface ActivityFilters {
   search: string;
@@ -40,6 +43,7 @@ export default function ActivityList({
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   
   const [filters, setFilters] = useState<ActivityFilters>({
     search: '',
@@ -60,7 +64,7 @@ export default function ActivityList({
   // Build query parameters
   const query: QueryActivityDto = {
     page: currentPage,
-    limit,
+    limit: itemsPerPage,
     search: filters.search || undefined,
     // Convert empty strings to undefined and handle type conversion
     type: filters.type ? filters.type as any : undefined,
@@ -68,10 +72,10 @@ export default function ActivityList({
     source: filters.source || undefined,
     startDate: filters.startDate || undefined,
     endDate: filters.endDate || undefined,
-    minDistance: filters.minDistance ? parseFloat(filters.minDistance) : undefined,
-    maxDistance: filters.maxDistance ? parseFloat(filters.maxDistance) : undefined,
-    minDuration: filters.minDuration ? parseFloat(filters.minDuration) : undefined,
-    maxDuration: filters.maxDuration ? parseFloat(filters.maxDuration) : undefined,
+    minDistance: dlv(filters, 'minDistance') ? parseFloat(dlv(filters, 'minDistance')) : undefined,
+    maxDistance: dlv(filters, 'maxDistance') ? parseFloat(dlv(filters, 'maxDistance')) : undefined,
+    minDuration: dlv(filters, 'minDuration') ? parseFloat(dlv(filters, 'minDuration')) : undefined,
+    maxDuration: dlv(filters, 'maxDuration') ? parseFloat(dlv(filters, 'maxDuration')) : undefined,
     sortBy: filters.sortBy || undefined,
     sortOrder: filters.sortOrder || undefined,
   };
@@ -87,7 +91,7 @@ export default function ActivityList({
   const url = queryString ? `/api/activities?${queryString}` : '/api/activities';
 
   const [{ data, loading, error: apiError }, refetch] = useAxios<{
-    activities: Activity[];
+    data: Activity[];
     total: number;
   }>(url, { manual: true });
 
@@ -97,8 +101,34 @@ export default function ActivityList({
 
   useEffect(() => {
     if (data) {
-      setActivities(data.activities);
-      setTotal(data.total);
+      // Transform API data to match TypeScript interface
+      const transformedActivities = (data.data || []).map((activity: any) => ({
+        ...activity,
+        // Convert string numbers to numbers
+        distance: activity.distance ? parseFloat(activity.distance) : undefined,
+        duration: activity.duration ? parseFloat(activity.duration) : undefined,
+        elapsedTime: activity.elapsedTime ? parseFloat(activity.elapsedTime) : undefined,
+        averageSpeed: activity.averageSpeed ? parseFloat(activity.averageSpeed) : undefined,
+        maxSpeed: activity.maxSpeed ? parseFloat(activity.maxSpeed) : undefined,
+        averagePace: activity.averagePace ? parseFloat(activity.averagePace) : undefined,
+        averageHeartRate: activity.averageHeartRate ? parseFloat(activity.averageHeartRate) : undefined,
+        maxHeartRate: activity.maxHeartRate ? parseFloat(activity.maxHeartRate) : undefined,
+        calories: activity.calories ? parseFloat(activity.calories) : undefined,
+        elevationGain: activity.elevationGain ? parseFloat(activity.elevationGain) : undefined,
+        elevationLoss: activity.elevationLoss ? parseFloat(activity.elevationLoss) : undefined,
+        totalElevationGain: activity.totalElevationGain ? parseFloat(activity.totalElevationGain) : undefined,
+        maxElevation: activity.maxElevation ? parseFloat(activity.maxElevation) : undefined,
+        minElevation: activity.minElevation ? parseFloat(activity.minElevation) : undefined,
+        // Convert string dates to Date objects
+        startTime: activity.startTime ? new Date(activity.startTime) : new Date(),
+        endTime: activity.endTime ? new Date(activity.endTime) : undefined,
+        lastSyncedAt: activity.lastSyncedAt ? new Date(activity.lastSyncedAt) : undefined,
+        createdAt: activity.createdAt ? new Date(activity.createdAt) : new Date(),
+        updatedAt: activity.updatedAt ? new Date(activity.updatedAt) : new Date(),
+      }));
+      
+      setActivities(transformedActivities);
+      setTotal(data.total || 0);
       setError(null);
     }
   }, [data]);
@@ -123,13 +153,8 @@ export default function ActivityList({
     refetch();
   };
 
-  if (loading && activities.length === 0) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="loading loading-spinner loading-lg text-primary"></div>
-        <span className="ml-4 text-base-content/70">Đang tải hoạt động...</span>
-      </div>
-    );
+  if (loading && dlv({ activities }, 'activities.length', 0) === 0) {
+    return <ActivityListSkeleton items={20} />;
   }
 
   return (
@@ -137,9 +162,9 @@ export default function ActivityList({
       {/* Sync Button */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Hoạt động của bạn</h2>
+          <h2 className="text-2xl font-bold">Lịch sử tập luyện</h2>
           <p className="text-sm text-base-content/70 mt-1">
-            Đồng bộ hoạt động từ các thiết bị và ứng dụng của bạn
+            Tất cả các hoạt động thể thao đã được ghi nhận
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -149,15 +174,15 @@ export default function ActivityList({
             </svg>
             Strava
           </SyncButton>
-          <SyncButton platform="garmin" daysBack={7} className="btn-sm">
+          <button className="btn btn-outline btn-sm" disabled>
             <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
             Garmin
-          </SyncButton>
+          </button>
           <button 
             className="btn btn-outline btn-sm"
-            onClick={() => window.location.href = '/integrations'}
+            onClick={() => window.location.href = '/settings'}
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -192,37 +217,96 @@ export default function ActivityList({
         </div>
       )}
 
-      {/* Activities Grid */}
-      {activities.length > 0 ? (
+      {/* Activities List */}
+      {dlv({ activities }, 'activities.length', 0) > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activities.map((activity) => (
-              <ActivityCard 
-                key={activity.id} 
-                activity={activity} 
-                compact={compact}
-              />
-            ))}
+          <div className="bg-base-100 rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+              <table className="table table-zebra w-full">
+                <thead className="sticky top-0 bg-base-100 z-10">
+                  <tr>
+                    <th>Ngày</th>
+                    <th>Hoạt động</th>
+                    <th>Quãng đường</th>
+                    <th>Thời gian</th>
+                    <th>Pace/Tốc độ</th>
+                    <th>Calo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dlv({ activities }, 'activities', []).map((activity: any) => (
+                    <tr key={activity.id} className="hover:bg-base-200">
+                      <td>
+                        <div className="text-sm">
+                          {activityUtils.formatDate(activity.startTime)}
+                        </div>
+                        <div className="text-xs text-base-content/70">
+                          {activityUtils.formatRelativeTime(activity.startTime)}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">
+                            {activityUtils.getActivityIcon(activity.type)}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{activity.name}</div>
+                            <div className="text-sm text-base-content/70">
+                              {activityUtils.getActivityName(activity.type)}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-medium">
+                          {activity.distance ? activityUtils.formatDistance(activity.distance) : 'N/A'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-medium">
+                          {activity.duration ? activityUtils.formatDuration(activity.duration) : 'N/A'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium">
+                            {activity.averagePace ? activityUtils.formatPace(activity.averagePace) : 'N/A'}
+                          </div>
+                          <div className="text-xs text-base-content/70">
+                            {activity.averageSpeed ? `${activity.averageSpeed.toFixed(1)} km/h` : ''}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-medium text-success">
+                          {activity.calories ? activityUtils.formatCalories(activity.calories) : 'N/A'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
-          {total > limit && (
-            <div className="flex justify-center">
+          {total > itemsPerPage && (
+            <div className="flex justify-center mt-4">
               <div className="join">
                 <button
-                  className="join-item btn"
+                  className="join-item btn btn-sm"
                   disabled={currentPage === 1}
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => setCurrentPage(currentPage - 1)}
                 >
                   «
                 </button>
-                <button className="join-item btn">
-                  Trang {currentPage} / {Math.ceil(total / limit)}
+                <button className="join-item btn btn-sm">
+                  Trang {currentPage} / {Math.ceil(total / itemsPerPage)}
                 </button>
                 <button
-                  className="join-item btn"
-                  disabled={currentPage >= Math.ceil(total / limit)}
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="join-item btn btn-sm"
+                  disabled={currentPage >= Math.ceil(total / itemsPerPage)}
+                  onClick={() => setCurrentPage(currentPage + 1)}
                 >
                   »
                 </button>
@@ -232,7 +316,7 @@ export default function ActivityList({
 
           {/* Stats */}
           <div className="text-center text-sm text-base-content/70">
-            Hiển thị {activities.length} / {total} hoạt động
+            Hiển thị {dlv({ activities }, 'activities.length', 0)} / {total} hoạt động
           </div>
         </>
       ) : (
@@ -258,12 +342,12 @@ export default function ActivityList({
               </div>
               <h4 className="font-semibold mb-2">Kết nối thiết bị của bạn</h4>
               <p className="text-sm text-base-content/70 mb-4">
-                Đồng bộ hoạt động từ Strava, Garmin và các ứng dụng khác
+                Liên kết với Strava, Garmin để tự động nhập dữ liệu tập luyện
               </p>
               <div className="flex flex-col gap-2">
                 <button 
                   className="btn btn-primary btn-sm"
-                  onClick={() => window.location.href = '/integrations'}
+                  onClick={() => window.location.href = '/settings'}
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7.13 14.828h4.169"/>
@@ -272,7 +356,7 @@ export default function ActivityList({
                 </button>
                 <button 
                   className="btn btn-outline btn-sm"
-                  onClick={() => window.location.href = '/integrations'}
+                  disabled
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>

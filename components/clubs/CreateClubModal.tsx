@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Club } from '@/types/club';
 import useAxios from '@/hooks/useAxios';
+import { validationUtils, validationMessages } from '@/utils/validation';
+import { FormField } from '@/components/common/ValidationError';
 
 interface CreateClubModalProps {
   isOpen: boolean;
@@ -13,38 +15,203 @@ interface CreateClubModalProps {
   onSuccess: (club: Club) => void;
 }
 
-// Validation schema
+// Validation schema with comprehensive validation
 const createClubSchema = z.object({
-  name: z.string().min(1, 'Tên CLB là bắt buộc'),
-  shortName: z.string().optional(),
-  description: z.string().optional(),
-  type: z.string().min(1, 'Loại CLB là bắt buộc'),
-  logoUrl: z.string().url().optional().or(z.literal('')),
-  coverImageUrl: z.string().url().optional().or(z.literal('')),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
-  phone: z.string().optional(),
-  website: z.string().url().optional().or(z.literal('')),
-  facebook: z.string().url().optional().or(z.literal('')),
-  instagram: z.string().optional(),
-  youtube: z.string().url().optional().or(z.literal('')),
-  tiktok: z.string().optional(),
-  contactPerson: z.string().optional(),
-  contactPhone: z.string().optional(),
-  contactEmail: z.string().email().optional().or(z.literal('')),
-  foundedAt: z.string().optional(),
-  maxMembers: z.number().min(1).optional(),
-  monthlyFee: z.string().optional(),
-  yearlyFee: z.string().optional(),
-  rules: z.string().optional(),
-  schedule: z.string().optional(),
-  theme: z.string().optional(),
+  // Required fields
+  name: z.string()
+    .min(1, validationMessages.required)
+    .min(2, validationMessages.tooShort(2))
+    .max(100, validationMessages.tooLong(100))
+    .transform(val => validationUtils.cleanString(val)),
+  
+  type: z.string()
+    .min(1, validationMessages.required),
+  
+  // Optional text fields with length validation
+  shortName: z.string()
+    .max(50, validationMessages.tooLong(50))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  description: z.string()
+    .max(500, validationMessages.tooLong(500))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  address: z.string()
+    .max(200, validationMessages.tooLong(200))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  city: z.string()
+    .max(100, validationMessages.tooLong(100))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  state: z.string()
+    .max(100, validationMessages.tooLong(100))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  country: z.string()
+    .max(100, validationMessages.tooLong(100))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  // URL fields with validation
+  logoUrl: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanUrl(val) : '')
+    .refine(val => !val || validationUtils.isValidUrl(val), {
+      message: validationMessages.invalidUrl
+    }),
+  
+  coverImageUrl: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanUrl(val) : '')
+    .refine(val => !val || validationUtils.isValidUrl(val), {
+      message: validationMessages.invalidUrl
+    }),
+  
+  website: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanUrl(val) : '')
+    .refine(val => !val || validationUtils.isValidUrl(val), {
+      message: validationMessages.invalidUrl
+    }),
+  
+  facebook: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanUrl(val) : '')
+    .refine(val => !val || validationUtils.isValidUrl(val), {
+      message: validationMessages.invalidUrl
+    }),
+  
+  youtube: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanUrl(val) : '')
+    .refine(val => !val || validationUtils.isValidUrl(val), {
+      message: validationMessages.invalidUrl
+    }),
+  
+  // Email fields with validation
+  email: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidEmail(val), {
+      message: validationMessages.invalidEmail
+    }),
+  
+  contactEmail: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidEmail(val), {
+      message: validationMessages.invalidEmail
+    }),
+  
+  // Phone fields with validation
+  phone: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidPhone(val), {
+      message: validationMessages.invalidPhone
+    }),
+  
+  contactPhone: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidPhone(val), {
+      message: validationMessages.invalidPhone
+    }),
+  
+  // Social media handles
+  instagram: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanSocialHandle(val) : '')
+    .refine(val => !val || validationUtils.isValidSocialHandle(val, 'instagram'), {
+      message: validationMessages.invalidSocialHandle('Instagram')
+    }),
+  
+  tiktok: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanSocialHandle(val) : '')
+    .refine(val => !val || validationUtils.isValidSocialHandle(val, 'tiktok'), {
+      message: validationMessages.invalidSocialHandle('TikTok')
+    }),
+  
+  // Contact person
+  contactPerson: z.string()
+    .max(100, validationMessages.tooLong(100))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  // Location coordinates
+  latitude: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidNumber(val, -90, 90), {
+      message: 'Vĩ độ phải từ -90 đến 90'
+    }),
+  
+  longitude: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidNumber(val, -180, 180), {
+      message: 'Kinh độ phải từ -180 đến 180'
+    }),
+  
+  // Postal code
+  postalCode: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidPostalCode(val), {
+      message: validationMessages.invalidPostalCode
+    }),
+  
+  // Date fields
+  foundedAt: z.string()
+    .optional()
+    .refine(val => !val || validationUtils.isValidDate(val), {
+      message: validationMessages.invalidDate
+    }),
+  
+  // Number fields
+  maxMembers: z.number()
+    .min(1, 'Số thành viên tối đa phải lớn hơn 0')
+    .max(10000, 'Số thành viên tối đa không được vượt quá 10,000')
+    .optional(),
+  
+  monthlyFee: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidNumber(val, 0, 10000000), {
+      message: 'Phí hàng tháng phải từ 0 đến 10,000,000 VND'
+    }),
+  
+  yearlyFee: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : '')
+    .refine(val => !val || validationUtils.isValidNumber(val, 0, 100000000), {
+      message: 'Phí hàng năm phải từ 0 đến 100,000,000 VND'
+    }),
+  
+  // Text areas
+  rules: z.string()
+    .max(2000, validationMessages.tooLong(2000))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  schedule: z.string()
+    .max(1000, validationMessages.tooLong(1000))
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  // Theme
+  theme: z.string()
+    .optional()
+    .transform(val => val ? validationUtils.cleanString(val) : ''),
+  
+  // Boolean fields
   notifications: z.boolean().optional(),
   autoApprove: z.boolean().optional(),
   isPublic: z.boolean().optional(),
@@ -60,8 +227,11 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
+    trigger,
   } = useForm<CreateClubFormData>({
     resolver: zodResolver(createClubSchema),
+    mode: 'onChange', // Enable real-time validation
     defaultValues: {
       type: 'running',
       country: 'Việt Nam',
@@ -74,6 +244,9 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
       requireApproval: false,
     },
   });
+
+  // Watch specific fields for real-time validation
+  const watchedFields = watch(['name', 'email', 'phone', 'website', 'logoUrl', 'coverImageUrl']);
 
   const [{ loading, error }, createClub] = useAxios<Club>(
     {
@@ -103,8 +276,8 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
         state: data.state,
         country: data.country,
         postalCode: data.postalCode,
-        latitude: data.latitude ? parseFloat(data.latitude) : undefined,
-        longitude: data.longitude ? parseFloat(data.longitude) : undefined,
+        latitude: data.latitude && !isNaN(parseFloat(data.latitude)) ? parseFloat(data.latitude) : undefined,
+        longitude: data.longitude && !isNaN(parseFloat(data.longitude)) ? parseFloat(data.longitude) : undefined,
         
         // Contact
         email: data.email,
@@ -129,8 +302,8 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
         // Club Details
         foundedAt: data.foundedAt || undefined,
         maxMembers: data.maxMembers,
-        monthlyFee: data.monthlyFee ? parseFloat(data.monthlyFee) : undefined,
-        yearlyFee: data.yearlyFee ? parseFloat(data.yearlyFee) : undefined,
+        monthlyFee: data.monthlyFee && !isNaN(parseFloat(data.monthlyFee)) ? parseFloat(data.monthlyFee) : undefined,
+        yearlyFee: data.yearlyFee && !isNaN(parseFloat(data.yearlyFee)) ? parseFloat(data.yearlyFee) : undefined,
         rules: data.rules,
         schedule: data.schedule,
         
@@ -201,77 +374,58 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Tên CLB *
-                    </label>
+                  <FormField label="Tên CLB" required error={errors.name}>
                     <input
                       type="text"
                       {...register('name')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.name ? 'input-error' : ''}`}
                       placeholder="VD: Câu lạc bộ chạy bộ Hà Nội"
                     />
-                    {errors.name && <span className="text-error text-sm">{errors.name.message}</span>}
-                  </div>
+                  </FormField>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Tên viết tắt
-                    </label>
+                  <FormField label="Tên viết tắt" error={errors.shortName}>
                     <input
                       type="text"
                       {...register('shortName')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.shortName ? 'input-error' : ''}`}
                       placeholder="VD: CLB HB HN"
                     />
-                  </div>
+                  </FormField>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Logo URL
-                    </label>
+                  <FormField label="Logo URL" error={errors.logoUrl}>
                     <input
                       type="url"
                       {...register('logoUrl')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.logoUrl ? 'input-error' : ''}`}
                       placeholder="https://example.com/logo.png"
                     />
-                  </div>
+                  </FormField>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Ảnh bìa URL
-                    </label>
+                  <FormField label="Ảnh bìa URL" error={errors.coverImageUrl}>
                     <input
                       type="url"
                       {...register('coverImageUrl')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.coverImageUrl ? 'input-error' : ''}`}
                       placeholder="https://example.com/cover.jpg"
                     />
-                  </div>
+                  </FormField>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-base-content">
-                    Mô tả CLB
-                  </label>
+                <FormField label="Mô tả CLB" error={errors.description}>
                   <textarea
                     {...register('description')}
-                    className="textarea textarea-bordered"
+                    className={`textarea textarea-bordered ${errors.description ? 'textarea-error' : ''}`}
                     placeholder="Mô tả chi tiết về câu lạc bộ, mục tiêu và hoạt động..."
                   />
-                </div>
+                </FormField>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Loại CLB *
-                    </label>
+                  <FormField label="Loại CLB" required error={errors.type}>
                     <select
                       {...register('type')}
-                      className="select select-bordered"
+                      className={`select select-bordered ${errors.type ? 'select-error' : ''}`}
                     >
                       <option value="">Chọn loại CLB</option>
                       <option value="running">🏃 Chạy bộ</option>
@@ -283,7 +437,7 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
                       <option value="hiking">🥾 Leo núi</option>
                       <option value="other">🎯 Khác</option>
                     </select>
-                  </div>
+                  </FormField>
 
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-base-content">
@@ -434,41 +588,32 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Email
-                    </label>
+                  <FormField label="Email" error={errors.email}>
                     <input
                       type="email"
                       {...register('email')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
                       placeholder="contact@example.com"
                     />
-                  </div>
+                  </FormField>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Số điện thoại
-                    </label>
+                  <FormField label="Số điện thoại" error={errors.phone}>
                     <input
                       type="tel"
                       {...register('phone')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.phone ? 'input-error' : ''}`}
                       placeholder="0123456789"
                     />
-                  </div>
+                  </FormField>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-base-content">
-                      Website
-                    </label>
+                  <FormField label="Website" error={errors.website}>
                     <input
                       type="url"
                       {...register('website')}
-                      className="input input-bordered"
+                      className={`input input-bordered ${errors.website ? 'input-error' : ''}`}
                       placeholder="https://example.com"
                     />
-                  </div>
+                  </FormField>
                 </div>
 
                 <div className="divider">Mạng xã hội</div>

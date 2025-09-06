@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
+import dlv from 'dlv';
 
 interface EventParticipant {
   id: string;
@@ -86,18 +87,18 @@ export default function EventDetailParticipants({ eventId }: EventDetailParticip
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">👥 Người tham gia</h2>
           <div className="badge badge-primary badge-lg">
-            {participants.length}
+            {dlv({ participants }, 'participants.length', 0)}
           </div>
         </div>
 
-        {participants.length === 0 ? (
+        {dlv({ participants }, 'participants.length', 0) === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">👥</div>
             <p className="text-base-content/70">Chưa có ai tham gia sự kiện này</p>
           </div>
         ) : (
           <div className="list-container">
-            {participants.map((participant) => (
+            {dlv({ participants }, 'participants', []).map((participant) => (
               <div key={participant.id} className="list-item">
                 <div className="list-item-avatar">
                   {participant.user.profileImage ? (
@@ -139,7 +140,7 @@ export default function EventDetailParticipants({ eventId }: EventDetailParticip
           </div>
         )}
 
-        {participants.length > 0 && (
+FE        {dlv({ participants }, 'participants.length', 0) > 0 && (
           <div className="divider"></div>
         )}
 

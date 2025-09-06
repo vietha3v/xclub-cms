@@ -1,6 +1,7 @@
 'use client';
 
 import { EventType, EventStatus, EventVisibility } from '@/types/event';
+import dlv from 'dlv';
 
 interface EventFiltersProps {
   selectedCategory: string;
@@ -30,7 +31,7 @@ export default function EventFilters({
     <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
       {/* Category Filter */}
       <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
+        {dlv({ categories }, 'categories', []).map((category) => (
           <button
             key={category.key}
             onClick={() => onCategoryChange(category.key)}
