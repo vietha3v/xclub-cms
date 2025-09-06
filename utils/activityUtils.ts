@@ -82,7 +82,7 @@ export const activityUtils = {
     if (!distance || isNaN(distance)) return 'N/A';
     // Backend stores distance in km, so we can display directly
     if (distance >= 1) {
-      return `${distance.toFixed(2)} km`;
+      return `${distance.toFixed(1)} km`;
     }
     // For distances less than 1km, show in meters
     return `${(distance * 1000).toFixed(0)} m`;

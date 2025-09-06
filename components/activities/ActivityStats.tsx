@@ -222,22 +222,32 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
         {/* Recent Stats */}
         <div className="card bg-base-100 shadow-sm">
           <div className="card-body">
-            <h4 className="card-title text-lg">📅 Thống kê gần đây</h4>
+            <h4 className="card-title text-lg">📅 Thống kê gần đây (30 ngày)</h4>
             <div className="space-y-3">
-              {Object.entries(dlv(stats, 'recentStats', {})).map(([type, data]: [string, any]) => (
-                <div key={type} className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{activityUtils.getActivityIcon(type as any)}</span>
-                    <span className="text-sm">{activityUtils.getActivityName(type as any)}</span>
+              {dlv(stats, 'recentStats.count', 0) > 0 ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Tổng hoạt động:</span>
+                    <span className="font-semibold">{dlv(stats, 'recentStats.count', 0)}</span>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold">{dlv(data, 'count', 0)}</div>
-                    <div className="text-xs text-base-content/70">
-                      {activityUtils.formatDistance(dlv(data, 'distance', 0))}
-                    </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Quãng đường:</span>
+                    <span className="font-semibold">{activityUtils.formatDistance(dlv(stats, 'recentStats.distance', 0))}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Thời gian:</span>
+                    <span className="font-semibold">{activityUtils.formatDuration(dlv(stats, 'recentStats.duration', 0))}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Calories:</span>
+                    <span className="font-semibold">{activityUtils.formatCalories(dlv(stats, 'recentStats.calories', 0))}</span>
                   </div>
                 </div>
-              ))}
+              ) : (
+                <div className="text-center text-base-content/50 py-8">
+                  <p>Chưa có hoạt động nào trong 30 ngày qua</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -247,20 +257,30 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
           <div className="card-body">
             <h4 className="card-title text-lg">📊 Năm nay (YTD)</h4>
             <div className="space-y-3">
-              {Object.entries(dlv(stats, 'ytdStats', {})).map(([type, data]: [string, any]) => (
-                <div key={type} className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{activityUtils.getActivityIcon(type as any)}</span>
-                    <span className="text-sm">{activityUtils.getActivityName(type as any)}</span>
+              {dlv(stats, 'ytdStats.count', 0) > 0 ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Tổng hoạt động:</span>
+                    <span className="font-semibold">{dlv(stats, 'ytdStats.count', 0)}</span>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold">{dlv(data, 'count', 0)}</div>
-                    <div className="text-xs text-base-content/70">
-                      {activityUtils.formatDistance(dlv(data, 'distance', 0))}
-                    </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Quãng đường:</span>
+                    <span className="font-semibold">{activityUtils.formatDistance(dlv(stats, 'ytdStats.distance', 0))}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Thời gian:</span>
+                    <span className="font-semibold">{activityUtils.formatDuration(dlv(stats, 'ytdStats.duration', 0))}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+                    <span className="text-base-content/70">Calories:</span>
+                    <span className="font-semibold">{activityUtils.formatCalories(dlv(stats, 'ytdStats.calories', 0))}</span>
                   </div>
                 </div>
-              ))}
+              ) : (
+                <div className="text-center text-base-content/50 py-8">
+                  <p>Chưa có hoạt động nào trong năm nay</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -295,9 +315,14 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
 
       {/* Data Source Info */}
       <div className="text-center text-sm text-base-content/50">
-        <p>📡 Dữ liệu từ {dlv(stats, 'source') === 'strava' ? 'Strava API' : 'Database nội bộ'}</p>
-        {dlv(stats, 'source') === 'strava' && (
-          <p className="mt-1">✨ Tận dụng tối đa thống kê từ Strava</p>
+        <div className="flex items-center justify-center gap-2">
+          <span>📡 Dữ liệu từ {dlv(stats, 'source') === 'database' ? 'Database nội bộ' : 'Strava API'}</span>
+          {dlv(stats, 'source') === 'database' && (
+            <span className="badge badge-info badge-sm">Tự tính toán</span>
+          )}
+        </div>
+        {dlv(stats, 'message') && (
+          <p className="mt-1 text-xs">{dlv(stats, 'message')}</p>
         )}
       </div>
     </div>

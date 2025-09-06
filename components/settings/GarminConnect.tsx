@@ -76,7 +76,7 @@ export default function GarminConnect({ onConnected }: GarminConnectProps) {
 
   if (garminStatus?.connected) {
     return (
-      <div className="card bg-base-200 shadow-lg">
+      <div className="card bg-base-100 shadow-sm border border-success/20">
         <div className="card-body">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -94,13 +94,51 @@ export default function GarminConnect({ onConnected }: GarminConnectProps) {
               <span className="badge badge-success">Đã kết nối</span>
             </div>
           </div>
+
+          {/* Connection Details */}
+          <div className="bg-base-200/50 rounded-lg p-4 mb-4">
+            <h4 className="font-medium mb-2 text-sm">Thông tin kết nối</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-base-content/70">Trạng thái:</span>
+                <span className="ml-2 text-success font-medium">Hoạt động</span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Lần cuối đồng bộ:</span>
+                <span className="ml-2">
+                  {garminStatus?.lastSyncedAt 
+                    ? new Date(garminStatus.lastSyncedAt).toLocaleString('vi-VN')
+                    : 'Chưa có'
+                  }
+                </span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Quyền truy cập:</span>
+                <span className="ml-2">Đọc hoạt động</span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Tần suất:</span>
+                <span className="ml-2">15 phút</span>
+              </div>
+            </div>
+          </div>
           
           <div className="flex gap-2">
             <button 
               className="btn btn-error btn-sm flex-1"
               onClick={handleDisconnect}
+              disabled={disconnectLoading}
             >
-              🔌 Ngắt kết nối
+              {disconnectLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Đang ngắt...
+                </>
+              ) : (
+                <>
+                  🔌 Ngắt kết nối
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -109,7 +147,7 @@ export default function GarminConnect({ onConnected }: GarminConnectProps) {
   }
 
   return (
-    <div className="card bg-base-200 shadow-lg">
+    <div className="card bg-base-100 shadow-sm opacity-60">
       <div className="card-body">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -120,12 +158,23 @@ export default function GarminConnect({ onConnected }: GarminConnectProps) {
             </div>
             <div>
               <h3 className="font-semibold text-lg">⌚ Garmin</h3>
-              <p className="text-sm text-base-content/70">Chưa kết nối</p>
+              <p className="text-sm text-base-content/70">Sắp ra mắt</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="badge badge-ghost">Chưa kết nối</span>
+            <span className="badge badge-warning">Sắp ra mắt</span>
           </div>
+        </div>
+
+        {/* Coming Soon Info */}
+        <div className="bg-base-200/50 rounded-lg p-4 mb-4">
+          <h4 className="font-medium mb-2 text-sm">Tính năng sắp có</h4>
+          <ul className="text-sm text-base-content/70 space-y-1">
+            <li>• Đồng bộ từ thiết bị Garmin</li>
+            <li>• Dữ liệu sức khỏe chi tiết</li>
+            <li>• Thống kê hiệu suất</li>
+            <li>• Đồng bộ tự động</li>
+          </ul>
         </div>
         
         {error && (
@@ -136,11 +185,10 @@ export default function GarminConnect({ onConnected }: GarminConnectProps) {
 
         <div className="flex gap-2">
           <button 
-            className={`btn btn-primary btn-sm flex-1 ${authorizeLoading ? 'loading' : ''}`}
-            onClick={handleConnect}
-            disabled={authorizeLoading}
+            className="btn btn-disabled btn-sm flex-1"
+            disabled
           >
-            {authorizeLoading ? 'Đang kết nối...' : '🔗 Kết nối với Garmin'}
+            🔗 Sắp ra mắt
           </button>
         </div>
       </div>

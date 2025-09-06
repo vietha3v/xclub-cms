@@ -154,7 +154,7 @@ export default function ActivityList({
   };
 
   if (loading && dlv({ activities }, 'activities.length', 0) === 0) {
-    return <ActivityListSkeleton items={20} />;
+    return <ActivityListSkeleton items={5} />;
   }
 
   return (

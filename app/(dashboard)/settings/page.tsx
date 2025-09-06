@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import IntegrationSettings from '@/components/settings/IntegrationSettings';
+import ProfileSettings from '@/components/settings/ProfileSettings';
+import NotificationSettings from '@/components/settings/NotificationSettings';
+import SecuritySettings from '@/components/settings/SecuritySettings';
 import Tabs from '@/components/common/Tabs';
 
 export default function SettingsPage() {
@@ -38,30 +41,9 @@ export default function SettingsPage() {
 
         {/* Content based on active tab */}
         {activeTab === 'integrations' && <IntegrationSettings />}
-        {activeTab === 'profile' && (
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title">👤 Thông tin cá nhân</h3>
-              <p className="text-base-content/70">Chức năng đang phát triển...</p>
-            </div>
-          </div>
-        )}
-        {activeTab === 'notifications' && (
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title">🔔 Thông báo</h3>
-              <p className="text-base-content/70">Chức năng đang phát triển...</p>
-            </div>
-          </div>
-        )}
-        {activeTab === 'security' && (
-          <div className="card bg-base-100 shadow-sm">
-            <div className="card-body">
-              <h3 className="card-title">🔒 Bảo mật</h3>
-              <p className="text-base-content/70">Chức năng đang phát triển...</p>
-            </div>
-          </div>
-        )}
+        {activeTab === 'profile' && <ProfileSettings />}
+        {activeTab === 'notifications' && <NotificationSettings />}
+        {activeTab === 'security' && <SecuritySettings />}
       </div>
     </div>
   );

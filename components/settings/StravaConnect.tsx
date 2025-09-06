@@ -173,7 +173,7 @@ export default function StravaConnect({ onConnected }: StravaConnectProps) {
 
   if (stravaStatus?.connected) {
     return (
-      <div className="card bg-base-200 shadow-lg">
+      <div className="card bg-base-100 shadow-sm border border-success/20">
         <div className="card-body">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -191,13 +191,51 @@ export default function StravaConnect({ onConnected }: StravaConnectProps) {
               <span className="badge badge-success">Đã kết nối</span>
             </div>
           </div>
+
+          {/* Connection Details */}
+          <div className="bg-base-200/50 rounded-lg p-4 mb-4">
+            <h4 className="font-medium mb-2 text-sm">Thông tin kết nối</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-base-content/70">Trạng thái:</span>
+                <span className="ml-2 text-success font-medium">Hoạt động</span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Lần cuối đồng bộ:</span>
+                <span className="ml-2">
+                  {stravaStatus?.lastSyncedAt 
+                    ? new Date(stravaStatus.lastSyncedAt).toLocaleString('vi-VN')
+                    : 'Chưa có'
+                  }
+                </span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Quyền truy cập:</span>
+                <span className="ml-2">Đọc hoạt động</span>
+              </div>
+              <div>
+                <span className="text-base-content/70">Tần suất:</span>
+                <span className="ml-2">15 phút</span>
+              </div>
+            </div>
+          </div>
           
           <div className="flex gap-2">
             <button 
               className="btn btn-error btn-sm flex-1"
               onClick={handleDisconnect}
+              disabled={disconnectLoading}
             >
-              🔌 Ngắt kết nối
+              {disconnectLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Đang ngắt...
+                </>
+              ) : (
+                <>
+                  🔌 Ngắt kết nối
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -206,7 +244,7 @@ export default function StravaConnect({ onConnected }: StravaConnectProps) {
   }
 
   return (
-    <div className="card bg-base-200 shadow-lg">
+    <div className="card bg-base-100 shadow-sm">
       <div className="card-body">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -223,6 +261,17 @@ export default function StravaConnect({ onConnected }: StravaConnectProps) {
           <div className="flex items-center gap-2">
             <span className="badge badge-ghost">Chưa kết nối</span>
           </div>
+        </div>
+
+        {/* Features */}
+        <div className="bg-base-200/50 rounded-lg p-4 mb-4">
+          <h4 className="font-medium mb-2 text-sm">Tính năng</h4>
+          <ul className="text-sm text-base-content/70 space-y-1">
+            <li>• Đồng bộ hoạt động chạy bộ, đạp xe</li>
+            <li>• Thống kê chi tiết từ Strava</li>
+            <li>• Đồng bộ tự động mỗi 15 phút</li>
+            <li>• Hỗ trợ lịch sử 30 ngày</li>
+          </ul>
         </div>
         
         {error && (
