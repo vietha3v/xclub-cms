@@ -192,3 +192,9 @@ export async function handleApiRoute(
   }
 }
 
+/**
+ * Alias cho callBackendApi để tương thích với code cũ
+ * @deprecated Sử dụng callBackendApi thay thế
+ */
+export const callBackendWithAuth = callBackendApi;
+

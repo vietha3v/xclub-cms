@@ -15,6 +15,12 @@ export const API_ENDPOINTS = {
     SESSION: '/api/auth/session',
   },
   RACES: '/api/races',
+  CLUBS: {
+    BASE: '/api/clubs',
+    MY_CLUBS: '/api/clubs/my-clubs',
+    STATS: '/api/clubs/stats',
+    SEARCH: '/api/clubs/search',
+  },
 } as const;
 
 // Types

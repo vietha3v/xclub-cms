@@ -8,8 +8,11 @@ import ClubDetailHeader from './ClubDetailHeader';
 import ClubDetailInfo from './ClubDetailInfo';
 import ClubDetailMembers from './ClubDetailMembers';
 import ClubDetailEvents from './ClubDetailEvents';
+import ClubDetailChallenges from './ClubDetailChallenges';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import ClubDetailStats from './ClubDetailStats';
 import ClubDetailActions from './ClubDetailActions';
+import ClubAdminActions from './ClubAdminActions';
 import { ClubDetailSkeleton } from '@/components/common/LoadingSkeleton';
 
 interface ClubDetailProps {
@@ -36,10 +39,8 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
     if (clubData) {
       setClub(clubData);
       setError(null);
-      // TODO: Check if current user is admin of this club
-      // For now, we'll assume user is admin if they created the club
-      // In real implementation, you'd check against the club members API
-      setIsAdmin(false); // This should be determined by checking club membership
+      // Sử dụng userRole array từ API để xác định quyền admin
+      setIsAdmin(clubData.userRole?.includes('admin') || false);
     }
   }, [clubData]);
 
@@ -80,8 +81,91 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
     }
   };
 
-  if (loading) {
-    return <ClubDetailSkeleton />;
+  if (loading || clubLoading) {
+    return (
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <div className="flex items-center gap-4">
+              <div className="skeleton w-16 h-16 rounded-full"></div>
+              <div className="flex-1">
+                <div className="skeleton h-8 w-64 mb-2"></div>
+                <div className="skeleton h-4 w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions Skeleton */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <div className="flex gap-3">
+              <div className="skeleton h-10 w-32"></div>
+              <div className="skeleton h-10 w-24"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Info Skeleton */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <div className="skeleton h-6 w-32 mb-4"></div>
+                <div className="space-y-3">
+                  <div className="skeleton h-4 w-full"></div>
+                  <div className="skeleton h-4 w-3/4"></div>
+                  <div className="skeleton h-4 w-1/2"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Events Skeleton */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <div className="skeleton h-6 w-40 mb-4"></div>
+                <div className="space-y-4">
+                  <div className="skeleton h-20 w-full"></div>
+                  <div className="skeleton h-20 w-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Stats Skeleton */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <div className="skeleton h-6 w-24 mb-4"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="skeleton h-16 w-full"></div>
+                  <div className="skeleton h-16 w-full"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Members Skeleton */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <div className="skeleton h-6 w-32 mb-4"></div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="skeleton w-8 h-8 rounded-full"></div>
+                    <div className="skeleton h-4 w-24"></div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="skeleton w-8 h-8 rounded-full"></div>
+                    <div className="skeleton h-4 w-24"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !club) {
@@ -95,15 +179,25 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
         <h3 className="text-xl font-semibold text-base-content mb-2">
           Không tìm thấy CLB
         </h3>
-        <p className="text-base-content/70 mb-4">
+        <p className="text-base-content/70 mb-6">
           {error || 'CLB không tồn tại hoặc đã bị xóa'}
         </p>
-        <button
-          onClick={() => router.back()}
-          className="btn btn-primary"
-        >
-          Quay lại
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={loadClub}
+            className="btn btn-primary btn-sm"
+          >
+            <RotateCcw className="w-4 h-4 mr-1" />
+            Thử lại
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="btn btn-outline btn-sm"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Quay lại
+          </button>
+        </div>
       </div>
     );
   }
@@ -121,18 +215,42 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
         isAdmin={isAdmin}
       />
 
+      {/* Admin Actions */}
+      <ClubAdminActions 
+        club={club}
+        isAdmin={isAdmin}
+        onUpdate={loadClub}
+        onDelete={() => router.push('/clubs')}
+      />
+
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Main Info */}
         <div className="lg:col-span-2 space-y-8">
           <ClubDetailInfo club={club} />
-          <ClubDetailEvents clubId={clubId} />
+          <ClubDetailEvents 
+            events={club?.events || []}
+            loading={loading || clubLoading}
+            error={error || clubError?.message}
+            onRetry={loadClub}
+          />
+          <ClubDetailChallenges 
+            challenges={club?.challenges || []}
+            loading={loading || clubLoading}
+            error={error || clubError?.message}
+            onRetry={loadClub}
+          />
         </div>
 
         {/* Right Column - Sidebar */}
         <div className="space-y-8">
           <ClubDetailStats club={club} />
-          <ClubDetailMembers clubId={clubId} />
+          <ClubDetailMembers 
+            members={club?.members || []}
+            loading={loading || clubLoading}
+            error={error || clubError?.message}
+            onRetry={loadClub}
+          />
         </div>
       </div>
     </div>

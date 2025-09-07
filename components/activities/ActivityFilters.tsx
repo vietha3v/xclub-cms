@@ -126,7 +126,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
             <span className="label-text">Loại hoạt động</span>
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={filters.type}
             onChange={(e) => handleInputChange('type', e.target.value as ActivityType | '')}
           >
@@ -144,7 +144,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
             <span className="label-text">Trạng thái</span>
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={filters.status}
             onChange={(e) => handleInputChange('status', e.target.value as ActivityStatus | '')}
           >
@@ -162,7 +162,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
             <span className="label-text">Nguồn dữ liệu</span>
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={filters.source}
             onChange={(e) => handleInputChange('source', e.target.value)}
           >
@@ -259,7 +259,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
             <span className="label-text">Sắp xếp theo</span>
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={filters.sortBy}
             onChange={(e) => handleInputChange('sortBy', e.target.value as any)}
           >
@@ -276,7 +276,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
             <span className="label-text">Thứ tự</span>
           </label>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={filters.sortOrder}
             onChange={(e) => handleInputChange('sortOrder', e.target.value as 'ASC' | 'DESC')}
           >

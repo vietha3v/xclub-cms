@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Challenge, ChallengeType } from '@/types/challenge';
 import dlv from 'dlv';
+import { RotateCcw, Heart, Eye } from 'lucide-react';
 
 interface ChallengeListProps {
   selectedType?: string;
@@ -65,7 +66,8 @@ export default function ChallengeList({ selectedType = 'all', searchTerm = '' }:
         <div className="text-6xl mb-6">❌</div>
         <h3 className="text-2xl font-semibold text-base-content mb-4">Có lỗi xảy ra</h3>
         <p className="text-base-content/70 mb-6">{error}</p>
-        <button onClick={() => refetch()} className="btn btn-primary">
+        <button onClick={() => refetch()} className="btn btn-primary btn-sm">
+          <RotateCcw className="w-4 h-4 mr-1" />
           Thử lại
         </button>
       </div>
@@ -152,12 +154,11 @@ export default function ChallengeList({ selectedType = 'all', searchTerm = '' }:
             {/* Action Buttons */}
             <div className="card-actions justify-between">
               <button className="btn btn-primary btn-sm flex-1">
+                <Eye className="w-4 h-4 mr-1" />
                 {challenge.status === 'active' ? 'Tham gia ngay' : 'Xem chi tiết'}
               </button>
               <button className="btn btn-outline btn-sm">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+                <Heart className="w-4 h-4" />
               </button>
             </div>
 

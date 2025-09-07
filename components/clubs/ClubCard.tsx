@@ -8,44 +8,119 @@ import dlv from 'dlv';
 
 interface ClubCardProps {
   club: Club;
+  showJoinButton?: boolean;
+  compact?: boolean;
 }
 
-export default function ClubCard({ club }: ClubCardProps) {
+export default function ClubCard({ club, showJoinButton = true, compact = false }: ClubCardProps) {
   const [isJoining, setIsJoining] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case 'active':
-        return 'badge-success';
+        return { 
+          color: 'bg-green-500', 
+          text: 'Đang hoạt động', 
+          icon: '✓' 
+        };
       case 'pending':
-        return 'badge-warning';
+        return { 
+          color: 'bg-yellow-500', 
+          text: 'Chờ duyệt', 
+          icon: '⏳' 
+        };
       case 'inactive':
-        return 'badge-error';
+        return { 
+          color: 'bg-red-500', 
+          text: 'Tạm dừng', 
+          icon: '⏸️' 
+        };
       case 'suspended':
-        return 'badge-error';
+        return { 
+          color: 'bg-red-600', 
+          text: 'Bị đình chỉ', 
+          icon: '🚫' 
+        };
       default:
-        return 'badge-neutral';
+        return { 
+          color: 'bg-gray-500', 
+          text: 'Không xác định', 
+          icon: '❓' 
+        };
     }
   };
 
-  const getVisibilityColor = (visibility: string) => {
-    switch (visibility) {
-      case 'public':
-        return 'badge-primary';
-      case 'private':
-        return 'badge-secondary';
-      case 'club_only':
-        return 'badge-accent';
+  const getTypeConfig = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'running':
+        return { 
+          icon: '🏃‍♂️', 
+          name: 'Chạy bộ', 
+          color: 'from-blue-500 to-cyan-500',
+          bgColor: 'bg-blue-50',
+          textColor: 'text-blue-700'
+        };
+      case 'multisport':
+        return { 
+          icon: '🏃‍♀️', 
+          name: 'Đa môn', 
+          color: 'from-purple-500 to-pink-500',
+          bgColor: 'bg-purple-50',
+          textColor: 'text-purple-700'
+        };
+      case 'fitness':
+        return { 
+          icon: '💪', 
+          name: 'Thể hình', 
+          color: 'from-orange-500 to-red-500',
+          bgColor: 'bg-orange-50',
+          textColor: 'text-orange-700'
+        };
+      case 'social':
+        return { 
+          icon: '👥', 
+          name: 'Giao lưu', 
+          color: 'from-green-500 to-emerald-500',
+          bgColor: 'bg-green-50',
+          textColor: 'text-green-700'
+        };
+      case 'competitive':
+        return { 
+          icon: '🏆', 
+          name: 'Thi đấu', 
+          color: 'from-yellow-500 to-orange-500',
+          bgColor: 'bg-yellow-50',
+          textColor: 'text-yellow-700'
+        };
+      case 'charity':
+        return { 
+          icon: '❤️', 
+          name: 'Từ thiện', 
+          color: 'from-pink-500 to-rose-500',
+          bgColor: 'bg-pink-50',
+          textColor: 'text-pink-700'
+        };
       default:
-        return 'badge-neutral';
+        return { 
+          icon: '🏃‍♂️', 
+          name: 'Thể thao', 
+          color: 'from-gray-500 to-gray-600',
+          bgColor: 'bg-gray-50',
+          textColor: 'text-gray-700'
+        };
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: currency === 'VND' ? 'VND' : 'USD',
-    }).format(amount);
+  const formatMemberCount = (current: number, max: number) => {
+    if (!max) return `${current} thành viên`;
+    return `${current}/${max} thành viên`;
+  };
+
+  const formatFee = (fee: string | number) => {
+    if (!fee) return 'Miễn phí';
+    const amount = typeof fee === 'string' ? parseFloat(fee) : fee;
+    return `${validationUtils.safeToLocaleString(amount)} VND`;
   };
 
   const handleJoinClub = async () => {
@@ -60,137 +135,301 @@ export default function ClubCard({ club }: ClubCardProps) {
     }
   };
 
+  const handleLeaveClub = async () => {
+    setIsJoining(true);
+    try {
+      // TODO: Implement leave club logic
+      console.log('Leaving club:', club.id);
+    } catch (error) {
+      console.error('Leave club error:', error);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const statusConfig = getStatusConfig(club.status);
+  const typeConfig = getTypeConfig(club.type);
+
+  if (compact) {
+    return (
+      <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group overflow-hidden h-full">
+        <div className="p-4 h-full flex flex-col">
+          <div className="flex items-start gap-3 flex-1">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              {club.logoUrl && !imageError ? (
+                <img 
+                  src={club.logoUrl} 
+                  alt={`${club.name} logo`}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${typeConfig.color} flex items-center justify-center border-2 border-gray-200`}>
+                  <span className="text-lg">{typeConfig.icon}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="flex items-start justify-between mb-2 flex-shrink-0">
+                <h3 className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-blue-600 transition-colors">
+                  <Link href={`/clubs/${club.id}`}>
+                    {club.name}
+                  </Link>
+                </h3>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium text-white ${statusConfig.color} ml-2 whitespace-nowrap`}>
+                  {statusConfig.icon} {statusConfig.text}
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">
+                {club.description}
+              </p>
+              
+              <div className="flex items-center justify-between text-xs text-gray-500 flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <span className="whitespace-nowrap">📍 {club.city || 'N/A'}</span>
+                  <span className="whitespace-nowrap">👥 {formatMemberCount(dlv(club, 'memberCount', 0), dlv(club, 'maxMembers', 0))}</span>
+                </div>
+                <span className="font-medium text-green-600 whitespace-nowrap">{formatFee(dlv(club, 'monthlyFee'))}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-base-200/50">
-      {/* Banner Image */}
-      <figure className="relative h-40 overflow-hidden rounded-t-2xl">
-        {club.coverImageUrl ? (
+    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group overflow-hidden h-full flex flex-col">
+      {/* Hero Section */}
+      <div className="relative h-48 overflow-hidden flex-shrink-0">
+        {club.coverImageUrl && !imageError ? (
           <img 
             src={club.coverImageUrl} 
             alt={`${club.name} banner`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-            <div className="w-16 h-16 bg-primary/30 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+          <div className={`w-full h-full bg-gradient-to-br ${typeConfig.color} flex items-center justify-center relative`}>
+            <div className="text-center text-white">
+              <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto backdrop-blur-sm">
+                <span className="text-4xl">{typeConfig.icon}</span>
+              </div>
+              <h2 className="text-xl font-bold">{club.name}</h2>
+              <p className="text-white/80 text-sm">{typeConfig.name}</p>
+            </div>
+            {/* Pattern overlay */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+                                radial-gradient(circle at 75% 75%, white 2px, transparent 2px)`,
+                backgroundSize: '20px 20px'
+              }}></div>
             </div>
           </div>
         )}
         
-        {/* Status Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <div className={`badge ${getStatusColor(club.status)}`}>
-            {club.status === 'active' ? 'Hoạt động' : 
-             club.status === 'pending' ? 'Chờ duyệt' :
-             club.status === 'inactive' ? 'Không hoạt động' : 'Tạm ngưng'}
-          </div>
-          <div className={`badge ${club.isPublic ? 'badge-primary' : 'badge-secondary'}`}>
-            {club.isPublic ? 'Công khai' : 'Riêng tư'}
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        
+        {/* Status Badge */}
+        <div className="absolute top-4 left-4">
+          <div className={`px-3 py-1 rounded-full text-xs font-medium text-white ${statusConfig.color} backdrop-blur-sm border border-white/20`}>
+            {statusConfig.icon} {statusConfig.text}
           </div>
         </div>
 
-        {/* Logo */}
-        {club.logoUrl && (
-          <div className="absolute -bottom-6 left-4">
-            <div className="w-14 h-14 bg-base-100 rounded-full p-1 shadow-lg border-2 border-base-100">
-              <img 
-                src={club.logoUrl} 
-                alt={`${club.name} logo`}
-                className="w-full h-full rounded-full object-cover"
-              />
-            </div>
+        {/* Privacy Badge */}
+        <div className="absolute top-4 right-4">
+          <div className={`px-3 py-1 rounded-full text-xs font-medium text-white ${club.isPublic ? 'bg-blue-500' : 'bg-gray-600'} backdrop-blur-sm border border-white/20`}>
+            {club.isPublic ? '🌐 Công khai' : '🔒 Riêng tư'}
           </div>
-        )}
-      </figure>
+        </div>
 
-      {/* Card Body */}
-      <div className="card-body pt-8 pb-4">
-        {/* Club Name and Category */}
-        <div className="mb-4">
-          <h2 className="card-title text-lg mb-2 line-clamp-1">
-            <Link href={`/clubs/${club.id}`} className="hover:text-primary transition-colors">
+        {/* Club Code */}
+        <div className="absolute bottom-4 left-4">
+          <div className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-mono font-semibold text-gray-700">
+            {club.clubCode}
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-6 flex-1 flex flex-col">
+        {/* Header */}
+        <div className="mb-4 flex-shrink-0">
+          <h2 className="text-xl font-bold text-gray-900 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
+            <Link href={`/clubs/${club.id}`} className="hover:text-blue-600 transition-colors">
               {club.name}
             </Link>
           </h2>
-          <div className="badge badge-outline badge-sm">{club.type}</div>
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${typeConfig.bgColor} ${typeConfig.textColor}`}>
+              {typeConfig.icon} {typeConfig.name}
+            </span>
+          </div>
         </div>
 
         {/* Description */}
-        <p className="text-base-content/70 text-sm mb-3 line-clamp-2 leading-relaxed">
-          {club.description}
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed flex-shrink-0">
+          {club.description || 'Chưa có mô tả cho câu lạc bộ này. Hãy tham gia để khám phá thêm!'}
         </p>
 
-        {/* Location */}
-        <div className="flex items-center text-sm text-base-content/70 mb-3">
-          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span className="truncate">{club.city || 'N/A'}, {club.state || 'N/A'}</span>
-        </div>
-
-        {/* Members Info */}
-        <div className="flex items-center justify-between text-sm mb-3">
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-2 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            </svg>
-            <span className="truncate">0/{dlv(club, 'maxMembers', 0)} thành viên</span>
-          </div>
-          <div className="text-right flex-shrink-0">
-            <div className="font-medium text-sm">
-              {dlv(club, 'monthlyFee') 
-                ? `${validationUtils.safeToLocaleString(dlv(club, 'monthlyFee'))} VND` 
-                : 'Miễn phí'
-              }
-            </div>
-            <div className="text-xs text-base-content/50">Phí tháng</div>
-          </div>
-        </div>
-
-        {/* Schedule */}
-        {club.schedule && (
-          <div className="text-sm text-base-content/70 mb-3">
-            <div className="flex items-center">
-              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        {/* Key Info */}
+        <div className="grid grid-cols-2 gap-4 mb-4 flex-shrink-0">
+          {/* Location */}
+          <div className="flex items-center text-sm text-gray-600">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="truncate">{club.schedule}</span>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium text-gray-900 whitespace-nowrap">Địa điểm</div>
+              <div className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">{club.city || 'N/A'}, {club.state || 'N/A'}</div>
             </div>
           </div>
-        )}
 
-        {/* Club Info */}
-        <div className="flex items-center justify-between text-sm mb-4 p-3 bg-base-200/50 rounded-lg">
-          <div className="text-center flex-1">
-            <div className="font-bold text-primary text-xs">{club.clubCode}</div>
-            <div className="text-xs text-base-content/60">Mã CLB</div>
-          </div>
-          <div className="text-center flex-1">
-            <div className="font-bold text-secondary text-xs">{club.type}</div>
-            <div className="text-xs text-base-content/60">Loại</div>
-          </div>
-          <div className="text-center flex-1">
-            <div className="font-bold text-accent text-xs">{club.isPublic ? 'Công khai' : 'Riêng tư'}</div>
-            <div className="text-xs text-base-content/60">Quyền riêng tư</div>
+          {/* Members */}
+          <div className="flex items-center text-sm text-gray-600">
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium text-gray-900 whitespace-nowrap">Thành viên</div>
+              <div className="text-xs text-gray-500 whitespace-nowrap">{formatMemberCount(dlv(club, 'memberCount', 0), dlv(club, 'maxMembers', 0))}</div>
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="card-actions justify-end mt-3 gap-2">
-          <Link href={`/clubs/${club.id}`} className="btn btn-outline btn-sm flex-1 lg:flex-none">
+        {/* Schedule - Always show with fixed height */}
+        <div className="flex items-center text-sm text-gray-600 mb-4 flex-shrink-0 h-12">
+          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+            <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <div className="font-medium text-gray-900 whitespace-nowrap">Lịch hoạt động</div>
+            <div className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
+              {club.schedule || 'Chưa có lịch hoạt động'}
+            </div>
+          </div>
+        </div>
+
+        {/* Fee Section - Fixed height */}
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 mb-4 border border-green-100 flex-shrink-0 h-20">
+          <div className="flex items-center justify-between h-full">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-gray-700 whitespace-nowrap">Phí thành viên</div>
+              <div className="text-lg font-bold text-green-600 whitespace-nowrap">{formatFee(dlv(club, 'monthlyFee'))}</div>
+              <div className="text-xs text-gray-500 whitespace-nowrap">mỗi tháng</div>
+            </div>
+            {dlv(club, 'yearlyFee') && (
+              <div className="text-right flex-1">
+                <div className="text-sm font-medium text-gray-700 whitespace-nowrap">Phí năm</div>
+                <div className="text-base font-bold text-blue-600 whitespace-nowrap">{formatFee(dlv(club, 'yearlyFee'))}</div>
+                <div className="text-xs text-gray-500 whitespace-nowrap">tiết kiệm 20%</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Action Buttons - Fixed height */}
+        <div className="flex gap-3 mt-auto flex-shrink-0">
+          <Link 
+            href={`/clubs/${club.id}`} 
+            className="flex-1 btn btn-outline btn-sm"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
             Xem chi tiết
           </Link>
-          <button
-            className={`btn btn-primary btn-sm flex-1 lg:flex-none ${isJoining ? 'loading' : ''}`}
-            onClick={handleJoinClub}
-            disabled={isJoining || club.status !== 'active'}
-          >
-            {isJoining ? 'Đang tham gia...' : 'Tham gia'}
-          </button>
+          {showJoinButton && (
+            <>
+              {club.userRole && club.userRole.length > 0 ? (
+                // User đã là thành viên - hiển thị action dựa trên vai trò
+                <div className="flex gap-1">
+                  {club.userRole.includes('admin') && (
+                    <button
+                      className="btn btn-warning btn-sm"
+                      title="Bạn là Admin CLB"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      Admin
+                    </button>
+                  )}
+                  {club.userRole.includes('moderator') && !club.userRole.includes('admin') && (
+                    <button
+                      className="btn btn-info btn-sm"
+                      title="Bạn là Moderator CLB"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      Moderator
+                    </button>
+                  )}
+                  {club.userRole.includes('member') && !club.userRole.includes('admin') && !club.userRole.includes('moderator') && (
+                    <button
+                      className="btn btn-success btn-sm"
+                      title="Bạn là thành viên CLB"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Thành viên
+                    </button>
+                  )}
+                  <button
+                    className={`btn btn-error btn-sm ${isJoining ? 'loading' : ''}`}
+                    onClick={handleLeaveClub}
+                    disabled={isJoining}
+                  >
+                    {isJoining ? (
+                      'Đang rời...'
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Rời CLB
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                // User chưa là thành viên
+                <button
+                  className={`flex-1 btn btn-primary btn-sm ${isJoining ? 'loading' : ''}`}
+                  onClick={handleJoinClub}
+                  disabled={isJoining || club.status !== 'active' || !club.allowNewMembers}
+                >
+                  {isJoining ? (
+                    'Đang tham gia...'
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Tham gia ngay
+                    </>
+                  )}
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

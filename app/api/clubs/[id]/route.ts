@@ -6,13 +6,13 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
-    const result = await callBackendApi(request, `/api/clubs/${id}`);
+    const clubId = params.id;
+    const result = await callBackendApi(request, `/api/clubs/${clubId}`);
     return createNextResponse(result, 'Lấy thông tin CLB thất bại');
   } catch (error) {
-    console.error('Get club detail error:', error);
+    console.error('Error fetching club:', error);
     return NextResponse.json(
-      { error: 'Lỗi server khi lấy thông tin CLB' },
+      { error: 'Failed to fetch club' },
       { status: 500 }
     );
   }
@@ -23,17 +23,19 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const clubId = params.id;
     const body = await request.json();
-    const result = await callBackendApi(request, `/api/clubs/${id}`, {
+    
+    const result = await callBackendApi(request, `/api/clubs/${clubId}`, {
       method: 'PUT',
       body,
     });
+
     return createNextResponse(result, 'Cập nhật CLB thất bại');
   } catch (error) {
-    console.error('Update club error:', error);
+    console.error('Error updating club:', error);
     return NextResponse.json(
-      { error: 'Lỗi server khi cập nhật CLB' },
+      { error: 'Failed to update club' },
       { status: 500 }
     );
   }
@@ -44,15 +46,17 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
-    const result = await callBackendApi(request, `/api/clubs/${id}`, {
+    const clubId = params.id;
+    
+    const result = await callBackendApi(request, `/api/clubs/${clubId}`, {
       method: 'DELETE',
     });
+
     return createNextResponse(result, 'Xóa CLB thất bại');
   } catch (error) {
-    console.error('Delete club error:', error);
+    console.error('Error deleting club:', error);
     return NextResponse.json(
-      { error: 'Lỗi server khi xóa CLB' },
+      { error: 'Failed to delete club' },
       { status: 500 }
     );
   }

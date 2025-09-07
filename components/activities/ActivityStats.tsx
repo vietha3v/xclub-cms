@@ -313,18 +313,6 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
         </div>
       )}
 
-      {/* Data Source Info */}
-      <div className="text-center text-sm text-base-content/50">
-        <div className="flex items-center justify-center gap-2">
-          <span>📡 Dữ liệu từ {dlv(stats, 'source') === 'database' ? 'Database nội bộ' : 'Strava API'}</span>
-          {dlv(stats, 'source') === 'database' && (
-            <span className="badge badge-info badge-sm">Tự tính toán</span>
-          )}
-        </div>
-        {dlv(stats, 'message') && (
-          <p className="mt-1 text-xs">{dlv(stats, 'message')}</p>
-        )}
-      </div>
     </div>
   );
 }

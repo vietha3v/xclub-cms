@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Club } from '@/types/club';
 import useAxios from '@/hooks/useAxios';
+import { Share2, Flag } from 'lucide-react';
 
 interface ClubDetailActionsProps {
   club: Club;
@@ -16,7 +17,7 @@ export default function ClubDetailActions({ club, onJoin, onLeave, isAdmin = fal
   const router = useRouter();
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [isMember, setIsMember] = useState(false); // TODO: Get from API
+  const isMember = club.userRole && club.userRole.length > 0;
 
   const [{ loading: isDeleting }, deleteClub] = useAxios(
     {
@@ -30,7 +31,6 @@ export default function ClubDetailActions({ club, onJoin, onLeave, isAdmin = fal
     setIsJoining(true);
     try {
       await onJoin();
-      setIsMember(true);
     } catch (error) {
       console.error('Join error:', error);
     } finally {
@@ -42,7 +42,6 @@ export default function ClubDetailActions({ club, onJoin, onLeave, isAdmin = fal
     setIsLeaving(true);
     try {
       await onLeave();
-      setIsMember(false);
     } catch (error) {
       console.error('Leave error:', error);
     } finally {
@@ -107,22 +106,18 @@ export default function ClubDetailActions({ club, onJoin, onLeave, isAdmin = fal
         )}
 
         <button
-          className="btn btn-outline"
+          className="btn btn-outline btn-sm"
           onClick={handleShare}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-          </svg>
+          <Share2 className="w-4 h-4 mr-1" />
           Chia sẻ
         </button>
 
         <button
-          className="btn btn-ghost"
+          className="btn btn-ghost btn-sm"
           onClick={handleReport}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
+          <Flag className="w-4 h-4 mr-1" />
           Báo cáo
         </button>
 

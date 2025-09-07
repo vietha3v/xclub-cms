@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { Challenge } from '@/types/challenge';
 import dlv from 'dlv';
+import { RotateCcw, Plus, Eye } from 'lucide-react';
 
 interface EventDetailChallengesProps {
   eventId: string;
@@ -59,6 +60,7 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
             <div className="text-4xl mb-4">❌</div>
             <p className="text-base-content/70 mb-4">Không thể tải danh sách thử thách</p>
             <button onClick={() => refetch()} className="btn btn-sm btn-primary">
+              <RotateCcw className="w-4 h-4 mr-1" />
               Thử lại
             </button>
           </div>
@@ -147,9 +149,11 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
 
                 <div className="flex gap-2">
                   <button className="btn btn-sm btn-primary flex-1">
+                    <Plus className="w-4 h-4 mr-1" />
                     Tham gia thử thách
                   </button>
                   <button className="btn btn-sm btn-outline">
+                    <Eye className="w-4 h-4 mr-1" />
                     Xem chi tiết
                   </button>
                 </div>
@@ -167,9 +171,7 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
             onClick={() => refetch()}
             className="btn btn-sm btn-outline"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <RotateCcw className="w-4 h-4 mr-1" />
             Làm mới
           </button>
         </div>

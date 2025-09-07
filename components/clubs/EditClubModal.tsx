@@ -1,98 +1,108 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Club } from '@/types/club';
-import useAxios from '@/hooks/useAxios';
+import { X, Save, MapPin, Mail, Phone, Globe, Users } from 'lucide-react';
 import Modal from '@/components/common/Modal';
-import { X, Plus, MapPin, Users, Globe, Mail, Phone } from 'lucide-react';
+import useAxios from '@/hooks/useAxios';
+import { Club } from '@/types/club';
+import { API_ENDPOINTS } from '@/lib/api';
 
-interface CreateClubModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: (club: Club) => void;
-}
-
-// Validation schema - phù hợp với BE
-const createClubSchema = z.object({
-  name: z.string()
-    .min(1, 'Tên CLB là bắt buộc')
-    .min(2, 'Tên CLB phải có ít nhất 2 ký tự')
-    .max(100, 'Tên CLB không được vượt quá 100 ký tự'),
-  
-  // Optional fields - phù hợp với CreateClubDto
+// Schema validation - giống CreateClubModal
+const editClubSchema = z.object({
+  name: z.string().min(1, 'Tên CLB là bắt buộc').max(100, 'Tên CLB không được quá 100 ký tự'),
   shortName: z.string().optional(),
   description: z.string().optional(),
-  type: z.enum(['running', 'multisport', 'fitness', 'social', 'competitive', 'charity']).optional().default('running'),
-  logoUrl: z.string().optional(),
-  coverImageUrl: z.string().optional(),
-  website: z.string().optional(),
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
+  type: z.enum(['running', 'multisport', 'fitness', 'social', 'competitive', 'charity']).optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   country: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  website: z.string().optional(),
+  address: z.string().optional(),
+  logoUrl: z.string().optional(),
+  coverImageUrl: z.string().optional(),
+  maxMembers: z.number().min(1).optional(),
+  isPublic: z.boolean().optional(),
+  allowNewMembers: z.boolean().optional(),
+  requireApproval: z.boolean().optional(),
   postalCode: z.string().optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   foundedAt: z.string().optional(),
-  maxMembers: z.number().optional(),
-  monthlyFee: z.number().optional(),
-  yearlyFee: z.number().optional(),
+  monthlyFee: z.number().min(0).optional(),
+  yearlyFee: z.number().min(0).optional(),
   rules: z.string().optional(),
   schedule: z.string().optional(),
-  isPublic: z.boolean().default(true),
-  allowNewMembers: z.boolean().default(true),
 });
 
-type CreateClubFormData = z.infer<typeof createClubSchema>;
+type EditClubFormData = z.infer<typeof editClubSchema>;
 
-export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateClubModalProps) {
+interface EditClubModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  club: Club;
+  onSuccess?: () => void;
+}
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    watch
-  } = useForm<CreateClubFormData>({
-    resolver: zodResolver(createClubSchema),
-    defaultValues: {
-      type: 'running',
-      isPublic: true,
-      allowNewMembers: true,
-    }
-  });
-
-  const [{ data, loading: axiosLoading, error }, execute] = useAxios<Club>(
-    '/api/clubs',
+export default function EditClubModal({ isOpen, onClose, club, onSuccess }: EditClubModalProps) {
+  const [{ data, loading: axiosLoading, error: axiosError }, execute] = useAxios<Club>(
+    `/api/clubs/${club.id}`,
     { manual: true }
   );
 
-  const onSubmit = async (formData: CreateClubFormData) => {
-    try {
-      // Chỉ gửi các trường có giá trị
-      const submitData = Object.fromEntries(
-        Object.entries(formData).filter(([_, value]) => 
-          value !== '' && value !== null && value !== undefined
-        )
-      );
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<EditClubFormData>({
+    resolver: zodResolver(editClubSchema),
+    defaultValues: {
+      name: club.name || '',
+      shortName: club.shortName || '',
+      description: club.description || '',
+      type: (club.type as 'running' | 'multisport' | 'fitness' | 'social' | 'competitive' | 'charity') || 'running',
+      city: club.city || '',
+      state: club.state || '',
+      country: club.country || '',
+      email: club.email || '',
+      phone: club.phone || '',
+      website: club.website || '',
+      address: club.address || '',
+      logoUrl: club.logoUrl || '',
+      coverImageUrl: club.coverImageUrl || '',
+      maxMembers: club.maxMembers || 100,
+      isPublic: club.isPublic ?? true,
+      allowNewMembers: club.allowNewMembers ?? true,
+      requireApproval: club.requireApproval ?? false,
+      postalCode: club.postalCode || '',
+      latitude: club.latitude ? parseFloat(club.latitude) : undefined,
+      longitude: club.longitude ? parseFloat(club.longitude) : undefined,
+      foundedAt: club.foundedAt || '',
+      monthlyFee: club.monthlyFee ? parseFloat(club.monthlyFee) : 0,
+      yearlyFee: club.yearlyFee ? parseFloat(club.yearlyFee) : 0,
+      rules: club.rules || '',
+      schedule: club.schedule || '',
+    },
+  });
 
-      const response = await execute({
-        method: 'POST',
-        data: submitData
+  const onSubmit = async (data: EditClubFormData) => {
+    try {
+      await execute({
+        url: `${API_ENDPOINTS.CLUBS.BASE}/${club.id}`,
+        method: 'PUT',
+        data,
       });
 
-      if (response.data) {
-        onSuccess(response.data);
-        reset();
-        onClose();
-      }
-    } catch (err) {
-      console.error('Create club error:', err);
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      console.error('Error updating club:', error);
     }
   };
 
@@ -102,30 +112,28 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
   };
 
   const footer = (
-    <div className="flex justify-end items-center gap-3 p-6 bg-base-200">
+    <div className="flex justify-end gap-3">
       <button
         type="button"
         onClick={handleClose}
         className="btn btn-ghost btn-sm"
+        disabled={!!axiosLoading}
       >
-        <X className="w-4 h-4 mr-1" />
+        <X className="w-4 h-4" />
         Hủy
       </button>
-      
       <button
         type="submit"
-        form="create-club-form"
-        className={`btn btn-primary btn-sm ${axiosLoading ? 'loading' : ''}`}
-        disabled={axiosLoading || isSubmitting}
+        form="edit-club-form"
+        className="btn btn-primary btn-sm"
+        disabled={!!axiosLoading}
       >
         {axiosLoading ? (
-          'Đang tạo...'
+          <span className="loading loading-spinner loading-sm"></span>
         ) : (
-          <>
-            <Plus className="w-4 h-4 mr-1" />
-            Tạo CLB
-          </>
+          <Save className="w-4 h-4" />
         )}
+        Cập nhật CLB
       </button>
     </div>
   );
@@ -134,12 +142,12 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Tạo Câu Lạc Bộ Mới"
+      title="Chỉnh sửa Câu Lạc Bộ"
       size="4xl"
       footer={footer}
     >
       <div className="p-6">
-        <form id="create-club-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form id="edit-club-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Form Fields */}
           <div className="space-y-6">
             {/* Thông tin cơ bản */}
@@ -439,32 +447,30 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
                     Cài đặt CLB
                   </h3>
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-medium">CLB công khai</span>
-                        <p className="text-sm text-base-content/70">Mọi người có thể tìm thấy và tham gia CLB</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-sm"
-                        {...register('isPublic')}
-                      />
-                    </div>
 
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-medium">Cho phép thành viên mới</span>
-                        <p className="text-sm text-base-content/70">Thành viên mới có thể tham gia CLB</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-sm"
-                        {...register('allowNewMembers')}
-                      />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium">CLB công khai</span>
+                      <p className="text-sm text-base-content/70">Mọi người có thể tìm thấy và tham gia CLB</p>
                     </div>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-sm"
+                      {...register('isPublic')}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium">Cho phép thành viên mới</span>
+                      <p className="text-sm text-base-content/70">Thành viên mới có thể tham gia CLB</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-sm"
+                      {...register('allowNewMembers')}
+                    />
                   </div>
                 </div>
               </div>
@@ -473,9 +479,9 @@ export default function CreateClubModal({ isOpen, onClose, onSuccess }: CreateCl
           </div>
 
           {/* Error Display */}
-          {error && (
+          {axiosError && (
             <div className="alert alert-error">
-              <span>Có lỗi xảy ra khi tạo CLB. Vui lòng thử lại.</span>
+              <span>Lỗi khi cập nhật CLB: {axiosError.message || 'Có lỗi xảy ra'}</span>
             </div>
           )}
         </form>

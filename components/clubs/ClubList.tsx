@@ -9,6 +9,7 @@ import ClubSearch from '@/components/clubs/ClubSearch';
 import ClubStatsCards from '@/components/clubs/ClubStatsCards';
 import CreateClubModal from '@/components/clubs/CreateClubModal';
 import Paging, { usePagination } from '@/components/common/Paging';
+import { Plus, Settings } from 'lucide-react';
 
 interface ClubsResponse {
   data: Club[];
@@ -22,7 +23,6 @@ interface ClubsResponse {
 
 export default function ClubList() {
   const [clubs, setClubs] = useState<Club[]>([]);
-  const [stats, setStats] = useState<ClubStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalItems, setTotalItems] = useState(0);
@@ -37,7 +37,6 @@ export default function ClubList() {
     status: undefined,
     city: '',
     state: '',
-    country: '',
   });
 
   const [{ data: clubsData, loading: clubsLoading, error: clubsError }, refetchClubs] = useAxios<ClubsResponse>(
@@ -45,14 +44,8 @@ export default function ClubList() {
     { manual: true }
   );
 
-  const [{ data: statsData, loading: statsLoading, error: statsError }, refetchStats] = useAxios<ClubStats>(
-    '/api/clubs/stats',
-    { manual: true }
-  );
-
   useEffect(() => {
     loadClubs();
-    loadStats();
   }, [filters, currentPage, itemsPerPage]);
 
   useEffect(() => {
@@ -99,16 +92,6 @@ export default function ClubList() {
     }
   };
 
-  const loadStats = async () => {
-    try {
-      await refetchStats();
-      if (statsData) {
-        setStats(statsData);
-      }
-    } catch (err) {
-      console.error('Load stats error:', err);
-    }
-  };
 
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({ ...prev, search: searchTerm }));
@@ -136,26 +119,38 @@ export default function ClubList() {
   }
 
   return (
-    <>
-      {/* Stats Cards */}
-      {stats && <ClubStatsCards stats={stats} />}
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">Danh sách câu lạc bộ</h2>
+          <p className="text-sm text-base-content/70 mt-1">
+            Khám phá và tham gia các câu lạc bộ chạy bộ phù hợp với bạn
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary btn-sm"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Tạo CLB mới
+          </button>
+          <button 
+            className="btn btn-outline btn-sm"
+            onClick={() => window.location.href = '/settings'}
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            Cài đặt
+          </button>
+        </div>
+      </div>
 
       {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
+      <div className="space-y-4">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           <div className="flex-1 min-w-0">
             <ClubSearch onSearch={handleSearch} />
-          </div>
-          <div className="flex-shrink-0">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn btn-primary w-full lg:w-auto"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Tạo CLB mới
-            </button>
           </div>
         </div>
         <ClubFilters 
@@ -167,41 +162,65 @@ export default function ClubList() {
             status: filters.status || '',
             city: filters.city || '',
             state: filters.state || '',
-            country: filters.country || '',
-          }} 
-          onFilterChange={handleFilterChange} 
+          }}
+          onFilterChange={handleFilterChange}
         />
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="alert alert-error mb-6">
+        <div className="alert alert-error">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span>{error}</span>
+          <button 
+            onClick={loadClubs}
+            className="btn btn-sm btn-outline"
+          >
+            Thử lại
+          </button>
         </div>
       )}
 
       {/* Clubs Grid */}
       {clubs.length > 0 ? (
         <>
-          <div className="responsive-grid mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {clubs.map((club) => (
               <ClubCard key={club.id} club={club} />
             ))}
           </div>
 
           {/* Pagination */}
-          <Paging
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-            className="mt-8"
-          />
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <div className="join">
+                <button
+                  className="join-item btn btn-sm"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  «
+                </button>
+                <button className="join-item btn btn-sm">
+                  Trang {currentPage} / {totalPages}
+                </button>
+                <button
+                  className="join-item btn btn-sm"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="text-center text-sm text-base-content/70">
+            Hiển thị {clubs.length} / {totalItems} câu lạc bộ
+          </div>
         </>
       ) : (
         <div className="text-center py-12">
@@ -213,9 +232,32 @@ export default function ClubList() {
           <h3 className="text-xl font-semibold text-base-content mb-2">
             Không tìm thấy CLB nào
           </h3>
-          <p className="text-base-content/70">
-            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+          <p className="text-base-content/70 mb-6">
+            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm. 
+            Hoặc tạo CLB mới để bắt đầu xây dựng cộng đồng của bạn!
           </p>
+          <div className="bg-base-100 rounded-lg p-6 max-w-md mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h4 className="font-semibold mb-2">Tạo câu lạc bộ mới</h4>
+              <p className="text-sm text-base-content/70 mb-4">
+                Bắt đầu xây dựng cộng đồng chạy bộ của riêng bạn
+              </p>
+              <button 
+                className="btn btn-primary btn-sm"
+                onClick={() => setShowCreateModal(true)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tạo CLB ngay
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -225,6 +267,6 @@ export default function ClubList() {
         onClose={() => setShowCreateModal(false)}
         onSuccess={handleCreateSuccess}
       />
-    </>
+    </div>
   );
 }

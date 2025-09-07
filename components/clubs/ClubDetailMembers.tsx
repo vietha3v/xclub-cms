@@ -1,61 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import useAxios from '@/hooks/useAxios';
-
-interface ClubMember {
-  id: string;
-  name: string;
-  avatar?: string;
-  role: 'admin' | 'moderator' | 'member';
-  joinedAt: string;
-  isOnline?: boolean;
-}
+import { useState } from 'react';
+import { ClubMember } from '@/types/club';
+import { RotateCcw, Trophy, Medal, Award } from 'lucide-react';
+import Tabs, { TabItem } from '@/components/common/Tabs';
 
 interface ClubDetailMembersProps {
-  clubId: string;
+  members: ClubMember[];
+  loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
-export default function ClubDetailMembers({ clubId }: ClubDetailMembersProps) {
-  const [members, setMembers] = useState<ClubMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function ClubDetailMembers({ 
+  members = [], 
+  loading = false, 
+  error = null, 
+  onRetry
+}: ClubDetailMembersProps) {
+  const [activeTab, setActiveTab] = useState<string>('week');
 
-  const [{ data: membersData, loading: membersLoading, error: membersError }, refetchMembers] = useAxios<ClubMember[]>(
-    `/api/clubs/${clubId}/members`,
-    { manual: true }
-  );
-
-  useEffect(() => {
-    loadMembers();
-  }, [clubId]);
-
-  useEffect(() => {
-    if (membersData) {
-      setMembers(Array.isArray(membersData) ? membersData : []);
-      setError(null);
-    }
-  }, [membersData]);
-
-  useEffect(() => {
-    if (membersError) {
-      setError('Không thể tải danh sách thành viên');
-      console.error('Load members error:', membersError);
-    }
-  }, [membersError]);
-
-  const loadMembers = async () => {
-    try {
-      setLoading(true);
-      await refetchMembers();
-    } catch (err) {
-      setError('Không thể tải danh sách thành viên');
-      console.error('Load members error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Định nghĩa tabs
+  const tabs: TabItem[] = [
+    { id: 'week', label: 'Tuần' },
+    { id: 'month', label: 'Tháng' }
+  ];
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'admin':
@@ -86,22 +55,45 @@ export default function ClubDetailMembers({ clubId }: ClubDetailMembersProps) {
     return (
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title text-xl mb-4">Thành viên</h2>
+          <h2 className="card-title text-xl mb-4">👥 Thành viên</h2>
           <div className="text-center py-8">
             <div className="loading loading-spinner loading-md text-primary"></div>
-            <p className="mt-2 text-base-content/70">Đang tải...</p>
+            <p className="mt-2 text-base-content/70">Đang tải danh sách thành viên...</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // Mock data cho bảng xếp hạng (sẽ thay thế bằng API thực tế)
+  const getRankingData = (period: string) => {
+    return members.map((member) => ({
+      ...member,
+      // Tổng km chạy trong tuần/tháng (mock data)
+      totalDistance: period === 'week' ? Math.random() * 50 + 10 : Math.random() * 200 + 50,
+      // Số hoạt động chạy
+      runningActivities: period === 'week' ? Math.floor(Math.random() * 7) + 1 : Math.floor(Math.random() * 20) + 5,
+    }))
+    // Sắp xếp theo tổng km chạy (giảm dần)
+    .sort((a, b) => b.totalDistance - a.totalDistance)
+    // Thêm rank sau khi sắp xếp
+    .map((member, index) => ({
+      ...member,
+      rank: index + 1,
+    }));
+  };
+
+  const rankingData = getRankingData(activeTab);
+
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="card-title text-xl">Thành viên</h2>
-          <div className="badge badge-primary">{(members || []).length}</div>
+          <h2 className="card-title text-xl">
+            <Trophy className="w-5 h-5" />
+            Bảng xếp hạng
+          </h2>
+          <div className="badge badge-primary">{members.length}</div>
         </div>
 
         {error ? (
@@ -112,14 +104,17 @@ export default function ClubDetailMembers({ clubId }: ClubDetailMembersProps) {
               </svg>
             </div>
             <p className="text-base-content/70">{error}</p>
-            <button
-              onClick={loadMembers}
-              className="btn btn-outline btn-sm mt-2"
-            >
-              Thử lại
-            </button>
+            {onRetry && (
+              <button
+                onClick={onRetry}
+                className="btn btn-outline btn-sm mt-2"
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Thử lại
+              </button>
+            )}
           </div>
-        ) : (members || []).length === 0 ? (
+        ) : members.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 mx-auto mb-4 text-base-content/30">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,46 +124,72 @@ export default function ClubDetailMembers({ clubId }: ClubDetailMembersProps) {
             <p className="text-base-content/70">Chưa có thành viên nào</p>
           </div>
         ) : (
-          <div className="list-container">
-            {(members || []).slice(0, 5).map((member) => (
-              <div key={member.id} className="list-item">
-                <div className="list-item-avatar">
-                  {member.avatar ? (
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  )}
-                </div>
-                
-                <div className="list-item-content">
-                  <div className="list-item-title">{member.name}</div>
-                  <div className="list-item-subtitle">
-                    Tham gia {new Date(member.joinedAt).toLocaleDateString('vi-VN')}
-                  </div>
-                </div>
+          <>
+            {/* Tabs */}
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="default"
+              size="md"
+              className="mb-4"
+            />
 
-                <div className="list-item-actions">
-                  <div className={`badge badge-sm ${getRoleColor(member.role)}`}>
-                    {getRoleText(member.role)}
-                  </div>
-                </div>
-              </div>
-            ))}
+            {/* Bảng xếp hạng */}
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th className="text-center">Hạng</th>
+                    <th>Tên thành viên</th>
+                    <th className="text-right">Tổng km chạy</th>
+                    <th className="text-right">Số lần chạy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rankingData.slice(0, 10).map((member, index) => (
+                    <tr key={member.id} className="hover">
+                      <td className="text-center">
+                        <div className="flex items-center justify-center">
+                          {index === 0 ? (
+                            <Trophy className="w-6 h-6 text-yellow-500" />
+                          ) : index === 1 ? (
+                            <Medal className="w-6 h-6 text-gray-400" />
+                          ) : index === 2 ? (
+                            <Award className="w-6 h-6 text-amber-600" />
+                          ) : (
+                            <span className="text-sm font-medium">{index + 1}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div className="font-medium">{`${member.user.firstName} ${member.user.lastName}`}</div>
+                          <div className={`badge badge-xs ${getRoleColor(member.role)}`}>
+                            {getRoleText(member.role)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-right">
+                        <span className="font-medium">{member.totalDistance.toFixed(1)} km</span>
+                      </td>
+                      <td className="text-right">
+                        <span className="text-sm">{member.runningActivities} lần chạy</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            {(members || []).length > 5 && (
+            {members.length > 10 && (
               <div className="text-center pt-3">
                 <button className="btn btn-outline btn-sm">
-                  Xem tất cả ({(members || []).length} thành viên)
+                  Xem tất cả ({members.length} thành viên)
                 </button>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

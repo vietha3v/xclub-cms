@@ -91,7 +91,7 @@ export default function Paging({
           <div className="flex items-center gap-2">
             <span className="text-sm text-base-content/70">Hiển thị:</span>
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-md"
               value={itemsPerPage}
               onChange={handleItemsPerPageChange}
             >
@@ -120,7 +120,7 @@ export default function Paging({
         <div className="flex items-center gap-2">
           <span className="text-sm text-base-content/70">Hiển thị:</span>
           <select
-            className="select select-bordered select-sm"
+            className="select select-bordered select-md"
             value={itemsPerPage}
             onChange={handleItemsPerPageChange}
           >

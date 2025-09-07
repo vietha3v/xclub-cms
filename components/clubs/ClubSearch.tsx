@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 
 interface ClubSearchProps {
@@ -115,7 +116,7 @@ export default function ClubSearch({ onSearch }: ClubSearchProps) {
 
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary btn-sm"
           disabled={!searchTerm.trim() || isSearching}
         >
           {isSearching ? (
@@ -124,7 +125,10 @@ export default function ClubSearch({ onSearch }: ClubSearchProps) {
               Tìm kiếm
             </>
           ) : (
-            'Tìm kiếm'
+            <>
+              <Search className="w-4 h-4 mr-1" />
+              Tìm kiếm
+            </>
           )}
         </button>
 
@@ -132,8 +136,9 @@ export default function ClubSearch({ onSearch }: ClubSearchProps) {
           <button
             type="button"
             onClick={handleClearSearch}
-            className="btn btn-outline"
+            className="btn btn-outline btn-sm"
           >
+            <X className="w-4 h-4 mr-1" />
             Xóa
           </button>
         )}

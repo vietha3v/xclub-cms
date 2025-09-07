@@ -1,3 +1,42 @@
+export interface ClubMember {
+  id: string;
+  role: 'admin' | 'moderator' | 'member';
+  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  joinedAt: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatar?: string;
+    phoneNumber?: string;
+  };
+}
+
+export interface ClubEvent {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  status: string;
+  type: string;
+  eventCode: string;
+}
+
+export interface ClubChallenge {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  type: string;
+  difficulty: string;
+  maxParticipants?: number;
+}
+
 export interface Club {
   id: string;
   clubCode: string;
@@ -35,6 +74,19 @@ export interface Club {
   deletedBy?: string;
   createdAt: string;
   updatedAt: string;
+  // Virtual properties
+  memberCount?: number;
+  adminCount?: number;
+  moderatorCount?: number;
+  eventCount?: number;
+  challengeCount?: number;
+  // Membership status
+  isMember?: boolean;
+  userRole?: ('admin' | 'moderator' | 'member')[] | null;
+  // Detailed data (from enhanced API)
+  members?: ClubMember[];
+  events?: ClubEvent[];
+  challenges?: ClubChallenge[];
 }
 
 export interface CreateClubDto {
