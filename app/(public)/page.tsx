@@ -56,8 +56,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="h-screen overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/30 hover:scrollbar-thumb-primary/50 scroll-smooth">
-      <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
+    <div className="w-full bg-gradient-to-br from-base-200 via-base-100 to-base-200">
         {/* Hero Section với Animation */}
         <section className="relative py-20 px-4 min-h-screen flex items-center justify-center">
           {/* Background Elements */}
@@ -233,8 +232,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-      </div>
     </div>
   );
 }

@@ -8,12 +8,10 @@ import dlv from 'dlv';
 
 interface ClubCardProps {
   club: Club;
-  showJoinButton?: boolean;
   compact?: boolean;
 }
 
-export default function ClubCard({ club, showJoinButton = true, compact = false }: ClubCardProps) {
-  const [isJoining, setIsJoining] = useState(false);
+export default function ClubCard({ club, compact = false }: ClubCardProps) {
   const [imageError, setImageError] = useState(false);
 
   const getStatusConfig = (status: string) => {
@@ -123,29 +121,6 @@ export default function ClubCard({ club, showJoinButton = true, compact = false 
     return `${validationUtils.safeToLocaleString(amount)} VND`;
   };
 
-  const handleJoinClub = async () => {
-    setIsJoining(true);
-    try {
-      // TODO: Implement join club logic
-      console.log('Joining club:', club.id);
-    } catch (error) {
-      console.error('Join club error:', error);
-    } finally {
-      setIsJoining(false);
-    }
-  };
-
-  const handleLeaveClub = async () => {
-    setIsJoining(true);
-    try {
-      // TODO: Implement leave club logic
-      console.log('Leaving club:', club.id);
-    } catch (error) {
-      console.error('Leave club error:', error);
-    } finally {
-      setIsJoining(false);
-    }
-  };
 
   const statusConfig = getStatusConfig(club.status);
   const typeConfig = getTypeConfig(club.type);
@@ -262,11 +237,44 @@ export default function ClubCard({ club, showJoinButton = true, compact = false 
       <div className="p-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="mb-4 flex-shrink-0">
-          <h2 className="text-xl font-bold text-gray-900 mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
-            <Link href={`/clubs/${club.id}`} className="hover:text-blue-600 transition-colors">
-              {club.name}
-            </Link>
-          </h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-bold text-gray-900 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+              <Link href={`/clubs/${club.id}`} className="hover:text-blue-600 transition-colors">
+                {club.name}
+              </Link>
+            </h2>
+            
+            {/* User Role Badge - Right aligned */}
+            {club.userRole && club.userRole.length > 0 && (
+              <div className="ml-3 flex-shrink-0">
+                {club.userRole.includes('admin') && (
+                  <span className="badge badge-warning badge-sm">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Admin
+                  </span>
+                )}
+                {club.userRole.includes('moderator') && !club.userRole.includes('admin') && (
+                  <span className="badge badge-info badge-sm">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Moderator
+                  </span>
+                )}
+                {club.userRole.includes('member') && !club.userRole.includes('admin') && !club.userRole.includes('moderator') && (
+                  <span className="badge badge-success badge-sm">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Thành viên
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          
           <div className="flex items-center gap-2">
             <span className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ${typeConfig.bgColor} ${typeConfig.textColor}`}>
               {typeConfig.icon} {typeConfig.name}
@@ -354,82 +362,6 @@ export default function ClubCard({ club, showJoinButton = true, compact = false 
             </svg>
             Xem chi tiết
           </Link>
-          {showJoinButton && (
-            <>
-              {club.userRole && club.userRole.length > 0 ? (
-                // User đã là thành viên - hiển thị action dựa trên vai trò
-                <div className="flex gap-1">
-                  {club.userRole.includes('admin') && (
-                    <button
-                      className="btn btn-warning btn-sm"
-                      title="Bạn là Admin CLB"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      Admin
-                    </button>
-                  )}
-                  {club.userRole.includes('moderator') && !club.userRole.includes('admin') && (
-                    <button
-                      className="btn btn-info btn-sm"
-                      title="Bạn là Moderator CLB"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      Moderator
-                    </button>
-                  )}
-                  {club.userRole.includes('member') && !club.userRole.includes('admin') && !club.userRole.includes('moderator') && (
-                    <button
-                      className="btn btn-success btn-sm"
-                      title="Bạn là thành viên CLB"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Thành viên
-                    </button>
-                  )}
-                  <button
-                    className={`btn btn-error btn-sm ${isJoining ? 'loading' : ''}`}
-                    onClick={handleLeaveClub}
-                    disabled={isJoining}
-                  >
-                    {isJoining ? (
-                      'Đang rời...'
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Rời CLB
-                      </>
-                    )}
-                  </button>
-                </div>
-              ) : (
-                // User chưa là thành viên
-                <button
-                  className={`flex-1 btn btn-primary btn-sm ${isJoining ? 'loading' : ''}`}
-                  onClick={handleJoinClub}
-                  disabled={isJoining || club.status !== 'active' || !club.allowNewMembers}
-                >
-                  {isJoining ? (
-                    'Đang tham gia...'
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      Tham gia ngay
-                    </>
-                  )}
-                </button>
-              )}
-            </>
-          )}
         </div>
       </div>
     </div>

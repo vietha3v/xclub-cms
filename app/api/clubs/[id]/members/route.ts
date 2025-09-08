@@ -3,20 +3,20 @@ import { callBackendApi, createNextResponse } from '@/lib/backend-api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id: clubId } = await params;
     const { searchParams } = new URL(request.url);
-    const queryString = searchParams.toString();
-    const endpoint = `/api/clubs/${id}/members${queryString ? `?${queryString}` : ''}`;
+    const query = searchParams.toString();
     
-    const result = await callBackendApi(request, endpoint);
-    return createNextResponse(result, 'Lấy danh sách thành viên CLB thất bại');
+    const result = await callBackendApi(request, `/api/clubs/${clubId}/members?${query}`);
+    
+    return createNextResponse(result, 'Lấy danh sách thành viên thất bại');
   } catch (error) {
-    console.error('Get club members error:', error);
+    console.error('Get club members API error:', error);
     return NextResponse.json(
-      { error: 'Lỗi server khi lấy danh sách thành viên CLB' },
+      { error: 'Lỗi server khi lấy danh sách thành viên' },
       { status: 500 }
     );
   }
@@ -24,20 +24,22 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id: clubId } = await params;
     const body = await request.json();
-    const result = await callBackendApi(request, `/api/clubs/${id}/members`, {
+    
+    const result = await callBackendApi(request, `/api/clubs/${clubId}/members`, {
       method: 'POST',
       body,
     });
-    return createNextResponse(result, 'Thêm thành viên CLB thất bại');
+    
+    return createNextResponse(result, 'Thêm thành viên thất bại');
   } catch (error) {
-    console.error('Add club member error:', error);
+    console.error('Add club member API error:', error);
     return NextResponse.json(
-      { error: 'Lỗi server khi thêm thành viên CLB' },
+      { error: 'Lỗi server khi thêm thành viên' },
       { status: 500 }
     );
   }

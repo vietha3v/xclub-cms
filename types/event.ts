@@ -1,7 +1,7 @@
 export interface Event {
   id: string;
   eventCode: string;
-  title: string;
+  name: string;
   description?: string;
   type: EventType;
   status: EventStatus;
@@ -14,21 +14,15 @@ export interface Event {
   registrationEndDate?: string;
   location?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  postalCode?: string;
   latitude?: number;
   longitude?: number;
+  contactInfo?: any;
+  coverImageUrl?: string;
+  additionalImages?: string[];
+  tags?: string[];
   maxParticipants?: number;
   registrationFee?: number;
-  imageUrl?: string;
-  bannerUrl?: string;
-  rules?: string;
-  requirements?: string;
-  contactInfo?: any;
-  socialMedia?: any;
-  settings?: any;
+  format?: 'online' | 'offline' | 'hybrid';
   isDeleted: boolean;
   deletedAt?: string;
   deletedBy?: string;
@@ -37,30 +31,33 @@ export interface Event {
 }
 
 export enum EventType {
-  RACE = 'race',
   TRAINING = 'training',
+  COMPETITION = 'competition',
+  SOCIAL = 'social',
+  CHARITY = 'charity',
   WORKSHOP = 'workshop',
   MEETUP = 'meetup',
-  COMPETITION = 'competition',
-  CHARITY = 'charity',
+  KNOWLEDGE_SHARING = 'knowledge_sharing',
+  BIRTHDAY = 'birthday',
+  CELEBRATION = 'celebration',
+  TEAM_BUILDING = 'team_building',
+  HEALTH_CHECK = 'health_check',
+  NUTRITION_TALK = 'nutrition_talk',
+  EQUIPMENT_REVIEW = 'equipment_review',
+  ROUTE_EXPLORATION = 'route_exploration',
   OTHER = 'other'
 }
 
 export enum EventStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  REGISTRATION_OPEN = 'registration_open',
-  REGISTRATION_CLOSED = 'registration_closed',
+  UPCOMING = 'upcoming',
   ACTIVE = 'active',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
 }
 
 export enum EventVisibility {
-  PUBLIC = 'public',
-  PRIVATE = 'private',
   CLUB_ONLY = 'club_only',
-  INVITE_ONLY = 'invite_only'
+  PUBLIC = 'public'
 }
 
 export interface QueryEventDto {
@@ -77,7 +74,7 @@ export interface QueryEventDto {
 }
 
 export interface CreateEventDto {
-  title: string;
+  name: string;
   description?: string;
   type: EventType;
   visibility: EventVisibility;
@@ -88,21 +85,15 @@ export interface CreateEventDto {
   registrationEndDate?: string;
   location?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  postalCode?: string;
   latitude?: number;
   longitude?: number;
+  contactInfo?: any;
+  coverImageUrl?: string;
+  additionalImages?: string[];
+  tags?: string[];
   maxParticipants?: number;
   registrationFee?: number;
-  imageUrl?: string;
-  bannerUrl?: string;
-  rules?: string;
-  requirements?: string;
-  contactInfo?: any;
-  socialMedia?: any;
-  settings?: any;
+  format?: 'online' | 'offline' | 'hybrid';
 }
 
 export interface UpdateEventDto {

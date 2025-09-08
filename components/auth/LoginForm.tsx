@@ -106,8 +106,8 @@ export default function LoginForm() {
 
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-base-100 shadow-xl rounded-lg p-8 border border-base-300">
+    <div className="w-full">
+      <div className="bg-base-100 shadow-xl rounded-lg p-6 border border-base-300">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-base-content mb-2">
             Đăng nhập

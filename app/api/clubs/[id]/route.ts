@@ -3,10 +3,10 @@ import { callBackendApi, createNextResponse } from '@/lib/backend-api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clubId = params.id;
+    const { id: clubId } = await params;
     const result = await callBackendApi(request, `/api/clubs/${clubId}`);
     return createNextResponse(result, 'Lấy thông tin CLB thất bại');
   } catch (error) {
@@ -20,10 +20,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clubId = params.id;
+    const { id: clubId } = await params;
     const body = await request.json();
     
     const result = await callBackendApi(request, `/api/clubs/${clubId}`, {
@@ -43,10 +43,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clubId = params.id;
+    const { id: clubId } = await params;
     
     const result = await callBackendApi(request, `/api/clubs/${clubId}`, {
       method: 'DELETE',

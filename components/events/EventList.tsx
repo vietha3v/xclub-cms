@@ -2,193 +2,262 @@
 
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
-import { Event, EventType } from '@/types/event';
-import dlv from 'dlv';
-import { RotateCcw, Heart, Eye } from 'lucide-react';
+import { Event, EventStatus, QueryEventDto } from '@/types/event';
+import EventCard from '@/components/events/EventCard';
+import EventFilters from '@/components/events/EventFilters';
+import EventSearch from '@/components/events/EventSearch';
+import CreateEventModal from '@/components/events/CreateEventModal';
+import Paging, { usePagination } from '@/components/common/Paging';
+import { Plus } from 'lucide-react';
 
-interface EventListProps {
-  selectedCategory?: string;
-  searchTerm?: string;
+interface EventsResponse {
+  data: Event[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
-export default function EventList({ selectedCategory = 'all', searchTerm = '' }: EventListProps) {
+export default function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  
+  const { currentPage, itemsPerPage, handlePageChange, handleItemsPerPageChange } = usePagination(1, 12);
+  
+  const [filters, setFilters] = useState<QueryEventDto>({
+    search: '',
+    type: undefined,
+    status: undefined,
+    visibility: undefined,
+    clubId: undefined,
+  });
 
-  const [{ data: eventsData, loading: apiLoading, error: apiError }, refetch] = useAxios<{
-    data: Event[];
-    total: number;
-    page: number;
-    limit: number;
-  }>('/api/events');
+  const [{ data: eventsData, loading: eventsLoading, error: eventsError }, refetchEvents] = useAxios<EventsResponse>(
+    '/api/events',
+    { manual: true }
+  );
+
+  useEffect(() => {
+    loadEvents();
+  }, [filters, currentPage, itemsPerPage]);
 
   useEffect(() => {
     if (eventsData) {
       setEvents(eventsData.data || []);
-      setLoading(false);
+      setTotalItems(eventsData.total || 0);
+      setTotalPages(eventsData.totalPages || 0);
+      setError(null);
     }
   }, [eventsData]);
 
   useEffect(() => {
-    if (apiError) {
+    if (eventsError) {
       setError('Không thể tải danh sách sự kiện');
+      console.error('Load events error:', eventsError);
+    }
+  }, [eventsError]);
+
+  const loadEvents = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      
+      // Add pagination params
+      params.append('page', currentPage.toString());
+      params.append('limit', itemsPerPage.toString());
+      
+      // Add filter params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+      
+      const queryString = params.toString();
+      const url = `/api/events?${queryString}`;
+      
+      await refetchEvents({ url });
+    } catch (err) {
+      setError('Không thể tải danh sách sự kiện');
+      console.error('Load events error:', err);
+    } finally {
       setLoading(false);
     }
-  }, [apiError]);
+  };
 
-  const filteredEvents = events.filter(event => {
-    const matchesCategory = selectedCategory === 'all' || event.type === selectedCategory;
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                         (event.location && event.location.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesCategory && matchesSearch;
-  });
+  const handleSearch = (searchTerm: string) => {
+    setFilters(prev => ({ ...prev, search: searchTerm }));
+    handlePageChange(1);
+  };
 
-  if (loading || apiLoading) {
+  const handleFilterChange = (newFilters: Partial<QueryEventDto>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    handlePageChange(1);
+  };
+
+  const handleCreateSuccess = (newEvent: Event) => {
+    // Refresh the list
+    loadEvents();
+    setShowCreateModal(false);
+  };
+
+  if (loading && events.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="card bg-base-100 shadow-lg animate-pulse">
-            <div className="card-body">
-              <div className="h-4 bg-base-300 rounded w-3/4 mb-4"></div>
-              <div className="h-3 bg-base-300 rounded w-full mb-2"></div>
-              <div className="h-3 bg-base-300 rounded w-2/3"></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-20">
-        <div className="text-6xl mb-6">❌</div>
-        <h3 className="text-2xl font-semibold text-base-content mb-4">Có lỗi xảy ra</h3>
-        <p className="text-base-content/70 mb-6">{error}</p>
-        <button onClick={() => refetch()} className="btn btn-primary btn-sm">
-          <RotateCcw className="w-4 h-4 mr-1" />
-          Thử lại
-        </button>
-      </div>
-    );
-  }
-
-  if (dlv({ filteredEvents }, 'filteredEvents.length', 0) === 0) {
-    return (
-      <div className="text-center py-20">
-        <div className="text-6xl mb-6">🔍</div>
-        <h3 className="text-2xl font-semibold text-base-content mb-4">Không tìm thấy sự kiện</h3>
-        <p className="text-base-content/70 mb-6">Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+      <div className="text-center">
+        <div className="loading loading-spinner loading-lg text-primary"></div>
+        <p className="mt-4 text-base-content/70">Đang tải danh sách sự kiện...</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {dlv({ filteredEvents }, 'filteredEvents', []).map((event, index) => (
-        <div
-          key={event.id}
-          className="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"
-        >
-          <div className="card-body">
-            {/* Event Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="text-4xl">{event.imageUrl ? '🎯' : '🎯'}</div>
-              <div className={`badge ${
-                event.status === 'published' || event.status === 'registration_open' ? 'badge-primary' :
-                event.status === 'active' ? 'badge-success' : 'badge-neutral'
-              } badge-lg`}>
-                {event.status === 'published' ? 'Đã công bố' :
-                 event.status === 'registration_open' ? 'Mở đăng ký' :
-                 event.status === 'active' ? 'Đang diễn ra' : 
-                 event.status === 'completed' ? 'Đã kết thúc' : 'Nháp'}
-              </div>
-            </div>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">Danh sách sự kiện</h2>
+          <p className="text-sm text-base-content/70 mt-1">
+            Khám phá và tham gia các sự kiện chạy bộ phù hợp với bạn
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary btn-sm"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Tạo sự kiện
+          </button>
+        </div>
+      </div>
 
-            {/* Event Title */}
-            <h3 className="card-title text-lg mb-3 line-clamp-2">
-              {event.title}
-            </h3>
-
-            {/* Event Description */}
-            <p className="text-base-content/70 text-sm mb-4 line-clamp-3">
-              {event.description}
-            </p>
-
-            {/* Event Details */}
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm">
-                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="font-medium">{new Date(event.startDate).toLocaleDateString('vi-VN')}</span>
-              </div>
-
-              {event.location && (
-                <div className="flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="line-clamp-1">{event.location}</span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 text-sm">
-                <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-                <span>{event.type}</span>
-              </div>
-
-              {event.maxParticipants && (
-                <div className="flex items-center gap-2 text-sm">
-                  <svg className="w-4 h-4 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <span>Tối đa {event.maxParticipants} người tham gia</span>
-                </div>
-              )}
-            </div>
-
-            {/* Price & Registration */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-bold">
-                {event.registrationFee === 0 || !event.registrationFee ? (
-                  <span className="text-success">Miễn phí</span>
-                ) : (
-                  <span className="text-primary">{dlv(event, 'registrationFee', 0).toLocaleString()}đ</span>
-                )}
-              </div>
-              <div className="text-sm text-base-content/50">
-                Mã: {event.eventCode}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="card-actions justify-between">
-              <button className="btn btn-primary btn-sm flex-1">
-                <Eye className="w-4 h-4 mr-1" />
-                {event.status === 'registration_open' ? 'Đăng ký ngay' : 'Xem chi tiết'}
-              </button>
-              <button className="btn btn-outline btn-sm">
-                <Heart className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Registration Deadline */}
-            {event.registrationEndDate && (
-              <div className="text-center mt-3 p-2 bg-warning/10 rounded-lg">
-                <p className="text-sm text-warning">
-                  ⏰ Hạn đăng ký: {new Date(event.registrationEndDate).toLocaleDateString('vi-VN')}
-                </p>
-              </div>
-            )}
+      {/* Search and Filters */}
+      <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <EventSearch onSearch={handleSearch} />
           </div>
         </div>
-      ))}
+        <EventFilters 
+          filters={{
+            page: currentPage,
+            limit: itemsPerPage,
+            search: filters.search || '',
+            type: filters.type || '',
+            status: filters.status || '',
+            visibility: filters.visibility || '',
+            clubId: filters.clubId || '',
+          }}
+          onFilterChange={handleFilterChange}
+        />
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="alert alert-error">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
+          <button 
+            onClick={loadEvents}
+            className="btn btn-sm btn-outline"
+          >
+            Thử lại
+          </button>
+        </div>
+      )}
+
+      {/* Events Grid */}
+      {events.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <div className="join">
+                <button
+                  className="join-item btn btn-sm"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  «
+                </button>
+                <button className="join-item btn btn-sm">
+                  Trang {currentPage} / {totalPages}
+                </button>
+                <button
+                  className="join-item btn btn-sm"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="text-center text-sm text-base-content/70">
+            Hiển thị {events.length} / {totalItems} sự kiện
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-12">
+          <div className="w-24 h-24 mx-auto mb-4 text-base-content/30">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-base-content mb-2">
+            Không tìm thấy sự kiện nào
+          </h3>
+          <p className="text-base-content/70 mb-6">
+            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm. 
+            Hoặc tạo sự kiện mới để bắt đầu tổ chức hoạt động!
+          </p>
+          <div className="bg-base-100 rounded-lg p-6 max-w-md mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h4 className="font-semibold mb-2">Tạo sự kiện mới</h4>
+              <p className="text-sm text-base-content/70 mb-4">
+                Bắt đầu tổ chức sự kiện chạy bộ của riêng bạn
+              </p>
+              <button 
+                className="btn btn-primary btn-sm"
+                onClick={() => setShowCreateModal(true)}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tạo sự kiện ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Event Modal */}
+      <CreateEventModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }

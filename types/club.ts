@@ -1,15 +1,26 @@
 export interface ClubMember {
   id: string;
+  clubId: string;
+  userId: string;
   role: 'admin' | 'moderator' | 'member';
   status: 'active' | 'inactive' | 'pending' | 'suspended';
   joinedAt: string;
+  leftAt?: string;
+  leaveReason?: string;
+  notes?: string;
+  metadata?: any;
   user: {
     id: string;
+    username: string;
     firstName: string;
     lastName: string;
     email: string;
     avatar?: string;
-    phoneNumber?: string;
+  };
+  // Running statistics from BE
+  runningStats?: {
+    distance: number;
+    activityCount: number;
   };
 }
 
@@ -43,7 +54,7 @@ export interface Club {
   name: string;
   shortName?: string;
   description?: string;
-  type: string;
+  type: 'running' | 'multisport' | 'fitness' | 'social' | 'competitive' | 'charity';
   status: 'active' | 'inactive' | 'pending' | 'suspended';
   logoUrl?: string;
   coverImageUrl?: string;
@@ -55,16 +66,22 @@ export interface Club {
   state?: string;
   country?: string;
   postalCode?: string;
-  latitude?: string;
-  longitude?: string;
+  latitude?: number;
+  longitude?: number;
   foundedAt?: string;
   maxMembers?: number;
-  monthlyFee?: string;
-  yearlyFee?: string;
+  monthlyFee?: number;
+  yearlyFee?: number;
   rules?: string;
   schedule?: string;
   contactInfo?: any;
-  socialMedia?: any;
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+  };
   settings?: any;
   isPublic?: boolean;
   allowNewMembers?: boolean;
@@ -164,4 +181,28 @@ export interface ClubStats {
   activeClubs: number;
   pendingClubs: number;
   runningClubs: number;
+}
+
+export interface JoinClubDto {
+  message?: string;
+  confirmJoin?: boolean;
+}
+
+export interface LeaveClubDto {
+  reason?: string;
+  confirmLeave?: boolean;
+}
+
+export interface JoinClubResponse {
+  message: string;
+  status: 'active' | 'pending';
+  role: 'admin' | 'moderator' | 'member';
+  joinedAt: string;
+  adminNote?: string;
+}
+
+export interface LeaveClubResponse {
+  message: string;
+  leftAt: string;
+  reason?: string;
 }

@@ -94,7 +94,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="border-t border-base-content/20 mt-8 pt-8 text-center text-sm">
-          <p>&copy; 2024 X-Club. Tất cả quyền được bảo lưu.</p>
+          <p>&copy; 2025 X-Club. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     </footer>

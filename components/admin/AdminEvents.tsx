@@ -32,7 +32,7 @@ export default function AdminEvents() {
   }, [error]);
 
   const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -136,7 +136,7 @@ export default function AdminEvents() {
                 <div className="text-3xl">🎯</div>
                 
                 <div className="list-item-content">
-                  <div className="list-item-title">{event.title}</div>
+                  <div className="list-item-title">{event.name}</div>
                   <div className="list-item-subtitle">{event.description}</div>
                   <div className="list-item-meta">
                     <span>📅 {new Date(event.startDate).toLocaleDateString('vi-VN')}</span>

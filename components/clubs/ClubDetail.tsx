@@ -11,9 +11,8 @@ import ClubDetailEvents from './ClubDetailEvents';
 import ClubDetailChallenges from './ClubDetailChallenges';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import ClubDetailStats from './ClubDetailStats';
-import ClubDetailActions from './ClubDetailActions';
-import ClubAdminActions from './ClubAdminActions';
-import { ClubDetailSkeleton } from '@/components/common/LoadingSkeleton';
+import ClubDetailSkeleton from '@/components/common/ClubDetailSkeleton';
+import Tabs from '@/components/common/Tabs';
 
 interface ClubDetailProps {
   clubId: string;
@@ -22,9 +21,7 @@ interface ClubDetailProps {
 export default function ClubDetail({ clubId }: ClubDetailProps) {
   const router = useRouter();
   const [club, setClub] = useState<Club | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState('info');
 
   const [{ data: clubData, loading: clubLoading, error: clubError }, refetchClub] = useAxios<Club>(
     `/api/clubs/${clubId}`,
@@ -38,137 +35,25 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
   useEffect(() => {
     if (clubData) {
       setClub(clubData);
-      setError(null);
-      // Sử dụng userRole array từ API để xác định quyền admin
-      setIsAdmin(clubData.userRole?.includes('admin') || false);
     }
   }, [clubData]);
 
-  useEffect(() => {
-    if (clubError) {
-      setError('Không thể tải thông tin CLB');
-      console.error('Load club error:', clubError);
-    }
-  }, [clubError]);
-
   const loadClub = async () => {
     try {
-      setLoading(true);
       await refetchClub();
     } catch (err) {
-      setError('Không thể tải thông tin CLB');
       console.error('Load club error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleJoinClub = async () => {
-    try {
-      // TODO: Implement join club logic
-      console.log('Joining club:', clubId);
-    } catch (error) {
-      console.error('Join club error:', error);
-    }
-  };
 
-  const handleLeaveClub = async () => {
-    try {
-      // TODO: Implement leave club logic
-      console.log('Leaving club:', clubId);
-    } catch (error) {
-      console.error('Leave club error:', error);
-    }
-  };
-
-  if (loading || clubLoading) {
-    return (
-      <div className="space-y-8">
-        {/* Header Skeleton */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex items-center gap-4">
-              <div className="skeleton w-16 h-16 rounded-full"></div>
-              <div className="flex-1">
-                <div className="skeleton h-8 w-64 mb-2"></div>
-                <div className="skeleton h-4 w-32"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions Skeleton */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex gap-3">
-              <div className="skeleton h-10 w-32"></div>
-              <div className="skeleton h-10 w-24"></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            {/* Info Skeleton */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="skeleton h-6 w-32 mb-4"></div>
-                <div className="space-y-3">
-                  <div className="skeleton h-4 w-full"></div>
-                  <div className="skeleton h-4 w-3/4"></div>
-                  <div className="skeleton h-4 w-1/2"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Events Skeleton */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="skeleton h-6 w-40 mb-4"></div>
-                <div className="space-y-4">
-                  <div className="skeleton h-20 w-full"></div>
-                  <div className="skeleton h-20 w-full"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            {/* Stats Skeleton */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="skeleton h-6 w-24 mb-4"></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="skeleton h-16 w-full"></div>
-                  <div className="skeleton h-16 w-full"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Members Skeleton */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="skeleton h-6 w-32 mb-4"></div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="skeleton w-8 h-8 rounded-full"></div>
-                    <div className="skeleton h-4 w-24"></div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="skeleton w-8 h-8 rounded-full"></div>
-                    <div className="skeleton h-4 w-24"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+ 
+  console.log('club', club);
+  if (clubLoading) {
+    return <ClubDetailSkeleton />;
   }
 
-  if (error || !club) {
+  if (clubError || !club) {
     return (
       <div className="text-center py-12">
         <div className="w-24 h-24 mx-auto mb-4 text-base-content/30">
@@ -180,7 +65,7 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
           Không tìm thấy CLB
         </h3>
         <p className="text-base-content/70 mb-6">
-          {error || 'CLB không tồn tại hoặc đã bị xóa'}
+          {clubError ? 'Không thể tải dữ liệu' : 'CLB không tồn tại hoặc đã bị xóa'}
         </p>
         <div className="flex gap-3 justify-center">
           <button
@@ -202,57 +87,65 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
     );
   }
 
+  // Define tabs
+  const tabs = [
+    { id: 'info', label: 'Thông tin', icon: '📋' },
+    { id: 'members', label: 'Thành viên', icon: '👥' },
+    { id: 'events', label: 'Sự kiện', icon: '📅' },
+    { id: 'challenges', label: 'Thử thách', icon: '🏆' }
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <ClubDetailHeader club={club} />
 
-      {/* Actions */}
-      <ClubDetailActions 
-        club={club}
-        onJoin={handleJoinClub}
-        onLeave={handleLeaveClub}
-        isAdmin={isAdmin}
+      {/* Tabs */}
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        variant="default"
+        size="md"
       />
 
-      {/* Admin Actions */}
-      <ClubAdminActions 
-        club={club}
-        isAdmin={isAdmin}
-        onUpdate={loadClub}
-        onDelete={() => router.push('/clubs')}
-      />
+      {/* Tab Content */}
+      {activeTab === 'info' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Info */}
+          <div className="lg:col-span-2">
+            <ClubDetailInfo club={club} />
+          </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Main Info */}
-        <div className="lg:col-span-2 space-y-8">
-          <ClubDetailInfo club={club} />
-          <ClubDetailEvents 
-            events={club?.events || []}
-            loading={loading || clubLoading}
-            error={error || clubError?.message}
-            onRetry={loadClub}
-          />
-          <ClubDetailChallenges 
-            challenges={club?.challenges || []}
-            loading={loading || clubLoading}
-            error={error || clubError?.message}
-            onRetry={loadClub}
-          />
+          {/* Right Column - Stats */}
+          <div>
+            <ClubDetailStats club={club} />
+          </div>
         </div>
+      )}
 
-        {/* Right Column - Sidebar */}
-        <div className="space-y-8">
-          <ClubDetailStats club={club} />
-          <ClubDetailMembers 
-            members={club?.members || []}
-            loading={loading || clubLoading}
-            error={error || clubError?.message}
-            onRetry={loadClub}
-          />
-        </div>
-      </div>
+      {activeTab === 'members' && (
+        <ClubDetailMembers 
+          members={club?.members || []}
+          loading={clubLoading}
+          error={clubError ? 'Không thể tải dữ liệu' : null}
+          onRetry={loadClub}
+          clubId={clubId}
+        />
+      )}
+
+      {activeTab === 'events' && (
+        <ClubDetailEvents clubId={clubId} />
+      )}
+
+      {activeTab === 'challenges' && (
+        <ClubDetailChallenges 
+          challenges={club?.challenges || []}
+          loading={clubLoading}
+          error={clubError ? 'Không thể tải dữ liệu' : null}
+          onRetry={loadClub}
+        />
+      )}
     </div>
   );
 }

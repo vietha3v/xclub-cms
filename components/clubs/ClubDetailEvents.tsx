@@ -1,164 +1,33 @@
 'use client';
 
-import { ClubEvent } from '@/types/club';
-import { RotateCcw, Eye } from 'lucide-react';
+import React from 'react';
+import EventListShared from '@/components/events/EventListShared';
 
 interface ClubDetailEventsProps {
-  events: ClubEvent[];
-  loading?: boolean;
-  error?: string | null;
-  onRetry?: () => void;
+  clubId: string;
 }
 
-export default function ClubDetailEvents({ 
-  events = [], 
-  loading = false, 
-  error = null, 
-  onRetry 
-}: ClubDetailEventsProps) {
-  const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case 'training':
-        return 'badge-info';
-      case 'competition':
-        return 'badge-error';
-      case 'social':
-        return 'badge-success';
-      case 'charity':
-        return 'badge-warning';
-      default:
-        return 'badge-neutral';
-    }
-  };
-
-  const getEventTypeText = (type: string) => {
-    switch (type) {
-      case 'training':
-        return 'Tập luyện';
-      case 'competition':
-        return 'Thi đấu';
-      case 'social':
-        return 'Giao lưu';
-      case 'charity':
-        return 'Từ thiện';
-      default:
-        return 'Khác';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title text-xl mb-4">📅 Sự kiện</h2>
-          <div className="text-center py-8">
-            <div className="loading loading-spinner loading-md text-primary"></div>
-            <p className="mt-2 text-base-content/70">Đang tải danh sách sự kiện...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+export default function ClubDetailEvents({ clubId }: ClubDetailEventsProps) {
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="card-title text-xl">Sự kiện</h2>
-          <div className="badge badge-primary">{events.length}</div>
+    <div className="card bg-base-100 shadow-xl border border-base-200">
+      <div className="card-body p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="card-title text-xl">📅 Sự kiện</h2>
+          </div>
         </div>
 
-        {error ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-4 text-base-content/30">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <p className="text-base-content/70">{error}</p>
-            {onRetry && (
-              <button
-                onClick={onRetry}
-                className="btn btn-outline btn-sm mt-2"
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Thử lại
-              </button>
-            )}
-          </div>
-        ) : events.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-4 text-base-content/30">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <p className="text-base-content/70">Chưa có sự kiện nào</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {events.slice(0, 3).map((event) => (
-              <div key={event.id} className="border border-base-300 rounded-lg p-4 hover:bg-base-50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg mb-1">{event.name}</h3>
-                    <p className="text-base-content/70 text-sm mb-2 line-clamp-2">
-                      {event.description}
-                    </p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-base-content/60">
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        {formatDate(event.startDate)}
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {event.location}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col items-end gap-2">
-                    <div className={`badge badge-sm ${getEventTypeColor(event.type)}`}>
-                      {getEventTypeText(event.type)}
-                    </div>
-                    
-                    {event.maxParticipants && (
-                      <div className="text-xs text-base-content/60">
-                        {event.currentParticipants}/{event.maxParticipants} người
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {events.length > 3 && (
-              <div className="text-center pt-3">
-                <button className="btn btn-outline btn-sm">
-                  <Eye className="w-4 h-4 mr-1" />
-                  Xem tất cả ({events.length} sự kiện)
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        <EventListShared
+          clubId={clubId}
+          mode="public"
+          showCreateButton={false}
+          showSearch={false}
+          showFilters={false}
+          showPagination={false}
+          limit={6}
+          title=""
+          description=""
+        />
       </div>
     </div>
   );

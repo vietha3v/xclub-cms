@@ -2,164 +2,178 @@
 
 import { Event } from '@/types/event';
 import dlv from 'dlv';
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  DollarSign, 
+  FileText, 
+  CheckCircle, 
+  Clock,
+  Globe,
+  Navigation,
+  Info,
+  Tag,
+  UserCheck,
+  Building2,
+  Shield,
+  Target,
+  Settings,
+  AlertCircle
+} from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 interface EventDetailInfoProps {
   event: Event;
 }
 
 export default function EventDetailInfo({ event }: EventDetailInfoProps) {
+  const formatShortDate = (date: string) => {
+    return format(parseISO(date), 'dd/MM', { locale: vi });
+  };
+
+  const formatShortTime = (date: string) => {
+    return format(parseISO(date), 'HH:mm', { locale: vi });
+  };
+
   return (
-    <div className="card bg-base-100 shadow-lg">
-      <div className="card-body">
-        <h2 className="card-title text-2xl mb-6">📋 Thông tin chi tiết</h2>
+    <div className="bg-white rounded-2xl shadow-lg border border-base-200 overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 px-6 py-4 border-b border-base-200">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold text-base-content">Thông tin bổ sung</h2>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Thời gian */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-primary">⏰ Thời gian</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <div>
-                  <div className="font-medium">Bắt đầu</div>
-                  <div className="text-sm text-base-content/70">
-                    {dlv(event, 'startDate') ? new Date(dlv(event, 'startDate')).toLocaleString('vi-VN') : 'N/A'}
-                  </div>
-                </div>
-              </div>
+      <div className="p-6 space-y-6">
+        {/* Mô tả chi tiết */}
+        {event.description && (
+          <div className="bg-base-50 rounded-xl p-5 border border-base-200">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-base-content">Mô tả chi tiết</h3>
+            </div>
+            <div className="prose prose-sm max-w-none">
+              <p className="text-base-content/80 leading-relaxed whitespace-pre-line text-sm">
+                {event.description}
+              </p>
+            </div>
+          </div>
+        )}
 
-              {dlv(event, 'endDate') && (
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-secondary rounded-full"></div>
-                  <div>
-                    <div className="font-medium">Kết thúc</div>
-                    <div className="text-sm text-base-content/70">
-                      {dlv(event, 'endDate') ? new Date(dlv(event, 'endDate')).toLocaleString('vi-VN') : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              )}
-
+        {/* Thông tin đăng ký */}
+        {(dlv(event, 'registrationStartDate') || dlv(event, 'registrationEndDate') || event.maxParticipants) && (
+          <div className="bg-base-50 rounded-xl p-5 border border-base-200">
+            <div className="flex items-center gap-2 mb-4">
+              <UserCheck className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-base-content">Thông tin đăng ký</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {dlv(event, 'registrationStartDate') && (
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-accent rounded-full"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-success rounded-full flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Mở đăng ký</div>
-                    <div className="text-sm text-base-content/70">
-                      {dlv(event, 'registrationStartDate') ? new Date(dlv(event, 'registrationStartDate')).toLocaleString('vi-VN') : 'N/A'}
+                    <div className="text-xs text-base-content/60">Mở đăng ký</div>
+                    <div className="text-sm font-medium text-base-content">
+                      {formatShortDate(dlv(event, 'registrationStartDate'))} {formatShortTime(dlv(event, 'registrationStartDate'))}
                     </div>
                   </div>
                 </div>
               )}
-
               {dlv(event, 'registrationEndDate') && (
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-warning rounded-full"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-warning rounded-full flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Đóng đăng ký</div>
-                    <div className="text-sm text-base-content/70">
-                      {dlv(event, 'registrationEndDate') ? new Date(dlv(event, 'registrationEndDate')).toLocaleString('vi-VN') : 'N/A'}
+                    <div className="text-xs text-base-content/60">Đóng đăng ký</div>
+                    <div className="text-sm font-medium text-base-content">
+                      {formatShortDate(dlv(event, 'registrationEndDate'))} {formatShortTime(dlv(event, 'registrationEndDate'))}
                     </div>
+                  </div>
+                </div>
+              )}
+              {event.maxParticipants && (
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-base-content/60 flex-shrink-0" />
+                  <div>
+                    <div className="text-xs text-base-content/60">Số lượng</div>
+                    <div className="text-sm font-medium text-base-content">Tối đa {event.maxParticipants}</div>
                   </div>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Địa điểm */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-primary">📍 Địa điểm</h3>
-            <div className="space-y-3">
-              {event.location && (
-                <div className="flex items-start gap-3">
-                  <div className="text-lg">🏢</div>
-                  <div>
-                    <div className="font-medium">Địa điểm</div>
-                    <div className="text-sm text-base-content/70">{event.location}</div>
-                  </div>
-                </div>
-              )}
-
-              {event.address && (
-                <div className="flex items-start gap-3">
-                  <div className="text-lg">🏠</div>
-                  <div>
-                    <div className="font-medium">Địa chỉ</div>
-                    <div className="text-sm text-base-content/70">{event.address}</div>
-                  </div>
-                </div>
-              )}
-
-              {(event.city || event.state || event.country) && (
-                <div className="flex items-start gap-3">
-                  <div className="text-lg">🌍</div>
-                  <div>
-                    <div className="font-medium">Khu vực</div>
-                    <div className="text-sm text-base-content/70">
-                      {[event.city, event.state, event.country].filter(Boolean).join(', ')}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {event.latitude && event.longitude && (
-                <div className="flex items-start gap-3">
-                  <div className="text-lg">🗺️</div>
-                  <div>
-                    <div className="font-medium">Tọa độ</div>
-                    <div className="text-sm text-base-content/70">
-                      {event.latitude.toFixed(6)}, {event.longitude.toFixed(6)}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Thông tin bổ sung */}
-        {(event.rules || event.requirements || event.maxParticipants) && (
-          <div className="divider"></div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {event.maxParticipants && (
+        {/* Địa điểm chi tiết */}
+        {event.address && (
+          <div className="bg-base-50 rounded-xl p-5 border border-base-200">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="w-5 h-5 text-secondary" />
+              <h3 className="font-semibold text-base-content">Địa điểm chi tiết</h3>
+            </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-primary">👥 Số lượng tham gia</h3>
-              <div className="text-2xl font-bold text-accent">
-                Tối đa {event.maxParticipants} người
+              <div className="flex items-start gap-2">
+                <Navigation className="w-4 h-4 text-base-content/60 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-xs text-base-content/60">Địa chỉ</div>
+                  <div className="text-sm font-medium text-base-content">{event.address}</div>
+                </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {dlv(event, 'registrationFee') !== undefined && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-primary">💰 Phí tham gia</h3>
-              <div className="text-2xl font-bold text-success">
-                {dlv(event, 'registrationFee', 0) === 0 ? 'Miễn phí' : `${dlv(event, 'registrationFee', 0).toLocaleString()}đ`}
+        {/* Tọa độ GPS */}
+        {(event.latitude && event.longitude) && (
+          <div className="bg-base-50 rounded-xl p-5 border border-base-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Navigation className="w-5 h-5 text-base-content/70" />
+              <h3 className="font-semibold text-base-content">Tọa độ GPS</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <Navigation className="w-4 h-4 text-base-content/60 flex-shrink-0" />
+              <div className="text-xs text-base-content/60">Tọa độ:</div>
+              <div className="text-sm font-mono text-base-content/80 bg-base-200 px-2 py-1 rounded">
+                {event.latitude.toFixed(6)}, {event.longitude.toFixed(6)}
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Thông tin kỹ thuật */}
+        <div className="bg-base-50 rounded-xl p-5 border border-base-200">
+          <div className="flex items-center gap-2 mb-4">
+            <Settings className="w-5 h-5 text-base-content/70" />
+            <h3 className="font-semibold text-base-content">Thông tin kỹ thuật</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <Tag className="w-4 h-4 text-base-content/60 flex-shrink-0" />
+              <div>
+                <div className="text-xs text-base-content/60">Mã sự kiện</div>
+                <div className="text-sm font-mono text-base-content">{event.eventCode}</div>
+              </div>
+            </div>
+            {event.format && (
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-base-content/60 flex-shrink-0" />
+                <div>
+                  <div className="text-xs text-base-content/60">Hình thức</div>
+                  <div className="text-sm font-medium text-base-content">
+                    {event.format === 'online' ? 'Trực tuyến' : 
+                     event.format === 'offline' ? 'Trực tiếp' : 'Kết hợp'}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-
-        {event.rules && (
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-primary">📜 Quy định</h3>
-            <div className="prose max-w-none">
-              <p className="text-base-content/80 whitespace-pre-line">{event.rules}</p>
-            </div>
-          </div>
-        )}
-
-        {event.requirements && (
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-primary">✅ Yêu cầu tham gia</h3>
-            <div className="prose max-w-none">
-              <p className="text-base-content/80 whitespace-pre-line">{event.requirements}</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 }
+

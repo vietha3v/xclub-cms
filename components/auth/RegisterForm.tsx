@@ -92,8 +92,8 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-base-100 shadow-xl rounded-lg p-8 border border-base-300">
+    <div className="w-full">
+      <div className="bg-base-100 shadow-xl rounded-lg p-6 border border-base-300">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-base-content mb-2">
             Đăng ký tài khoản
@@ -321,15 +321,6 @@ export default function RegisterForm() {
             )}
           </button>
         </form>
-
-        <div className="text-center mt-6">
-          <p className="text-base-content/70">
-            Đã có tài khoản?{' '}
-            <a href="/auth/login" className="link link-primary font-medium">
-              Đăng nhập ngay
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   );

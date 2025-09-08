@@ -9,7 +9,7 @@ import ClubSearch from '@/components/clubs/ClubSearch';
 import ClubStatsCards from '@/components/clubs/ClubStatsCards';
 import CreateClubModal from '@/components/clubs/CreateClubModal';
 import Paging, { usePagination } from '@/components/common/Paging';
-import { Plus, Settings } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 interface ClubsResponse {
   data: Club[];
@@ -135,13 +135,6 @@ export default function ClubList() {
           >
             <Plus className="w-4 h-4 mr-1" />
             Tạo CLB mới
-          </button>
-          <button 
-            className="btn btn-outline btn-sm"
-            onClick={() => window.location.href = '/settings'}
-          >
-            <Settings className="w-4 h-4 mr-1" />
-            Cài đặt
           </button>
         </div>
       </div>

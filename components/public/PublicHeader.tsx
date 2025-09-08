@@ -1,11 +1,10 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
+import UserActions from '../common/UserActions';
 
 export default function PublicHeader() {
-  const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -13,7 +12,7 @@ export default function PublicHeader() {
   };
 
   return (
-    <header className="bg-base-100 shadow-lg border-b border-base-300">
+    <header className="sticky top-0 z-50 bg-base-100 shadow-lg border-b border-base-300">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -48,45 +47,9 @@ export default function PublicHeader() {
             </Link>
           </nav>
 
-          {/* Auth Buttons / User Menu */}
+          {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {status === 'loading' ? (
-              <div className="loading loading-spinner loading-sm"></div>
-            ) : session ? (
-              <div className="dropdown dropdown-end">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                  <div className="w-10 rounded-full">
-                    {session.user?.image ? (
-                      <img alt="avatar" src={session.user.image} />
-                    ) : (
-                      <div className="bg-primary text-primary-content rounded-full w-10 h-10 flex items-center justify-center">
-                        {session.user?.name?.charAt(0) || 'U'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                  <li>
-                    <Link href="/dashboard" className="justify-between">
-                      Dashboard
-                      <span className="badge badge-primary">New</span>
-                    </Link>
-                  </li>
-                  <li><Link href="/profile">Hồ sơ</Link></li>
-                  <li><Link href="/settings">Cài đặt</Link></li>
-                  <li><button onClick={() => signOut()}>Đăng xuất</button></li>
-                </ul>
-              </div>
-            ) : (
-              <>
-                <Link href="/login" className="btn btn-outline btn-sm">
-                  Đăng nhập
-                </Link>
-                <Link href="/register" className="btn btn-primary btn-sm">
-                  Đăng ký
-                </Link>
-              </>
-            )}
+            <UserActions variant="desktop" />
           </div>
 
           {/* Mobile menu button */}
@@ -124,31 +87,7 @@ export default function PublicHeader() {
               </Link>
               
               <div className="pt-4 border-t border-base-300">
-                {session ? (
-                  <div className="space-y-2">
-                    <Link href="/dashboard" className="block text-base-content hover:text-primary transition-colors">
-                      Dashboard
-                    </Link>
-                    <Link href="/profile" className="block text-base-content hover:text-primary transition-colors">
-                      Hồ sơ
-                    </Link>
-                    <button 
-                      onClick={() => signOut()}
-                      className="block w-full text-left text-base-content hover:text-primary transition-colors"
-                    >
-                      Đăng xuất
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Link href="/login" className="btn btn-outline btn-sm w-full">
-                      Đăng nhập
-                    </Link>
-                    <Link href="/register" className="btn btn-primary btn-sm w-full">
-                      Đăng ký
-                    </Link>
-                  </div>
-                )}
+                <UserActions variant="mobile" />
               </div>
             </nav>
           </div>

@@ -6,11 +6,13 @@ import useAxios from '@/hooks/useAxios';
 import { Event } from '@/types/event';
 import EventDetailHeader from '@/components/events/EventDetailHeader';
 import EventDetailInfo from '@/components/events/EventDetailInfo';
-import EventDetailActions from '@/components/events/EventDetailActions';
 import EventDetailParticipants from '@/components/events/EventDetailParticipants';
 import EventDetailChallenges from '@/components/events/EventDetailChallenges';
-import LoadingSkeleton from '@/components/common/LoadingSkeleton';
+import EventShareActions from '@/components/events/EventShareActions';
+import EventCountdown from '@/components/events/EventCountdown';
+import { PageSkeleton } from '@/components/common/LoadingSkeleton';
 
+// Event detail page without actions component
 export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -24,7 +26,7 @@ export default function EventDetailPage() {
   }, []);
 
   if (loading) {
-    return <LoadingSkeleton />;
+    return <PageSkeleton />;
   }
 
   if (error || !event) {
@@ -48,6 +50,17 @@ export default function EventDetailPage() {
         {/* Header Section */}
         <EventDetailHeader event={event} />
 
+        {/* Countdown Section */}
+        <div className="py-4 bg-base-100">
+          <div className="container mx-auto px-4">
+            <EventCountdown 
+              startDate={event.startDate}
+              endDate={event.endDate}
+              status={event.status}
+            />
+          </div>
+        </div>
+
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
@@ -58,7 +71,7 @@ export default function EventDetailPage() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              <EventDetailActions event={event} onUpdate={refetch} />
+              <EventShareActions event={event} />
               <EventDetailParticipants eventId={eventId} />
             </div>
           </div>

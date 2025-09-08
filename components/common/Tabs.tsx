@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 
 export interface TabItem {
   id: string;
@@ -29,14 +29,15 @@ export default function Tabs({
   className = '',
   fullWidth = false
 }: TabsProps) {
+  const uniqueId = useId();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [prevActiveTab, setPrevActiveTab] = useState(activeTab);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: '0px', width: '100px' });
 
   // Calculate indicator position based on actual DOM elements
   const updateIndicatorPosition = (tabId: string) => {
-    const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`) as HTMLElement;
-    const containerElement = document.querySelector(`[data-tabs-container]`) as HTMLElement;
+    const tabElement = document.querySelector(`[data-tab-id="${uniqueId}-${tabId}"]`) as HTMLElement;
+    const containerElement = document.querySelector(`[data-tabs-container="${uniqueId}"]`) as HTMLElement;
     
     if (!tabElement || !containerElement) return;
     
@@ -168,7 +169,7 @@ export default function Tabs({
   return (
     <div className={`flex justify-center mb-6 ${className}`}>
       <div 
-        data-tabs-container
+        data-tabs-container={uniqueId}
         className={`${variantClasses.container} ${sizeClasses.container} ${fullWidth ? 'w-full' : ''} relative transition-all duration-300 ${
           isTransitioning ? 'transform scale-98' : 'transform scale-100'
         }`}
@@ -195,7 +196,7 @@ export default function Tabs({
             return (
               <button
                 key={tab.id}
-                data-tab-id={tab.id}
+                data-tab-id={`${uniqueId}-${tab.id}`}
                 disabled={tab.disabled || isTransitioning}
                 className={`
                   relative ${sizeClasses.button} ${variantClasses.button} font-medium
