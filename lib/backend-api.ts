@@ -101,7 +101,7 @@ export async function callBackendApi(
     
     // Gọi API backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    let response = await fetch(`${backendUrl}${endpoint}`, requestOptions);
+    const response = await fetch(`${backendUrl}${endpoint}`, requestOptions);
     
     // Nếu gặp 401, middleware đã xử lý refresh token
     // Chỉ cần trả về lỗi để frontend xử lý

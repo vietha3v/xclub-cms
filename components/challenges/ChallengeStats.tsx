@@ -1,7 +1,6 @@
 'use client';
 
-import { Challenge } from '@/types/challenge';
-import dlv from 'dlv';
+import { Challenge, ChallengeStatus } from '@/types/challenge';
 
 interface ChallengeStatsProps {
   challenges: Challenge[];
@@ -9,20 +8,32 @@ interface ChallengeStatsProps {
 
 export default function ChallengeStats({ challenges }: ChallengeStatsProps) {
   // Tính toán từ danh sách challenges
-  const activeChallenges = challenges.filter(c => c.status === 'active').length;
-  const completedChallenges = challenges.filter(c => c.status === 'completed').length;
+  const activeChallenges = challenges.filter(c => c.status === ChallengeStatus.ACTIVE).length;
+  const upcomingChallenges = challenges.filter(c => c.status === ChallengeStatus.UPCOMING).length;
+  const completedChallenges = challenges.filter(c => c.status === ChallengeStatus.COMPLETED).length;
   const totalParticipants = challenges.reduce((sum, c) => sum + (c.participantCount || 0), 0);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div className="stats shadow bg-base-100">
         <div className="stat">
           <div className="stat-figure text-primary">
             <div className="text-3xl">🔥</div>
           </div>
-          <div className="stat-title">Thử thách đang diễn ra</div>
+          <div className="stat-title">Đang diễn ra</div>
           <div className="stat-value text-primary">{activeChallenges}</div>
           <div className="stat-desc">Hiện tại</div>
+        </div>
+      </div>
+
+      <div className="stats shadow bg-base-100">
+        <div className="stat">
+          <div className="stat-figure text-info">
+            <div className="text-3xl">⏰</div>
+          </div>
+          <div className="stat-title">Sắp diễn ra</div>
+          <div className="stat-value text-info">{upcomingChallenges}</div>
+          <div className="stat-desc">Thử thách</div>
         </div>
       </div>
 

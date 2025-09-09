@@ -4,7 +4,7 @@ import { updateTokenCookies, redirectToLogin } from './backend-api';
 
 // Tạo instance axios với cấu hình mặc định
 const axiosInstance = axios.create({
-  baseURL: '', // Gọi qua Next.js API routes, không gọi trực tiếp BE
+  // Không set baseURL để sử dụng relative URLs
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -39,6 +39,20 @@ export default function Modal({
   closeOnBackdropClick = true,
   className = '',
 }: ModalProps) {
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -53,7 +67,7 @@ export default function Modal({
       onClick={handleBackdropClick}
     >
       <div
-        className={`bg-base-100 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col ${className}`}
+        className={`bg-base-100 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} h-[70vh] flex flex-col ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -71,7 +85,7 @@ export default function Modal({
         </div>
 
         {/* Body - Scrollable */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {children}
         </div>
 

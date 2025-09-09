@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import useAxios from '@/hooks/useAxios';
-import { Challenge } from '@/types/challenge';
+import { Challenge, ChallengeStatus } from '@/types/challenge';
 import dlv from 'dlv';
 import { RotateCcw, Plus, Eye } from 'lucide-react';
 
@@ -104,11 +104,11 @@ export default function EventDetailChallenges({ eventId }: EventDetailChallenges
                     </div>
                   </div>
                   <div className={`badge ${
-                    challenge.status === 'active' ? 'badge-success' :
-                    challenge.status === 'published' ? 'badge-primary' : 'badge-neutral'
+                    challenge.status === ChallengeStatus.ACTIVE ? 'badge-success' :
+                    challenge.status === ChallengeStatus.PUBLISHED ? 'badge-primary' : 'badge-neutral'
                   }`}>
-                    {challenge.status === 'active' ? 'Đang diễn ra' :
-                     challenge.status === 'published' ? 'Đã công bố' : 'Nháp'}
+                    {challenge.status === ChallengeStatus.ACTIVE ? 'Đang diễn ra' :
+                     challenge.status === ChallengeStatus.PUBLISHED ? 'Đã công bố' : 'Nháp'}
                   </div>
                 </div>
 

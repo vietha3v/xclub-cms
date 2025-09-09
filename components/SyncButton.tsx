@@ -65,11 +65,11 @@ export const SyncButton: React.FC<SyncButtonProps> = ({
           title: 'Lỗi đồng bộ'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Lỗi đồng bộ:', error);
       showToast({
         type: 'error',
-        message: error.response?.data?.message || error.message,
+        message: (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message,
         title: 'Lỗi đồng bộ'
       });
     } finally {

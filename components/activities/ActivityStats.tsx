@@ -186,7 +186,7 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
         <div className="card-body">
           <h4 className="card-title text-lg">📈 Hoạt động theo loại</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.entries(dlv(stats, 'activitiesByType', {})).map(([type, data]: [string, any]) => (
+            {Object.entries(dlv(stats, 'activitiesByType', {})).map(([type, data]: [string, Record<string, unknown>]) => (
               <div key={type} className="card bg-base-200 shadow-sm">
                 <div className="card-body p-4">
                   <div className="flex items-center justify-between mb-3">

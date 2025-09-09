@@ -8,7 +8,6 @@ import ClubDetailHeader from './ClubDetailHeader';
 import ClubDetailInfo from './ClubDetailInfo';
 import ClubDetailMembers from './ClubDetailMembers';
 import ClubDetailEvents from './ClubDetailEvents';
-import ClubDetailChallenges from './ClubDetailChallenges';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import ClubDetailStats from './ClubDetailStats';
 import ClubDetailSkeleton from '@/components/common/ClubDetailSkeleton';
@@ -91,8 +90,7 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
   const tabs = [
     { id: 'info', label: 'Thông tin', icon: '📋' },
     { id: 'members', label: 'Thành viên', icon: '👥' },
-    { id: 'events', label: 'Sự kiện', icon: '📅' },
-    { id: 'challenges', label: 'Thử thách', icon: '🏆' }
+    { id: 'events', label: 'Sự kiện', icon: '📅' }
   ];
 
   return (
@@ -138,14 +136,6 @@ export default function ClubDetail({ clubId }: ClubDetailProps) {
         <ClubDetailEvents clubId={clubId} />
       )}
 
-      {activeTab === 'challenges' && (
-        <ClubDetailChallenges 
-          challenges={club?.challenges || []}
-          loading={clubLoading}
-          error={clubError ? 'Không thể tải dữ liệu' : null}
-          onRetry={loadClub}
-        />
-      )}
     </div>
   );
 }

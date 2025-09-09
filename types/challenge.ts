@@ -63,8 +63,8 @@ export interface Challenge {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
-  conditions?: any;
-  rewards?: any;
+  conditions?: Record<string, unknown>;
+  rewards?: Record<string, unknown>;
   rules?: string;
   coverImageUrl?: string;
   tags?: string[];
@@ -78,6 +78,9 @@ export interface Challenge {
   deletedBy?: string;
   createdAt: string;
   updatedAt: string;
+  // Thông tin về trạng thái đăng ký của user (chỉ có khi gọi API với user đăng nhập)
+  // null = chưa đăng ký, 'pending' = chờ duyệt, 'active' = đã đăng ký thành công, etc.
+  userRegistrationStatus?: ParticipantStatus | null;
 }
 
 export enum ChallengeType {
@@ -96,11 +99,12 @@ export enum ChallengeCategory {
 }
 
 export enum ChallengeStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
+  UPCOMING = 'upcoming',
   ACTIVE = 'active',
+  PAUSED = 'paused',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
+  PUBLISHED = 'published'
 }
 
 export enum ChallengeDifficulty {
@@ -230,8 +234,8 @@ export interface CreateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
-  conditions?: any;
-  rewards?: any;
+  conditions?: Record<string, unknown>;
+  rewards?: Record<string, unknown>;
   rules?: string;
   coverImageUrl?: string;
   tags?: string[];
@@ -271,8 +275,8 @@ export interface UpdateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
-  conditions?: any;
-  rewards?: any;
+  conditions?: Record<string, unknown>;
+  rewards?: Record<string, unknown>;
   rules?: string;
   coverImageUrl?: string;
   tags?: string[];

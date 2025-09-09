@@ -8,7 +8,7 @@ export interface ClubMember {
   leftAt?: string;
   leaveReason?: string;
   notes?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   user: {
     id: string;
     username: string;
@@ -82,7 +82,7 @@ export interface Club {
     youtube?: string;
     tiktok?: string;
   };
-  settings?: any;
+  settings?: Record<string, unknown>;
   isPublic?: boolean;
   allowNewMembers?: boolean;
   requireApproval?: boolean;
@@ -151,6 +151,7 @@ export interface CreateClubDto {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateClubDto extends Partial<CreateClubDto> {}
 
 export interface QueryClubDto {

@@ -86,7 +86,7 @@ export default function TeamLeaderboard({ leaderboard, isLoading }: TeamLeaderbo
         </span>
       </div>
 
-      {leaderboard.map((entry, index) => (
+      {leaderboard.map((entry) => (
         <div
           key={entry.id}
           className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${getRankColor(entry.rank)}`}

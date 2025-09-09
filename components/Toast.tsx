@@ -42,7 +42,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         hideToast(id);
       }, newToast.duration);
     }
-  }, []);
+  }, [hideToast]);
 
   const hideToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -149,25 +149,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
   );
 };
 
-// Utility functions for easy toast usage
-export const toast = {
-  success: (message: string, title?: string, duration?: number) => {
-    const { showToast } = useToast();
-    showToast({ type: 'success', message, title, duration });
-  },
-  error: (message: string, title?: string, duration?: number) => {
-    const { showToast } = useToast();
-    showToast({ type: 'error', message, title, duration });
-  },
-  warning: (message: string, title?: string, duration?: number) => {
-    const { showToast } = useToast();
-    showToast({ type: 'warning', message, title, duration });
-  },
-  info: (message: string, title?: string, duration?: number) => {
-    const { showToast } = useToast();
-    showToast({ type: 'info', message, title, duration });
-  },
-};
+// Utility functions for easy toast usage - removed to avoid circular dependency
+// Use useToast hook directly in components instead
 
 export default ToastProvider;
 

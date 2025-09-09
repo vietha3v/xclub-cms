@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trophy, Target, Award, Users, Edit, Trash2, Eye } from 'lucide-react';
 import useAxios from '@/hooks/useAxios';
-import { Challenge } from '@/types/challenge';
-import ChallengeForm from '@/components/challenges/ChallengeForm';
+import { Challenge, ChallengeStatus } from '@/types/challenge';
+import UnifiedChallengeModal from '@/components/challenges/UnifiedChallengeModal';
 
 interface ClubChallengeManagementProps {
   clubId: string;
@@ -163,12 +163,12 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-lg font-semibold">{challenge.name}</h3>
                       <span className={`badge badge-sm ${
-                        challenge.status === 'active' ? 'badge-success' : 
-                        challenge.status === 'published' ? 'badge-info' : 'badge-warning'
+                        challenge.status === ChallengeStatus.ACTIVE ? 'badge-success' : 
+                        challenge.status === ChallengeStatus.PUBLISHED ? 'badge-info' : 'badge-warning'
                       }`}>
-                        {challenge.status === 'active' ? 'Đang diễn ra' : 
-                         challenge.status === 'published' ? 'Đã công bố' : 
-                         challenge.status === 'completed' ? 'Đã hoàn thành' : 'Nháp'}
+                        {challenge.status === ChallengeStatus.ACTIVE ? 'Đang diễn ra' : 
+                         challenge.status === ChallengeStatus.PUBLISHED ? 'Đã công bố' : 
+                         challenge.status === ChallengeStatus.COMPLETED ? 'Đã hoàn thành' : 'Nháp'}
                       </span>
                     </div>
                     
@@ -225,13 +225,11 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
       )}
 
       {/* Challenge Form Modal */}
-      <ChallengeForm
+      <UnifiedChallengeModal
         clubId={clubId}
-        challenge={editingChallenge || undefined}
         isOpen={isFormOpen}
         onClose={handleFormClose}
         onSuccess={handleFormSuccess}
-        mode={editingChallenge ? 'edit' : 'create'}
       />
     </div>
   );

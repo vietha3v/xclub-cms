@@ -60,7 +60,7 @@ export interface AchievementRequirement {
   value: number;
   unit?: string;
   period?: string; // daily, weekly, monthly, yearly, all_time
-  conditions?: Record<string, any>;
+  conditions?: Record<string, unknown>;
 }
 
 export enum RequirementType {
@@ -112,7 +112,7 @@ export interface UserAchievement {
   progress: number;
   isCompleted: boolean;
   completedAt?: Date;
-  progressData: Record<string, any>;
+  progressData: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -137,6 +137,7 @@ export interface CreateAchievementDto {
   endDate?: Date;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateAchievementDto extends Partial<CreateAchievementDto> {}
 
 export interface QueryAchievementDto {

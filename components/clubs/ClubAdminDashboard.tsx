@@ -27,7 +27,7 @@ interface ClubAdminDashboardProps {
 
 export default function ClubAdminDashboard({ clubId }: ClubAdminDashboardProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'events' | 'challenges' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'events' | 'settings'>('overview');
   const [showEditModal, setShowEditModal] = useState(false);
 
   const [{ data: club, loading, error }, refetchClub] = useAxios<Club>(
@@ -170,13 +170,6 @@ export default function ClubAdminDashboard({ clubId }: ClubAdminDashboardProps) 
             <Calendar className="w-4 h-4 mr-1" />
             Sự kiện
           </button>
-          <button
-            onClick={() => setActiveTab('challenges')}
-            className={`btn btn-sm whitespace-nowrap ${activeTab === 'challenges' ? 'btn-primary' : 'btn-outline'}`}
-          >
-            <Trophy className="w-4 h-4 mr-1" />
-            Thử thách
-          </button>
           {(isAdmin || isModerator) && (
             <button
               onClick={() => setActiveTab('settings')}
@@ -312,19 +305,6 @@ export default function ClubAdminDashboard({ clubId }: ClubAdminDashboardProps) 
           </div>
         )}
 
-        {activeTab === 'challenges' && (
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h3 className="card-title">
-                <Trophy className="w-5 h-5" />
-                Quản lý thử thách
-              </h3>
-              <p className="text-base-content/70">
-                Tính năng quản lý thử thách sẽ được phát triển trong module Challenges.
-              </p>
-            </div>
-          </div>
-        )}
 
         {activeTab === 'settings' && (
           <div className="space-y-6">

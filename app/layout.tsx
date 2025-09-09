@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
@@ -19,7 +19,11 @@ export const metadata: Metadata = {
   description: "X-Club - Nền tảng kết nối con người qua từng bước chạy, biến việc chạy bộ thành trải nghiệm có ý nghĩa xã hội",
   keywords: "x-club, chạy bộ, fitness, cộng đồng, câu lạc bộ, giải chạy, gây quỹ",
   authors: [{ name: "X-Club Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
