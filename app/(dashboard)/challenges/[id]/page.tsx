@@ -9,7 +9,10 @@ import ChallengeDetailInfo from '@/components/challenges/ChallengeDetailInfo';
 import ChallengeDetailActions from '@/components/challenges/ChallengeDetailActions';
 import ChallengeDetailParticipants from '@/components/challenges/ChallengeDetailParticipants';
 import ChallengeDetailLeaderboard from '@/components/challenges/ChallengeDetailLeaderboard';
+import ChallengePendingParticipants from '@/components/challenges/ChallengePendingParticipants';
+import ChallengeResults from '@/components/challenges/ChallengeResults';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
+import { ChallengeStatus } from '@/types/challenge';
 
 export default function ChallengeDetailPage() {
   const params = useParams();
@@ -53,12 +56,19 @@ export default function ChallengeDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
               <ChallengeDetailInfo challenge={challenge} />
-              <ChallengeDetailLeaderboard challengeId={challengeId} />
+              {challenge.status === ChallengeStatus.COMPLETED ? (
+                <ChallengeResults challengeId={challengeId} />
+              ) : (
+                <ChallengeDetailLeaderboard challengeId={challengeId} />
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
               <ChallengeDetailActions challenge={challenge} onUpdate={refetch} />
+              {challenge.requireApproval && (
+                <ChallengePendingParticipants challengeId={challengeId} onUpdate={refetch} />
+              )}
               <ChallengeDetailParticipants challengeId={challengeId} />
             </div>
           </div>

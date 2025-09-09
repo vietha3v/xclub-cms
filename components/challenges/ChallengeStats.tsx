@@ -8,10 +8,10 @@ interface ChallengeStatsProps {
 }
 
 export default function ChallengeStats({ challenges }: ChallengeStatsProps) {
-  // Chỉ hiển thị dữ liệu từ BE, không tính toán
-  const activeChallenges = dlv({ challenges }, 'challenges.activeCount', 0);
-  const completedChallenges = dlv({ challenges }, 'challenges.completedCount', 0);
-  const totalParticipants = dlv({ challenges }, 'challenges.totalParticipants', 0);
+  // Tính toán từ danh sách challenges
+  const activeChallenges = challenges.filter(c => c.status === 'active').length;
+  const completedChallenges = challenges.filter(c => c.status === 'completed').length;
+  const totalParticipants = challenges.reduce((sum, c) => sum + (c.participantCount || 0), 0);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

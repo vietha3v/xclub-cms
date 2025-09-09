@@ -14,10 +14,10 @@ interface ChallengeFiltersProps {
 const types = [
   { key: 'all', label: 'Tất cả', icon: '🏆' },
   { key: ChallengeType.DISTANCE, label: 'Khoảng cách', icon: '🏃‍♂️' },
-  { key: ChallengeType.DURATION, label: 'Thời gian', icon: '⏱️' },
-  { key: ChallengeType.ACTIVITIES, label: 'Hoạt động', icon: '📊' },
+  { key: ChallengeType.TIME, label: 'Thời gian', icon: '⏱️' },
+  { key: ChallengeType.FREQUENCY, label: 'Tần suất', icon: '📊' },
   { key: ChallengeType.STREAK, label: 'Chuỗi ngày', icon: '🔥' },
-  { key: ChallengeType.CUSTOM, label: 'Tùy chỉnh', icon: '🎯' }
+  { key: ChallengeType.COMBINED, label: 'Kết hợp', icon: '🎯' }
 ];
 
 export default function ChallengeFilters({ 

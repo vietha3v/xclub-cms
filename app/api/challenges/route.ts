@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   
-  const result = await callBackendApi(request, '/api/challenges', {
+  const result = await callBackendApi(request, '/challenges', {
     method: 'POST',
     body,
   });

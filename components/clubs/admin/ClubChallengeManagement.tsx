@@ -1,42 +1,85 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Trophy, Target, Award, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Trophy, Target, Award, Users, Edit, Trash2, Eye } from 'lucide-react';
+import useAxios from '@/hooks/useAxios';
+import { Challenge } from '@/types/challenge';
+import ChallengeForm from '@/components/challenges/ChallengeForm';
 
 interface ClubChallengeManagementProps {
   clubId: string;
 }
 
 export default function ClubChallengeManagement({ clubId }: ClubChallengeManagementProps) {
-  const [challenges] = useState([
-    // Mock data - sẽ thay thế bằng API thực
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // API hooks
+  const [{ data: challengesData, loading: apiLoading, error: apiError }, refetch] = useAxios<{
+    challenges: Challenge[];
+    total: number;
+    page: number;
+    limit: number;
+  }>(`/api/challenges?clubId=${clubId}`);
+
+  const [, deleteChallenge] = useAxios(
     {
-      id: '1',
-      title: 'Thử thách 100km tháng 1',
-      description: 'Chạy tổng cộng 100km trong tháng 1',
-      type: 'distance',
-      target: 100,
-      unit: 'km',
-      startDate: '2024-01-01',
-      endDate: '2024-01-31',
-      participants: 15,
-      status: 'active',
-      reward: 'Huy hiệu vàng'
+      url: '/api/challenges/',
+      method: 'DELETE'
     },
-    {
-      id: '2',
-      title: 'Chạy 30 ngày liên tiếp',
-      description: 'Chạy ít nhất 5km mỗi ngày trong 30 ngày',
-      type: 'streak',
-      target: 30,
-      unit: 'ngày',
-      startDate: '2024-01-15',
-      endDate: '2024-02-14',
-      participants: 8,
-      status: 'upcoming',
-      reward: 'Huy hiệu bạc'
+    { manual: true }
+  );
+
+  useEffect(() => {
+    if (challengesData) {
+      setChallenges(challengesData.challenges || []);
+      setLoading(false);
     }
-  ]);
+  }, [challengesData]);
+
+  useEffect(() => {
+    if (apiError) {
+      setError('Không thể tải danh sách thử thách');
+      setLoading(false);
+    }
+  }, [apiError]);
+
+  const handleCreateChallenge = () => {
+    setEditingChallenge(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditChallenge = (challenge: Challenge) => {
+    setEditingChallenge(challenge);
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteChallenge = async (challengeId: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa thử thách này?')) return;
+
+    try {
+      await deleteChallenge({
+        url: `/api/challenges/${challengeId}`
+      });
+      refetch(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting challenge:', error);
+    }
+  };
+
+  const handleFormSuccess = (challenge: Challenge) => {
+    setIsFormOpen(false);
+    setEditingChallenge(null);
+    refetch(); // Refresh the list
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+    setEditingChallenge(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -53,7 +96,10 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
                 Tạo và quản lý các thử thách của CLB
               </p>
             </div>
-            <button className="btn btn-primary btn-sm">
+            <button 
+              className="btn btn-primary btn-sm"
+              onClick={handleCreateChallenge}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Tạo thử thách
             </button>
@@ -61,9 +107,35 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
         </div>
       </div>
 
+      {/* Loading State */}
+      {(loading || apiLoading) && (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="card bg-base-100 shadow-sm animate-pulse">
+              <div className="card-body">
+                <div className="h-4 bg-base-300 rounded w-3/4 mb-4"></div>
+                <div className="h-3 bg-base-300 rounded w-full mb-2"></div>
+                <div className="h-3 bg-base-300 rounded w-2/3"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+          <button className="btn btn-sm btn-outline" onClick={() => refetch()}>
+            Thử lại
+          </button>
+        </div>
+      )}
+
       {/* Challenges List */}
-      <div className="space-y-4">
-        {challenges.length === 0 ? (
+      {!loading && !apiLoading && !error && (
+        <div className="space-y-4">
+          {challenges.length === 0 ? (
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 text-base-content/30">
@@ -73,7 +145,10 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
               <p className="text-base-content/70 mb-4">
                 Tạo thử thách đầu tiên để khuyến khích thành viên hoạt động
               </p>
-              <button className="btn btn-primary">
+              <button 
+                className="btn btn-primary"
+                onClick={handleCreateChallenge}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Tạo thử thách đầu tiên
               </button>
@@ -86,13 +161,14 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold">{challenge.title}</h3>
+                      <h3 className="text-lg font-semibold">{challenge.name}</h3>
                       <span className={`badge badge-sm ${
                         challenge.status === 'active' ? 'badge-success' : 
-                        challenge.status === 'upcoming' ? 'badge-info' : 'badge-warning'
+                        challenge.status === 'published' ? 'badge-info' : 'badge-warning'
                       }`}>
                         {challenge.status === 'active' ? 'Đang diễn ra' : 
-                         challenge.status === 'upcoming' ? 'Sắp bắt đầu' : 'Đã kết thúc'}
+                         challenge.status === 'published' ? 'Đã công bố' : 
+                         challenge.status === 'completed' ? 'Đã hoàn thành' : 'Nháp'}
                       </span>
                     </div>
                     
@@ -101,17 +177,17 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-base-content/50" />
-                        <span>Mục tiêu: {challenge.target} {challenge.unit}</span>
+                        <span>Mục tiêu: {challenge.targetValue} {challenge.targetUnit}</span>
                       </div>
                       
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-base-content/50" />
-                        <span>{challenge.participants} người tham gia</span>
+                        <span>{challenge.participantCount} người tham gia</span>
                       </div>
                       
                       <div className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-base-content/50" />
-                        <span>{challenge.reward}</span>
+                        <span>{challenge.points} điểm</span>
                       </div>
                       
                       <div className="flex items-center gap-2">
@@ -125,11 +201,19 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
                   </div>
                   
                   <div className="flex gap-2 ml-4">
-                    <button className="btn btn-outline btn-sm">
-                      ✏️ Chỉnh sửa
+                    <button 
+                      className="btn btn-outline btn-sm"
+                      onClick={() => handleEditChallenge(challenge)}
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Chỉnh sửa
                     </button>
-                    <button className="btn btn-error btn-sm">
-                      🗑️ Xóa
+                    <button 
+                      className="btn btn-error btn-sm"
+                      onClick={() => handleDeleteChallenge(challenge.id)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Xóa
                     </button>
                   </div>
                 </div>
@@ -137,7 +221,18 @@ export default function ClubChallengeManagement({ clubId }: ClubChallengeManagem
             </div>
           ))
         )}
-      </div>
+        </div>
+      )}
+
+      {/* Challenge Form Modal */}
+      <ChallengeForm
+        clubId={clubId}
+        challenge={editingChallenge || undefined}
+        isOpen={isFormOpen}
+        onClose={handleFormClose}
+        onSuccess={handleFormSuccess}
+        mode={editingChallenge ? 'edit' : 'create'}
+      />
     </div>
   );
 }

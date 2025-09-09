@@ -1,19 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ChallengeList from '@/components/challenges/ChallengeList';
 import ChallengeFilters from '@/components/challenges/ChallengeFilters';
 import ChallengeStats from '@/components/challenges/ChallengeStats';
+import ChallengeForm from '@/components/challenges/ChallengeForm';
 import useAxios from '@/hooks/useAxios';
 import { Challenge } from '@/types/challenge';
+import { Plus, Settings } from 'lucide-react';
 
 export default function ChallengesPage() {
+  const router = useRouter();
   const [selectedType, setSelectedType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [{ data: challengesData, loading, error }, refetch] = useAxios<{
-    data: Challenge[];
+    challenges: Challenge[];
     total: number;
     page: number;
     limit: number;
@@ -23,7 +28,14 @@ export default function ChallengesPage() {
     setIsVisible(true);
   }, []);
 
-  const challenges = challengesData?.data || [];
+  const challenges = challengesData?.challenges || [];
+
+  const handleCreateSuccess = (challenge: Challenge) => {
+    setShowCreateModal(false);
+    refetch(); // Refresh the challenges list
+    // Optionally navigate to the new challenge
+    router.push(`/challenges/${challenge.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
@@ -37,6 +49,19 @@ export default function ChallengesPage() {
             <p className="text-xl text-base-content/70 max-w-3xl mx-auto mb-8">
               Tham gia các thử thách và xem thành tích của bạn
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button 
+                onClick={() => setShowCreateModal(true)}
+                className="btn btn-primary btn-lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Tạo thử thách mới
+              </button>
+              <button className="btn btn-outline btn-lg">
+                <Settings className="w-5 h-5 mr-2" />
+                Quản lý thử thách
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -97,22 +122,36 @@ export default function ChallengesPage() {
       <section className="py-16 px-4 bg-gradient-to-r from-primary/5 to-secondary/5">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold text-base-content mb-6">
-            🚀 Tạo thử thách mới?
+            🎯 Tham gia cộng đồng X-Club
           </h2>
           <p className="text-lg text-base-content/70 mb-8 max-w-2xl mx-auto">
-            Bạn có muốn tạo một thử thách mới để khuyến khích cộng đồng? 
-            Hãy liên hệ với chúng tôi để được hỗ trợ!
+            Kết nối với những người chạy bộ khác, tham gia các sự kiện và 
+            cùng nhau đạt được những mục tiêu thể thao!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn btn-primary btn-lg">
-              📧 Liên hệ tạo thử thách
+            <button 
+              onClick={() => router.push('/clubs')}
+              className="btn btn-primary btn-lg"
+            >
+              🏃‍♂️ Khám phá CLB
             </button>
-            <button className="btn btn-outline btn-lg">
-              🏠 Về trang chủ
+            <button 
+              onClick={() => router.push('/events')}
+              className="btn btn-outline btn-lg"
+            >
+              📅 Xem sự kiện
             </button>
           </div>
         </div>
       </section>
+
+      {/* Create Challenge Modal */}
+      <ChallengeForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+        mode="create"
+      />
     </div>
   );
 }
