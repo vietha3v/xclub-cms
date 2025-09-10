@@ -8,6 +8,7 @@ import useAxios from '@/hooks/useAxios';
 import { ChallengeType, ChallengeCategory, ChallengeDifficulty, ChallengeVisibility, CreateChallengeDto } from '@/types/challenge';
 import Modal from '@/components/common/Modal';
 import { useToast } from '@/components/Toast';
+import { X, Plus } from 'lucide-react';
 import dlv from 'dlv';
 
 interface CreateTeamChallengeModalProps {
@@ -36,9 +37,6 @@ const createTeamChallengeSchema = z.object({
   // Thời gian
   startDate: z.string().min(1, 'Ngày bắt đầu là bắt buộc'),
   endDate: z.string().min(1, 'Ngày kết thúc là bắt buộc'),
-  timeLimit: z.number()
-    .min(1, 'Giới hạn thời gian phải lớn hơn 0')
-    .default(30),
   
   // Mục tiêu
   targetValue: z.number()
@@ -47,13 +45,14 @@ const createTeamChallengeSchema = z.object({
     .min(1, 'Đơn vị là bắt buộc'),
   
   // Tham gia
-  allowRegistration: z.boolean().default(true),
-  requireApproval: z.boolean().default(false),
-  allowWithdrawal: z.boolean().default(true),
+  allowFreeRegistration: z.boolean().default(true),
+  autoApprovalPassword: z.string().optional(),
   maxParticipants: z.number().min(1).optional(),
   
   // Phần thưởng
   points: z.number().min(0).default(0),
+  achievementId: z.string().optional(),
+  hasDigitalCertificate: z.boolean().default(false),
   rules: z.string().optional(),
   
   // Team specific
@@ -86,11 +85,10 @@ export default function CreateTeamChallengeModal({
       type: ChallengeType.DISTANCE,
       difficulty: ChallengeDifficulty.MEDIUM,
       visibility: ChallengeVisibility.PUBLIC,
-      timeLimit: 30,
-      allowRegistration: true,
-      requireApproval: false,
-      allowWithdrawal: true,
+      allowFreeRegistration: true,
+      autoApprovalPassword: '',
       points: 0,
+      hasDigitalCertificate: false,
     },
   });
 
@@ -100,11 +98,18 @@ export default function CreateTeamChallengeModal({
   // Submit handler
   const onSubmit = async (data: CreateTeamChallengeFormData) => {
     try {
+      // Tính timeLimit tự động từ startDate và endDate
+      const startDate = new Date(data.startDate);
+      const endDate = new Date(data.endDate);
+      const timeLimitDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
       const challengeData: CreateChallengeDto = {
         ...data,
         category: ChallengeCategory.TEAM,
         clubId,
         points: Number(dlv(data, 'points', 0)),
+        timeLimit: timeLimitDays, // Tự động tính từ startDate và endDate
+        autoApprovalPassword: data.autoApprovalPassword || undefined,
       };
 
       const response = await execute({
@@ -132,22 +137,30 @@ export default function CreateTeamChallengeModal({
 
   // Footer
   const footer = (
-    <div className="flex justify-end gap-3">
+    <div className="flex justify-end items-center gap-3 p-6 bg-base-200">
       <button
         type="button"
         onClick={onClose}
-        className="btn btn-ghost"
+        className="btn btn-ghost btn-sm"
         disabled={loading}
       >
+        <X className="w-4 h-4 mr-1" />
         Hủy
       </button>
       <button
         type="submit"
         form="create-team-challenge-form"
-        className="btn btn-primary"
+        className={`btn btn-primary btn-sm ${loading ? 'loading' : ''}`}
         disabled={loading}
       >
-        {loading ? 'Đang tạo...' : 'Tạo thử thách'}
+        {loading ? (
+          'Đang tạo...'
+        ) : (
+          <>
+            <Plus className="w-4 h-4 mr-1" />
+            Tạo thử thách
+          </>
+        )}
       </button>
     </div>
   );
@@ -318,66 +331,46 @@ export default function CreateTeamChallengeModal({
                     Mục tiêu thử thách
                   </h4>
                   <div className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Loại thử thách <span className="text-error">*</span>
-                          </span>
-                        </label>
-                        <select 
-                          className="select select-bordered w-full" 
-                          {...register('type')}
-                          onChange={(e) => {
-                            const type = e.target.value as ChallengeType;
-                            setValue('type', type);
-                            // Tự động chọn đơn vị dựa trên loại thử thách
-                            let defaultUnit = 'km';
-                            switch (type) {
-                              case ChallengeType.DISTANCE:
-                                defaultUnit = 'km';
-                                break;
-                              case ChallengeType.TIME:
-                                defaultUnit = 'hours';
-                                break;
-                              case ChallengeType.FREQUENCY:
-                                defaultUnit = 'times';
-                                break;
-                              case ChallengeType.STREAK:
-                                defaultUnit = 'days';
-                                break;
-                              case ChallengeType.COMBINED:
-                                defaultUnit = 'km';
-                                break;
-                            }
-                            setValue('targetUnit', defaultUnit);
-                          }}
-                        >
-                          <option value={ChallengeType.DISTANCE}>Khoảng cách</option>
-                          <option value={ChallengeType.TIME}>Thời gian</option>
-                          <option value={ChallengeType.FREQUENCY}>Tần suất</option>
-                          <option value={ChallengeType.STREAK}>Chuỗi ngày</option>
-                          <option value={ChallengeType.COMBINED}>Kết hợp</option>
-                        </select>
-                      </div>
-
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">Giới hạn thời gian (ngày)</span>
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          placeholder="30"
-                          className={`input input-bordered w-full max-w-xs ${errors.timeLimit ? 'input-error' : ''}`}
-                          {...register('timeLimit', { valueAsNumber: true })}
-                        />
-                        {errors.timeLimit && (
-                          <label className="label">
-                            <span className="label-text-alt text-error">{errors.timeLimit.message}</span>
-                          </label>
-                        )}
-                      </div>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text font-medium">
+                          Loại thử thách <span className="text-error">*</span>
+                        </span>
+                      </label>
+                      <select 
+                        className="select select-bordered w-full" 
+                        {...register('type')}
+                        onChange={(e) => {
+                          const type = e.target.value as ChallengeType;
+                          setValue('type', type);
+                          // Tự động chọn đơn vị dựa trên loại thử thách
+                          let defaultUnit = 'km';
+                          switch (type) {
+                            case ChallengeType.DISTANCE:
+                              defaultUnit = 'km';
+                              break;
+                            case ChallengeType.TIME:
+                              defaultUnit = 'hours';
+                              break;
+                            case ChallengeType.FREQUENCY:
+                              defaultUnit = 'times';
+                              break;
+                            case ChallengeType.STREAK:
+                              defaultUnit = 'days';
+                              break;
+                            case ChallengeType.COMBINED:
+                              defaultUnit = 'km';
+                              break;
+                          }
+                          setValue('targetUnit', defaultUnit);
+                        }}
+                      >
+                        <option value={ChallengeType.DISTANCE}>Khoảng cách</option>
+                        <option value={ChallengeType.TIME}>Thời gian</option>
+                        <option value={ChallengeType.FREQUENCY}>Tần suất</option>
+                        <option value={ChallengeType.STREAK}>Chuỗi ngày</option>
+                        <option value={ChallengeType.COMBINED}>Kết hợp</option>
+                      </select>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -437,84 +430,61 @@ export default function CreateTeamChallengeModal({
                     <span className="text-lg">👥</span>
                     Cài đặt tham gia
                   </h4>
-                  <div className="space-y-3">
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">Số người tham gia tối đa</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        placeholder="Không giới hạn"
-                        className="input input-bordered w-full max-w-xs"
-                        {...register('maxParticipants', { valueAsNumber: true })}
-                      />
-                    </div>
-
-                    {/* Toggle - 2 cái/hàng */}
+                  <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="form-control">
-                        <label className="label cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="toggle toggle-primary"
-                            {...register('allowRegistration')}
-                          />
-                          <span className="label-text font-medium ml-3">Cho phép đăng ký</span>
+                        <label className="label">
+                          <span className="label-text font-medium">Số người tham gia tối đa</span>
                         </label>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Không giới hạn"
+                          className="input input-bordered w-full max-w-xs"
+                          {...register('maxParticipants', { valueAsNumber: true })}
+                        />
+                      </div>
+                      <div></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">Chế độ đăng ký</span>
+                        </label>
+                        <div className="form-control">
+                          <label className="label cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="toggle toggle-primary"
+                              {...register('allowFreeRegistration')}
+                            />
+                            <span className="label-text ml-3">
+                              {watch('allowFreeRegistration') ? 'Đăng ký tự do' : 'Phê duyệt đăng ký'}
+                            </span>
+                          </label>
+                        </div>
                       </div>
 
                       <div className="form-control">
-                        <label className="label cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="toggle toggle-primary"
-                            {...register('requireApproval')}
-                          />
-                          <span className="label-text font-medium ml-3">Yêu cầu phê duyệt tham gia</span>
+                        <label className="label">
+                          <span className="label-text font-medium">Mật khẩu phê duyệt</span>
                         </label>
+                        <input
+                          type="password"
+                          placeholder="Nhập mật khẩu"
+                          className="input input-bordered w-full max-w-xs"
+                          disabled={watch('allowFreeRegistration')}
+                          {...register('autoApprovalPassword')}
+                        />
                       </div>
                     </div>
-
-                    <div className="form-control">
-                      <label className="label cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-primary"
-                          {...register('allowWithdrawal')}
-                        />
-                        <span className="label-text font-medium ml-3">Cho phép rút lui</span>
-                      </label>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* 5. Phần thưởng */}
-              <div className="card bg-base-100 shadow-sm">
-                <div className="card-body p-4">
-                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                    <span className="text-lg">🏆</span>
-                    Phần thưởng
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">Điểm thưởng</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        className="input input-bordered w-full max-w-xs"
-                        {...register('points')}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* 6. Quy tắc */}
+              {/* 5. Quy tắc */}
               <div className="card bg-base-100 shadow-sm">
                 <div className="card-body p-4">
                   <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">

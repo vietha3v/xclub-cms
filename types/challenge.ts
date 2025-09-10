@@ -70,9 +70,8 @@ export interface Challenge {
   tags?: string[];
   participantCount: number;
   completedCount: number;
-  allowRegistration: boolean;
-  requireApproval: boolean;
-  allowWithdrawal: boolean;
+  allowFreeRegistration: boolean;
+  autoApprovalPassword?: string;
   isDeleted: boolean;
   deletedAt?: string;
   deletedBy?: string;
@@ -239,9 +238,8 @@ export interface CreateChallengeDto {
   rules?: string;
   coverImageUrl?: string;
   tags?: string[];
-  allowRegistration?: boolean;
-  requireApproval?: boolean;
-  allowWithdrawal?: boolean;
+  allowFreeRegistration?: boolean;
+  autoApprovalPassword?: string;
 }
 
 export interface UpdateChallengeDto {
@@ -280,9 +278,8 @@ export interface UpdateChallengeDto {
   rules?: string;
   coverImageUrl?: string;
   tags?: string[];
-  allowRegistration?: boolean;
-  requireApproval?: boolean;
-  allowWithdrawal?: boolean;
+  allowFreeRegistration?: boolean;
+  autoApprovalPassword?: string;
 }
 
 // Team Challenge DTOs

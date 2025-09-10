@@ -28,6 +28,7 @@ export default function ChallengeRegistrationModal({
 }: ChallengeRegistrationModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationResult, setRegistrationResult] = useState<RegistrationResult | null>(null);
+  const [password, setPassword] = useState('');
   const { showToast } = useToast();
 
   const [, refetch] = useAxios<RegistrationResult>(
@@ -43,7 +44,8 @@ export default function ChallengeRegistrationModal({
 
     try {
       const response = await refetch({
-        method: 'POST'
+        method: 'POST',
+        data: password ? { autoApprovalPassword: password } : {}
       });
 
       if (response.data) {
@@ -174,6 +176,32 @@ export default function ChallengeRegistrationModal({
             <div className="flex items-center gap-3 text-primary">
               <Loader2 className="w-6 h-6 animate-spin" />
               <span className="text-lg font-medium">Đang xử lý đăng ký...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Password Input - chỉ hiện khi cần phê duyệt và có mật khẩu */}
+        {!registrationResult && !challenge.allowFreeRegistration && challenge.autoApprovalPassword && (
+          <div className="mb-6">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">
+                  Mật khẩu phê duyệt tự động
+                </span>
+              </label>
+              <input
+                type="password"
+                placeholder="Nhập mật khẩu để được phê duyệt tự động"
+                className="input input-bordered w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+              />
+              <label className="label">
+                <span className="label-text-alt text-base-content/60">
+                  Nhập mật khẩu để được phê duyệt tự động, hoặc để trống để chờ phê duyệt thủ công
+                </span>
+              </label>
             </div>
           </div>
         )}

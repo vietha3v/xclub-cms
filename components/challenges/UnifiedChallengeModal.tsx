@@ -5,6 +5,7 @@ import { ChallengeCategory } from '@/types/challenge';
 import Modal from '@/components/common/Modal';
 import CreateIndividualChallengeModal from './CreateIndividualChallengeModal';
 import CreateTeamChallengeModal from './CreateTeamChallengeModal';
+import { X, Plus } from 'lucide-react';
 
 interface UnifiedChallengeModalProps {
   isOpen: boolean;
@@ -59,20 +60,23 @@ export default function UnifiedChallengeModal({
 
   // Footer với 2 nút action
   const footer = (
-    <div className="flex justify-end gap-3 m-4">
+    <div className="flex justify-end items-center gap-3 p-6 bg-base-200">
       <button
         type="button"
         onClick={handleClose}
-        className="btn btn-ghost"
+        className="btn btn-ghost btn-sm"
       >
+        <X className="w-4 h-4 mr-1" />
         Hủy
       </button>
+      
       <button
         type="button"
         onClick={handleClose}
-        className="btn btn-primary"
+        className="btn btn-primary btn-sm"
         disabled
       >
+        <Plus className="w-4 h-4 mr-1" />
         Tiếp tục
       </button>
     </div>
