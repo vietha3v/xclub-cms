@@ -64,7 +64,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
     { value: 'createdAt', label: 'Ngày tạo' },
   ];
 
-  const handleInputChange = (field: keyof ActivityFilters, value: any) => {
+  const handleInputChange = (field: keyof ActivityFilters, value: string | number) => {
     onFilterChange({ [field]: value });
   };
 
@@ -261,7 +261,7 @@ export default function ActivityFilters({ filters, onFilterChange }: ActivityFil
           <select
             className="select select-bordered select-md"
             value={filters.sortBy}
-            onChange={(e) => handleInputChange('sortBy', e.target.value as any)}
+            onChange={(e) => handleInputChange('sortBy', e.target.value)}
           >
             {sortOptions.map((option, index) => (
               <option key={`sort-${option.value || index}`} value={option.value}>

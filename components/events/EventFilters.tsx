@@ -53,7 +53,7 @@ export default function EventFilters({ filters, onFilterChange }: EventFiltersPr
     { value: EventVisibility.CLUB_ONLY, label: '🔒 Chỉ thành viên CLB' },
   ];
 
-  const handleInputChange = (field: keyof typeof filters, value: any) => {
+  const handleInputChange = (field: keyof typeof filters, value: string | number) => {
     onFilterChange({ [field]: value });
   };
 

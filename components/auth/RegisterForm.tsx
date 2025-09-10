@@ -73,13 +73,16 @@ export default function RegisterForm() {
         router.push('/auth/login');
       }, 2000);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại';
       
-      if (error.response?.status === 409) {
-        errorMessage = 'Email hoặc username đã được sử dụng';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+        if (axiosError.response?.status === 409) {
+          errorMessage = 'Email hoặc username đã được sử dụng';
+        } else if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        }
       }
       
       setError(errorMessage);
@@ -254,8 +257,8 @@ export default function RegisterForm() {
                 </label>
               )}
               <label className="label">
-                <span className="label-text-alt">
-                  Mật khẩu phải có ít nhất 8 ký tự, chứa chữ hoa, chữ thường và số
+                <span className="label-text-alt text-xs text-base-content/60">
+                  💡 Ít nhất 8 ký tự, có chữ hoa, chữ thường và số
                 </span>
               </label>
             </div>

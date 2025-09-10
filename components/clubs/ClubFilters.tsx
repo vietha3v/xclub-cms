@@ -53,7 +53,7 @@ export default function ClubFilters({ filters, onFilterChange }: ClubFiltersProp
     { value: 'suspended', label: '⏸️ Tạm ngưng' },
   ];
 
-  const handleInputChange = (field: keyof typeof filters, value: any) => {
+  const handleInputChange = (field: keyof typeof filters, value: string | number) => {
     onFilterChange({ [field]: value });
   };
 

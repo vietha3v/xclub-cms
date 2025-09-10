@@ -64,17 +64,20 @@ export default function LoginForm() {
       } else {
         setError('Đăng nhập thất bại');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại';
       
-      if (error.response?.status === 401) {
-        errorMessage = 'Email hoặc mật khẩu không đúng';
-      } else if (error.response?.status === 429) {
-        errorMessage = 'Quá nhiều lần thử, vui lòng chờ';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'Lỗi server, vui lòng thử lại sau';
-      } else {
-        errorMessage = error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại';
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status: number } };
+        if (axiosError.response?.status === 401) {
+          errorMessage = 'Email hoặc mật khẩu không đúng';
+        } else if (axiosError.response?.status === 429) {
+          errorMessage = 'Quá nhiều lần thử, vui lòng chờ';
+        } else if (axiosError.response?.status === 500) {
+          errorMessage = 'Lỗi server, vui lòng thử lại sau';
+        } else {
+          errorMessage = 'Có lỗi xảy ra, vui lòng thử lại';
+        }
       }
       
       setError(errorMessage);

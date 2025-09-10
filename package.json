@@ -11,6 +11,8 @@
   "dependencies": {
     "@auth/core": "^0.18.0",
     "@auth/nextjs": "^0.7.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^3.3.0",
     "axios": "^1.6.0",
     "axios-hooks": "^1.0.0",

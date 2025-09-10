@@ -6,13 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Calendar, MapPin, Users, Clock, FileText, DollarSign, Mail, Phone, X, Plus } from 'lucide-react';
 import useAxios from '@/hooks/useAxios';
-import { EventType, EventVisibility, CreateEventDto } from '@/types/event';
+import { Event, EventType, EventVisibility, CreateEventDto } from '@/types/event';
 import Modal from '@/components/common/Modal';
 
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (event: any) => void;
+  onSuccess?: (event: Event) => void;
   clubId?: string;
 }
 

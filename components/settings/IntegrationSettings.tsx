@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { RefreshCw, Info, AlertCircle } from 'lucide-react';
 import useAxios from '@/hooks/useAxios';
 import { SyncButton } from '../SyncButton';
 import StravaConnect from './StravaConnect';
 import GarminConnect from './GarminConnect';
 import { useToast } from '@/components/Toast';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 // SyncStatus Component
 const SyncStatus: React.FC<{ lastSyncTime?: string; syncStatus?: string }> = ({ lastSyncTime, syncStatus }) => {
@@ -123,9 +125,7 @@ export default function IntegrationSettings() {
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   Làm mới
                 </>
               )}
@@ -165,9 +165,7 @@ export default function IntegrationSettings() {
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
           <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 text-info mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <Info className="w-6 h-6 text-info mt-0.5" />
             <div className="flex-1">
               <h4 className="font-semibold text-info mb-3 text-lg">Thông tin về tích hợp</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -204,9 +202,7 @@ export default function IntegrationSettings() {
       {/* Error Display */}
       {error && (
         <div className="alert alert-error">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <AlertCircle className="w-6 h-6" />
           <span>Lỗi tải danh sách tích hợp: {error.message}</span>
         </div>
       )}

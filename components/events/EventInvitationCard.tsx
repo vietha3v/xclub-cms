@@ -294,7 +294,7 @@ Trân trọng!`;
                     {invitationData.personalMessage && (
                       <div className="mb-6 p-4 bg-base-200/50 rounded-lg">
                         <div className="text-sm text-base-content/80 italic">
-                          "{invitationData.personalMessage}"
+                          &quot;{invitationData.personalMessage}&quot;
                         </div>
                       </div>
                     )}

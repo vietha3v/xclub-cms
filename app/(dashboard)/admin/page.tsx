@@ -1,13 +1,39 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminDashboard from '@/components/admin/AdminDashboard';
-import AdminEvents from '@/components/admin/AdminEvents';
-import AdminChallenges from '@/components/admin/AdminChallenges';
-import AdminRaces from '@/components/admin/AdminRaces';
-import AdminUsers from '@/components/admin/AdminUsers';
-import AdminClubs from '@/components/admin/AdminClubs';
+import dynamic from 'next/dynamic';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Tabs from '@/components/common/Tabs';
+
+const AdminDashboard = dynamic(() => import('@/components/admin/AdminDashboard'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải dashboard..." />
+});
+
+const AdminEvents = dynamic(() => import('@/components/admin/AdminEvents'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải sự kiện..." />
+});
+
+const AdminChallenges = dynamic(() => import('@/components/admin/AdminChallenges'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải thử thách..." />
+});
+
+const AdminRaces = dynamic(() => import('@/components/admin/AdminRaces'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải giải chạy..." />
+});
+
+const AdminUsers = dynamic(() => import('@/components/admin/AdminUsers'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải người dùng..." />
+});
+
+const AdminClubs = dynamic(() => import('@/components/admin/AdminClubs'), {
+  ssr: false,
+  loading: () => <LoadingSpinner text="Đang tải CLB..." />
+});
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');

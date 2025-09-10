@@ -4,7 +4,7 @@ import { callBackendApi, createNextResponse } from '@/lib/backend-api';
 export async function POST(request: NextRequest) {
   const body = await request.json();
   
-  const result = await callBackendApi(request, '/auth/register', {
+  const result = await callBackendApi(request, '/api/auth/register', {
     method: 'POST',
     body,
   });

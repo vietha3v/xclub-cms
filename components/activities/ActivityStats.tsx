@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { ActivityStats as Stats } from '@/types/activity';
+import { ActivityStats as Stats, ActivityType } from '@/types/activity';
 import { activityUtils } from '@/utils/activityUtils';
 import useAxios from '@/hooks/useAxios';
 import dlv from 'dlv';
@@ -190,9 +190,9 @@ export default function ActivityStats({ period = 'all', className = '' }: Activi
               <div key={type} className="card bg-base-200 shadow-sm">
                 <div className="card-body p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl">{activityUtils.getActivityIcon(type as any)}</div>
+                    <div className="text-2xl">{activityUtils.getActivityIcon(type as ActivityType)}</div>
                     <div className="text-right">
-                      <div className="text-sm text-base-content/70">{activityUtils.getActivityName(type as any)}</div>
+                      <div className="text-sm text-base-content/70">{activityUtils.getActivityName(type as ActivityType)}</div>
                       <div className="text-2xl font-bold">{dlv(data, 'count', 0)}</div>
                     </div>
                   </div>

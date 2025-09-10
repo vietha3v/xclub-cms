@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, QueryActivityDto } from '@/types/activity';
+import { Activity, QueryActivityDto, ActivityType, ActivityStatus } from '@/types/activity';
 import { activityUtils } from '@/utils/activityUtils';
 import { validationUtils } from '@/utils/validation';
 import dlv from 'dlv';
@@ -67,8 +67,8 @@ export default function ActivityList({
     limit: itemsPerPage,
     search: filters.search || undefined,
     // Convert empty strings to undefined and handle type conversion
-    type: filters.type ? filters.type as any : undefined,
-    status: filters.status ? filters.status as any : undefined,
+    type: filters.type ? filters.type as ActivityType : undefined,
+    status: filters.status ? filters.status as ActivityStatus : undefined,
     source: filters.source || undefined,
     startDate: filters.startDate || undefined,
     endDate: filters.endDate || undefined,
@@ -102,7 +102,7 @@ export default function ActivityList({
   useEffect(() => {
     if (data) {
       // Transform API data to match TypeScript interface
-      const transformedActivities = (data.data || []).map((activity: any) => ({
+      const transformedActivities = (data.data || []).map((activity: Record<string, unknown>) => ({
         ...activity,
         // Convert string numbers to numbers
         distance: activity.distance ? parseFloat(activity.distance) : undefined,
@@ -234,7 +234,7 @@ export default function ActivityList({
                   </tr>
                 </thead>
                 <tbody>
-                  {dlv({ activities }, 'activities', []).map((activity: any) => (
+                  {dlv({ activities }, 'activities', []).map((activity: Activity) => (
                     <tr key={activity.id} className="hover:bg-base-200">
                       <td>
                         <div className="text-sm">

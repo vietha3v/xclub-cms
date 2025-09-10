@@ -115,7 +115,7 @@ export default function ClubMemberManagement({
       fetchPendingRequests();
       fetchMembers();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Approve request error:', error);
       alert('Có lỗi xảy ra khi duyệt yêu cầu');
     }
@@ -143,7 +143,7 @@ export default function ClubMemberManagement({
       alert('Đã từ chối yêu cầu tham gia');
       fetchPendingRequests();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reject request error:', error);
       alert('Có lỗi xảy ra khi từ chối yêu cầu');
     }
@@ -163,7 +163,7 @@ export default function ClubMemberManagement({
       setSelectedMember(null);
       fetchMembers();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update role error:', error);
       alert(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật vai trò');
     }
@@ -183,7 +183,7 @@ export default function ClubMemberManagement({
       setSelectedMember(null);
       fetchMembers();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update status error:', error);
       alert(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
     }
@@ -206,7 +206,7 @@ export default function ClubMemberManagement({
       setShowMemberActions(false);
       setSelectedMember(null);
       fetchMembers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Remove member error:', error);
       alert(error.response?.data?.message || 'Có lỗi xảy ra khi xóa thành viên');
     }
@@ -493,7 +493,7 @@ export default function ClubMemberManagement({
                             </div>
                             {request.notes && (
                               <div className="text-sm text-base-content/60 mt-1">
-                                "{request.notes}"
+                                &quot;{request.notes}&quot;
                               </div>
                             )}
                             <div className="text-xs text-base-content/50">
