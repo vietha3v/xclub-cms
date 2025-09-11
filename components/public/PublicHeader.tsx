@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import UserActions from '../common/UserActions';
+import AuthSection from '../common/AuthSection';
 
 export default function PublicHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,7 +49,7 @@ export default function PublicHeader() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <UserActions variant="desktop" />
+            <AuthSection variant="public" />
           </div>
 
           {/* Mobile menu button */}
@@ -87,7 +87,7 @@ export default function PublicHeader() {
               </Link>
               
               <div className="pt-4 border-t border-base-300">
-                <UserActions variant="mobile" />
+                <AuthSection variant="public" />
               </div>
             </nav>
           </div>

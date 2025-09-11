@@ -7,10 +7,15 @@ export default function UserMenuDropdown() {
   const { data: session } = useSession();
 
   const handleSignOut = async () => {
+    console.log('🚪 UserMenuDropdown - Starting sign out process');
     try {
-      await signOut({ callbackUrl: '/' });
+      // Không dùng callbackUrl để tránh lỗi Configuration
+      await signOut({ redirect: false });
+      console.log('✅ UserMenuDropdown - Sign out completed');
+      // Redirect thủ công
+      window.location.href = '/';
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('❌ UserMenuDropdown - Error signing out:', error);
     }
   };
 

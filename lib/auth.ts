@@ -4,6 +4,7 @@ import FacebookProvider from 'next-auth/providers/facebook';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { authAPI, tokenManager } from './api';
 
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -11,24 +12,28 @@ export const {
   signOut,
 } = NextAuth({
   providers: [
-    // Google OAuth
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
+    // Google OAuth - chỉ enable khi có config
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'disabled' ? [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        authorization: {
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code"
+          }
         }
-      }
-    }),
+      })
+    ] : []),
     
-    // Facebook OAuth
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+    // Facebook OAuth - chỉ enable khi có config
+    ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_ID !== 'disabled' ? [
+      FacebookProvider({
+        clientId: process.env.FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+      })
+    ] : []),
     
     // Credentials (Email/Password)
     CredentialsProvider({
@@ -43,8 +48,9 @@ export const {
         }
 
         try {
-          // Gọi Next.js API route
-          const response = await fetch('/api/auth/login', {
+          // Gọi backend API trực tiếp
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+          const response = await fetch(`${baseUrl}/api/auth/login`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -162,8 +168,13 @@ export const {
     
     async redirect({ url, baseUrl }) {
       // Xử lý redirect sau khi đăng nhập
-      if (url.startsWith('/')) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      else if (url && new URL(url).origin === baseUrl) {
+        return url;
+      }
+      
       return baseUrl;
     }
   },
@@ -185,7 +196,24 @@ export const {
   // Secret cho NextAuth - sử dụng mặc định cho development
   secret: process.env.NEXTAUTH_SECRET || 'x-club-development-secret-key-2024',
   
+  // URL cho NextAuth - sử dụng mặc định cho development
+  url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  
+  // Debug environment variables
   debug: process.env.NODE_ENV === 'development',
+  
+  // Logging configuration
+  logger: {
+    error(code, metadata) {
+      console.error('NextAuth Error:', { code, metadata });
+    },
+    warn(code) {
+      console.warn('NextAuth Warning:', code);
+    },
+    debug(code, metadata) {
+      console.log('NextAuth Debug:', { code, metadata });
+    }
+  },
 });
 
 // Helper functions

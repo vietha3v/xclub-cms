@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import useAxios from '@/hooks/useAxios';
 import { tokenManager } from '@/lib/api';
 import { useToast } from '@/components/Toast';
@@ -53,6 +53,18 @@ export default function LoginForm() {
         // Lưu token bằng tokenManager
         tokenManager.saveTokens(response.access_token, response.refresh_token, data.rememberMe);
 
+        // Tạo Next Auth session bằng cách gọi signIn với credentials
+        const nextAuthResult = await signIn('credentials', {
+          emailOrUsername: data.emailOrUsername,
+          password: data.password,
+          redirect: false,
+        });
+
+        if (nextAuthResult?.error) {
+          console.error('Next Auth session creation failed:', nextAuthResult.error);
+          // Vẫn redirect vì đã đăng nhập thành công qua API
+        }
+
         showToast({
           type: 'success',
           message: 'Đăng nhập thành công!',
@@ -94,6 +106,7 @@ export default function LoginForm() {
     try {
       await signIn('google', { callbackUrl: '/dashboard' });
     } catch (error) {
+      console.error('Google OAuth sign in failed:', error);
       setError('Đăng nhập Google thất bại');
     }
   };
@@ -102,6 +115,7 @@ export default function LoginForm() {
     try {
       await signIn('facebook', { callbackUrl: '/dashboard' });
     } catch (error) {
+      console.error('Facebook OAuth sign in failed:', error);
       setError('Đăng nhập Facebook thất bại');
     }
   };
