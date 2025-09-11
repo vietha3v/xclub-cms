@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Challenge, ChallengeType, ChallengeCategory, ChallengeStatus, ChallengeDifficulty } from '@/types/challenge';
-import { Calendar, Users, Trophy, Clock, Target, Eye, UserPlus, CheckCircle } from 'lucide-react';
+import { Calendar, Users, Trophy, User, Clock, CheckCircle, UserPlus, User as UserIcon, Users as UsersIcon, Timer, Target } from 'lucide-react';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import ChallengeRegistrationModal from './ChallengeRegistrationModal';
+import CountdownTimer from './CountdownTimer';
 
 interface ChallengeCardProps {
   challenge: Challenge;
@@ -157,6 +160,36 @@ export default function ChallengeCard({
     }
   };
 
+  const getDifficultyIcons = (difficulty: ChallengeDifficulty) => {
+    switch (difficulty) {
+      case ChallengeDifficulty.EASY:
+        return 1;
+      case ChallengeDifficulty.MEDIUM:
+        return 2;
+      case ChallengeDifficulty.HARD:
+        return 3;
+      case ChallengeDifficulty.EXPERT:
+        return 4;
+      default:
+        return 1;
+    }
+  };
+
+  const getDifficultyBackground = (difficulty: ChallengeDifficulty) => {
+    switch (difficulty) {
+      case ChallengeDifficulty.EASY:
+        return 'bg-green-50 border-green-200';
+      case ChallengeDifficulty.MEDIUM:
+        return 'bg-yellow-50 border-yellow-200';
+      case ChallengeDifficulty.HARD:
+        return 'bg-orange-50 border-orange-200';
+      case ChallengeDifficulty.EXPERT:
+        return 'bg-red-50 border-red-200';
+      default:
+        return 'bg-gray-50 border-gray-200';
+    }
+  };
+
   const formatStatus = (status: ChallengeStatus) => {
     switch (status) {
       case ChallengeStatus.ACTIVE:
@@ -164,7 +197,7 @@ export default function ChallengeCard({
       case ChallengeStatus.UPCOMING:
         return 'Sắp diễn ra';
       case ChallengeStatus.PUBLISHED:
-        return 'Đã công bố';
+        return 'Sắp diễn ra';
       case ChallengeStatus.PAUSED:
         return 'Tạm dừng';
       case ChallengeStatus.COMPLETED:
@@ -176,92 +209,244 @@ export default function ChallengeCard({
     }
   };
 
+  const getStatusIcon = (status: ChallengeStatus) => {
+    switch (status) {
+      case ChallengeStatus.UPCOMING:
+      case ChallengeStatus.PUBLISHED:
+        return <Timer className="w-2 h-2 sm:w-3 sm:h-3 animate-spin" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusText = (status: ChallengeStatus) => {
+    // For upcoming/published challenges, we'll use CountdownTimer component
+    if (status === ChallengeStatus.UPCOMING || status === ChallengeStatus.PUBLISHED) {
+      return null; // Will be handled by CountdownTimer
+    }
+    return formatStatus(status);
+  };
+
   const colors = getChallengeColors(challenge.type, challenge.category);
   const challengeIcon = getChallengeIcon(challenge.type, challenge.category);
+  const difficultyBg = getDifficultyBackground(challenge.difficulty);
 
   return (
     <>
-      <div className={`card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 ${colors.border} border-l-4`}>
-        <div className="card-body p-4">
-          <div className="flex items-center gap-4">
-            {/* Icon & Basic Info */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className={`text-2xl ${colors.primary}`}>
-                {challengeIcon}
+      <div 
+        className={`${difficultyBg} shadow-sm hover:shadow-md transition-all duration-300 ${colors.border} border-l-4 h-20 sm:h-auto rounded-lg cursor-pointer sm:flex sm:flex-col`}
+        onClick={() => onViewDetails?.(challenge.id)}
+      >
+        <div className="p-2 sm:p-4 h-full sm:flex sm:flex-col sm:gap-3">
+          {/* Mobile Layout */}
+          <div className="flex items-start w-full gap-2 sm:hidden h-full">
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              {/* Title */}
+              <h3 className="font-semibold text-xs truncate leading-tight mb-1">
+                {challenge.name}
+              </h3>
+              
+              <div className="flex gap-1 flex-wrap mb-1">
+                <div className={`badge ${colors.badge} badge-xs text-[10px] flex items-center justify-center`}>
+                  {challenge.category === ChallengeCategory.TEAM ? (
+                    <UsersIcon className="w-2 h-2" />
+                  ) : (
+                    <UserIcon className="w-2 h-2" />
+                  )}
+                </div>
+                <div className={`badge ${getStatusColor(challenge.status)} badge-xs text-[10px] flex items-center gap-1`}>
+                  <CountdownTimer 
+                    startDate={challenge.startDate} 
+                    endDate={challenge.endDate} 
+                    className="w-2 h-2"
+                  />
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-sm line-clamp-1 mb-1">
-                  {challenge.name}
-                </h3>
-                <div className="flex gap-1 flex-wrap">
-                  <div className={`badge ${colors.badge} badge-xs`}>
-                    {challenge.category === ChallengeCategory.TEAM ? 'Tập thể' : 'Cá nhân'}
-                  </div>
-                  <div className={`badge ${getStatusColor(challenge.status)} badge-xs`}>
-                    {formatStatus(challenge.status)}
-                  </div>
+              
+              {/* Mobile extra info */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 text-[9px] text-gray-500">
+                  <Calendar className="w-2 h-2" />
+                  <span>
+                    {format(new Date(challenge.startDate), 'dd/MM', { locale: vi })}
+                    {challenge.endDate && (
+                      <>
+                        {'-'}
+                        {format(new Date(challenge.endDate), 'dd/MM', { locale: vi })}
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-[9px] text-gray-500">
+                  <Users className="w-2 h-2" />
+                  <span>{challenge.participantCount || 0}{challenge.maxParticipants ? `/${challenge.maxParticipants}` : ''}</span>
                 </div>
               </div>
             </div>
 
-            {/* Challenge Details - Compact */}
-            <div className="flex items-center gap-3 text-xs text-base-content/60 flex-1 flex-wrap">
+            {/* Right Column: Difficulty Icons + Actions */}
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              {/* Difficulty Icons */}
               <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                <span>{new Date(challenge.startDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}</span>
+                {[...Array(getDifficultyIcons(challenge.difficulty))].map((_, index) => (
+                  <span key={index} className="text-xs">💪</span>
+                ))}
               </div>
+              
+              {/* Creator info */}
+              <div className="flex items-center gap-1 text-[9px] text-gray-500">
+                <User className="w-2 h-2" />
+                <span>Bởi {typeof challenge.createdBy === 'string' ? challenge.createdBy : (challenge.createdBy as any)?.name || 'Người dùng'}</span>
+              </div>
+              
+              {/* Actions */}
+              <div className="flex gap-1">
+                {challenge.userRegistrationStatus ? (
+                  <div 
+                    className={`btn btn-xs cursor-default ${
+                      challenge.userRegistrationStatus === 'pending' 
+                        ? 'btn-warning' 
+                        : 'btn-success'
+                    } text-[10px] sm:text-xs w-[70px] sm:w-[90px] flex items-center justify-center`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {challenge.userRegistrationStatus === 'pending' ? (
+                      <>
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="ml-1 truncate">Chờ duyệt</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="ml-1 truncate">Đã đăng ký</span>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <button 
+                    className="btn btn-primary btn-xs text-[10px] sm:text-xs w-[70px] sm:w-[90px] flex items-center justify-center"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleJoinClick();
+                    }}
+                  >
+                    <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="ml-1 truncate">Đăng ký</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout - Card Style */}
+          <div className="hidden sm:flex sm:flex-col sm:gap-3">
+            {/* Header: Title + Difficulty */}
+            <div className="flex justify-between items-start">
+              <h3 className="font-semibold text-base leading-tight flex-1 min-w-0">
+                <span className="truncate block">{challenge.name}</span>
+              </h3>
+              <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                {[...Array(getDifficultyIcons(challenge.difficulty))].map((_, index) => (
+                  <span key={index} className="text-sm">💪</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Goal */}
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <span className="text-sm font-medium text-gray-800">
+                {challenge.targetValue} {challenge.targetUnit}
+              </span>
+            </div>
+
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
               <div className="flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                <span>
-                  {challenge.participantCount || 0}
-                  {challenge.maxParticipants && `/${challenge.maxParticipants}`}
+                <Calendar className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">
+                  {format(new Date(challenge.startDate), 'dd/MM/yy', { locale: vi })}
+                  {challenge.endDate && (
+                    <> - {format(new Date(challenge.endDate), 'dd/MM/yy', { locale: vi })}</>
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <Trophy className="w-3 h-3" />
-                <span>{formatDifficulty(challenge.difficulty)}</span>
+                <Users className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">
+                  {challenge.participantCount || 0}{challenge.maxParticipants ? `/${challenge.maxParticipants}` : ''}
+                </span>
               </div>
-              {challenge.targetDistance && (
-                <div className="flex items-center gap-1">
-                  <Target className="w-3 h-3" />
-                  <span>{challenge.targetDistance}km</span>
-                </div>
-              )}
-              {challenge.targetTime && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{challenge.targetTime}h</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">
+                  {challenge.timeLimit ? `${challenge.timeLimit} ngày` : 'Không giới hạn'}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <User className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">
+                  {typeof challenge.createdBy === 'string' ? challenge.createdBy : (challenge.createdBy as any)?.name || 'Người dùng'}
+                </span>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-2 flex-shrink-0">
+            {/* Badges */}
+            <div className="flex gap-2 flex-wrap">
+              <div className={`badge ${colors.badge} badge-sm flex items-center gap-1`}>
+                {challenge.category === ChallengeCategory.TEAM ? (
+                  <UsersIcon className="w-3 h-3" />
+                ) : (
+                  <UserIcon className="w-3 h-3" />
+                )}
+                <span className="text-xs">{challenge.category === ChallengeCategory.TEAM ? 'Tập thể' : 'Cá nhân'}</span>
+              </div>
+              
+              <div className={`badge ${getStatusColor(challenge.status)} badge-sm flex items-center gap-1`}>
+                <CountdownTimer 
+                  startDate={challenge.startDate} 
+                  endDate={challenge.endDate} 
+                  className="w-3 h-3"
+                />
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="mt-auto">
               {challenge.userRegistrationStatus ? (
-                <div className={`btn btn-sm cursor-default ${
-                  challenge.userRegistrationStatus === 'pending' 
-                    ? 'btn-warning' 
-                    : 'btn-success'
-                }`}>
-                  <CheckCircle className="w-3 h-3" />
-                  {challenge.userRegistrationStatus === 'pending' ? 'Chờ duyệt' : 'Đã đăng ký'}
+                <div 
+                  className={`btn btn-sm cursor-default w-full ${
+                    challenge.userRegistrationStatus === 'pending' 
+                      ? 'btn-warning' 
+                      : 'btn-success'
+                  } text-xs flex items-center justify-center`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {challenge.userRegistrationStatus === 'pending' ? (
+                    <>
+                      <Clock className="w-4 h-4" />
+                      <span className="ml-2">Chờ duyệt</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="ml-2">Đã đăng ký</span>
+                    </>
+                  )}
                 </div>
               ) : (
                 <button 
-                  className="btn btn-primary btn-sm"
-                  onClick={handleJoinClick}
+                  className="btn btn-primary btn-sm text-xs w-full flex items-center justify-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleJoinClick();
+                  }}
                 >
-                  <UserPlus className="w-3 h-3" />
-                  Đăng ký
+                  <UserPlus className="w-4 h-4" />
+                  <span className="ml-2">Đăng ký</span>
                 </button>
               )}
-              <button 
-                className="btn btn-outline btn-sm"
-                onClick={() => onViewDetails?.(challenge.id)}
-              >
-                <Eye className="w-3 h-3" />
-                Xem chi tiết
-              </button>
             </div>
           </div>
         </div>

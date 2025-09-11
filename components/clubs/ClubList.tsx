@@ -119,19 +119,19 @@ export default function ClubList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 animate-fade-in-up">
         <div>
-          <h2 className="text-2xl font-bold">Danh sách câu lạc bộ</h2>
-          <p className="text-sm text-base-content/70 mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold">Danh sách câu lạc bộ</h2>
+          <p className="text-xs sm:text-sm text-base-content/70 mt-1">
             Khám phá và tham gia các câu lạc bộ chạy bộ phù hợp với bạn
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="hidden sm:flex flex-wrap gap-2">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm hover:scale-105 transition-transform duration-200"
           >
             <Plus className="w-4 h-4 mr-1" />
             Tạo CLB mới
@@ -140,8 +140,8 @@ export default function ClubList() {
       </div>
 
       {/* Search and Filters */}
-      <div className="space-y-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+      <div className="space-y-2 sm:space-y-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <div className="flex flex-col lg:flex-row gap-2 sm:gap-4 items-stretch lg:items-center justify-between">
           <div className="flex-1 min-w-0">
             <ClubSearch onSearch={handleSearch} />
           </div>
@@ -179,28 +179,35 @@ export default function ClubList() {
       {/* Clubs Grid */}
       {clubs.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {clubs.map((club) => (
-              <ClubCard key={club.id} club={club} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {clubs.map((club, index) => (
+              <div
+                key={club.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+              >
+                <ClubCard club={club} />
+              </div>
             ))}
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-center mt-3 sm:mt-6 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <div className="join">
                 <button
-                  className="join-item btn btn-sm"
+                  className="join-item btn btn-xs sm:btn-sm"
                   disabled={currentPage === 1}
                   onClick={() => handlePageChange(currentPage - 1)}
                 >
                   «
                 </button>
-                <button className="join-item btn btn-sm">
-                  Trang {currentPage} / {totalPages}
+                <button className="join-item btn btn-xs sm:btn-sm text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Trang {currentPage} / {totalPages}</span>
+                  <span className="sm:hidden">{currentPage}/{totalPages}</span>
                 </button>
                 <button
-                  className="join-item btn btn-sm"
+                  className="join-item btn btn-xs sm:btn-sm"
                   disabled={currentPage >= totalPages}
                   onClick={() => handlePageChange(currentPage + 1)}
                 >
@@ -211,40 +218,40 @@ export default function ClubList() {
           )}
 
           {/* Stats */}
-          <div className="text-center text-sm text-base-content/70">
+          <div className="text-center text-xs sm:text-sm text-base-content/70">
             Hiển thị {clubs.length} / {totalItems} câu lạc bộ
           </div>
         </>
       ) : (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 mx-auto mb-4 text-base-content/30">
+        <div className="text-center py-8 sm:py-12">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4 text-base-content/30">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold text-base-content mb-2">
+          <h3 className="text-lg sm:text-xl font-semibold text-base-content mb-2">
             Không tìm thấy CLB nào
           </h3>
-          <p className="text-base-content/70 mb-6">
+          <p className="text-sm sm:text-base text-base-content/70 mb-4 sm:mb-6">
             Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm. 
             Hoặc tạo CLB mới để bắt đầu xây dựng cộng đồng của bạn!
           </p>
-          <div className="bg-base-100 rounded-lg p-6 max-w-md mx-auto">
+          <div className="hidden sm:block bg-base-100 rounded-lg p-4 sm:p-6 max-w-md mx-auto">
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <h4 className="font-semibold mb-2">Tạo câu lạc bộ mới</h4>
-              <p className="text-sm text-base-content/70 mb-4">
+              <h4 className="text-sm sm:text-base font-semibold mb-2">Tạo câu lạc bộ mới</h4>
+              <p className="text-xs sm:text-sm text-base-content/70 mb-3 sm:mb-4">
                 Bắt đầu xây dựng cộng đồng chạy bộ của riêng bạn
               </p>
               <button 
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-xs sm:btn-sm"
                 onClick={() => setShowCreateModal(true)}
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Tạo CLB ngay

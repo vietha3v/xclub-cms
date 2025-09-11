@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import dynamic from 'next/dynamic';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
@@ -12,11 +13,12 @@ const ClubDetailPage = dynamic(
 );
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function Page({ params }: PageProps) {
-  return <ClubDetailPage clubId={params.id} />;
+  const { id } = use(params);
+  return <ClubDetailPage clubId={id} />;
 }

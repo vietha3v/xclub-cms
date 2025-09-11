@@ -14,9 +14,13 @@ export default function ClubDetailPage({ clubId }: ClubDetailPageProps) {
   ];
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb items={breadcrumbItems} />
-      <ClubDetail clubId={clubId} />
+    <div className="space-y-4 sm:space-y-6 animate-fade-in-up">
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <ClubDetail clubId={clubId} />
+      </div>
     </div>
   );
 }

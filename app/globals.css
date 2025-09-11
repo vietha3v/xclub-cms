@@ -34,6 +34,230 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-be-vietnam-pro), Arial, Helvetica, sans-serif;
+  font-size: 14px; /* Base font size */
+  line-height: 1.5;
+}
+
+/* Custom Animations */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(214, 40, 40, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(214, 40, 40, 0.6);
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animate-delay-400 {
+  animation-delay: 400ms;
+}
+
+.hover-float:hover {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Mobile font size adjustments */
+@media (max-width: 640px) {
+  body {
+    font-size: 13px; /* Smaller base font on mobile */
+  }
+  
+  h1 {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  h2 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  h3 {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  h4 {
+    font-size: 1rem; /* 16px */
+  }
+  
+  h5 {
+    font-size: 0.875rem; /* 14px */
+  }
+  
+  h6 {
+    font-size: 0.75rem; /* 12px */
+  }
+}
+
+/* Desktop font size adjustments */
+@media (min-width: 641px) {
+  body {
+    font-size: 14px; /* Standard base font */
+  }
+  
+  h1 {
+    font-size: 2rem; /* 32px */
+  }
+  
+  h2 {
+    font-size: 1.75rem; /* 28px */
+  }
+  
+  h3 {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  h4 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  h5 {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  h6 {
+    font-size: 1rem; /* 16px */
+  }
+}
+
+/* UI Component font size adjustments */
+.btn {
+  font-size: 0.875rem; /* 14px */
+}
+
+@media (max-width: 640px) {
+  .btn {
+    font-size: 0.75rem; /* 12px */
+  }
+  
+  .btn-sm {
+    font-size: 0.6875rem; /* 11px */
+  }
+  
+  .btn-xs {
+    font-size: 0.625rem; /* 10px */
+  }
+}
+
+/* Input and form elements */
+.input, .select, .textarea {
+  font-size: 0.875rem; /* 14px */
+}
+
+@media (max-width: 640px) {
+  .input, .select, .textarea {
+    font-size: 0.75rem; /* 12px */
+  }
+}
+
+/* Card components */
+.card-title {
+  font-size: 1.125rem; /* 18px */
+}
+
+@media (max-width: 640px) {
+  .card-title {
+    font-size: 1rem; /* 16px */
+  }
+}
+
+/* Menu and navigation */
+.menu {
+  font-size: 0.875rem; /* 14px */
+}
+
+@media (max-width: 640px) {
+  .menu {
+    font-size: 0.75rem; /* 12px */
+  }
+  
+  .menu-title {
+    font-size: 0.6875rem; /* 11px */
+  }
+}
+
+/* Badge and indicators */
+.badge {
+  font-size: 0.625rem; /* 10px */
+}
+
+@media (max-width: 640px) {
+  .badge {
+    font-size: 0.5625rem; /* 9px */
+  }
+}
+
+/* Dropdown content */
+.dropdown-content {
+  font-size: 0.875rem; /* 14px */
+}
+
+@media (max-width: 640px) {
+  .dropdown-content {
+    font-size: 0.75rem; /* 12px */
+  }
 }
 
 @plugin "daisyui/theme" {
@@ -558,4 +782,44 @@ button .btn-text {
 
 .animate-delay-1000 {
   animation-delay: 1s;
+}
+
+/* ===== SCROLL LOCK STYLES ===== */
+.scroll-locked {
+  /* Class được thêm khi scroll bị khóa */
+  touch-action: none;
+}
+
+.mobile-menu-open {
+  /* Class được thêm khi mobile menu mở */
+  touch-action: none;
+}
+
+.modal-open {
+  /* Class được thêm khi modal mở */
+  touch-action: none;
+}
+
+/* Smooth scroll lock transitions */
+.scroll-locked,
+.mobile-menu-open,
+.modal-open {
+  transition: all 0.3s ease-in-out;
+}
+
+/* ===== FADE IN UP ANIMATION ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
 }

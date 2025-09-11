@@ -8,11 +8,16 @@ import { LoadingWrapper, CardSkeleton } from '@/components/common/LoadingSkeleto
 import ErrorState from '@/components/common/ErrorState';
 import ChallengeDetailHeader from './ChallengeDetailHeader';
 import ChallengeDetailInfo from './ChallengeDetailInfo';
-import ChallengeDetailActions from './ChallengeDetailActions';
+import ChallengeProgress from './ChallengeProgress';
+import ChallengeTabs from './ChallengeTabs';
+import ChallengeRegistration from './ChallengeRegistration';
+import ChallengeShareActions from './ChallengeShareActions';
+import CountdownTimer from './CountdownTimer';
 
 export default function ChallengeDetail() {
   const params = useParams();
   const [isVisible, setIsVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const challengeId = params.id as string;
 
   const [{ data: challenge, loading, error }, refetch] = useAxios<Challenge>(`/api/challenges/${challengeId}`);
@@ -20,6 +25,11 @@ export default function ChallengeDetail() {
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  const handleRegistrationChange = () => {
+    setRefreshKey(prev => prev + 1);
+    refetch();
+  };
 
   if (loading) {
     return (
@@ -65,17 +75,49 @@ export default function ChallengeDetail() {
         {/* Header */}
         <ChallengeDetailHeader challenge={challenge} />
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <ChallengeDetailInfo challenge={challenge} />
+        {/* Countdown Section */}
+        <div className="py-3 sm:py-4 bg-base-100">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+                <CountdownTimer 
+                  startDate={challenge.startDate} 
+                  endDate={challenge.endDate} 
+                  className="w-5 h-5 sm:w-6 sm:h-6"
+                />
+                <span className="text-sm sm:text-lg font-semibold text-primary text-center">
+                  Thử thách {challenge.status === 'active' ? 'đang diễn ra' : 'sắp diễn ra'}
+                </span>
+              </div>
             </div>
+          </div>
+        </div>
 
-            {/* Sidebar */}
-            <div>
-              <ChallengeDetailActions challenge={challenge} />
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-4 sm:py-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                <ChallengeDetailInfo challenge={challenge} />
+                <ChallengeTabs 
+                  challenge={challenge}
+                  key={refreshKey}
+                />
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-4 sm:space-y-6">
+                <ChallengeProgress 
+                  challenge={challenge}
+                  key={refreshKey}
+                />
+                <ChallengeRegistration 
+                  challenge={challenge}
+                  onRegistrationChange={handleRegistrationChange}
+                />
+                <ChallengeShareActions challenge={challenge} />
+              </div>
             </div>
           </div>
         </div>
