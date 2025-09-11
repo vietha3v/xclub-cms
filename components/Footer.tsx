@@ -19,8 +19,8 @@ export default function Footer() {
         <div className="grid grid-flow-col gap-6">
           <a className="link link-hover">Về chúng tôi</a>
           <a className="link link-hover">Liên hệ</a>
-          <a className="link link-hover">Chính sách</a>
-          <a className="link link-hover">Điều khoản</a>
+          <a href="/privacy-policy" className="link link-hover">Chính sách bảo mật</a>
+          <a href="/terms-of-service" className="link link-hover">Điều khoản sử dụng</a>
           <a className="link link-hover">Hỗ trợ</a>
         </div>
       </div>
