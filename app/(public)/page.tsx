@@ -230,22 +230,6 @@ export default function HomePage() {
                 </Link>
               )}
             </div>
-            
-            {/* Legal Links */}
-            <div className="mt-8 pt-6 border-t border-base-content/10">
-              <p className="text-sm text-base-content/60 mb-2">
-                Bằng cách sử dụng X-Club, bạn đồng ý với
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
-                <Link href="/privacy-policy" className="link link-hover text-primary">
-                  Chính sách bảo mật
-                </Link>
-                <span className="hidden sm:inline text-base-content/40">•</span>
-                <Link href="/terms-of-service" className="link link-hover text-primary">
-                  Điều khoản sử dụng
-                </Link>
-              </div>
-            </div>
           </div>
         </section>
     </div>

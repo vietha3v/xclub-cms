@@ -62,7 +62,8 @@ export default function PublicFooter() {
               <li><Link href="/faq" className="hover:text-primary transition-colors">Câu hỏi thường gặp</Link></li>
               <li><Link href="/contact" className="hover:text-primary transition-colors">Liên hệ</Link></li>
               <li><Link href="/feedback" className="hover:text-primary transition-colors">Góp ý</Link></li>
-              <li><Link href="/terms" className="hover:text-primary transition-colors">Điều khoản sử dụng</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-primary transition-colors">Điều khoản sử dụng</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-primary transition-colors">Chính sách bảo mật</Link></li>
             </ul>
           </div>
 
@@ -93,9 +94,6 @@ export default function PublicFooter() {
           </div>
         </div>
 
-        <div className="border-t border-base-content/20 mt-8 pt-8 text-center text-sm">
-          <p>&copy; 2025 X-Club. Tất cả quyền được bảo lưu.</p>
-        </div>
       </div>
     </footer>
   );

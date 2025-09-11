@@ -17,11 +17,11 @@ export default function Footer() {
       </div>
       <div>
         <div className="grid grid-flow-col gap-6">
-          <a className="link link-hover">Về chúng tôi</a>
-          <a className="link link-hover">Liên hệ</a>
+          <a href="/about" className="link link-hover">Về chúng tôi</a>
+          <a href="/contact" className="link link-hover">Liên hệ</a>
+          <a href="/support" className="link link-hover">Hỗ trợ</a>
           <a href="/privacy-policy" className="link link-hover">Chính sách bảo mật</a>
           <a href="/terms-of-service" className="link link-hover">Điều khoản sử dụng</a>
-          <a className="link link-hover">Hỗ trợ</a>
         </div>
       </div>
     </footer>
