@@ -153,7 +153,7 @@ export default function ActivityList({
     refetch();
   };
 
-  if (loading && dlv({ activities }, 'activities.length', 0) === 0) {
+  if (loading && (!activities || activities.length === 0)) {
     return <ActivityListSkeleton items={5} />;
   }
 
@@ -218,7 +218,7 @@ export default function ActivityList({
       )}
 
       {/* Activities List */}
-      {dlv({ activities }, 'activities.length', 0) > 0 ? (
+      {activities && activities.length > 0 ? (
         <>
           <div className="bg-base-100 rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
@@ -234,7 +234,7 @@ export default function ActivityList({
                   </tr>
                 </thead>
                 <tbody>
-                  {dlv({ activities }, 'activities', []).map((activity: Activity) => (
+                  {(activities || []).map((activity: Activity) => (
                     <tr key={activity.id} className="hover:bg-base-200">
                       <td>
                         <div className="text-sm">
@@ -316,7 +316,7 @@ export default function ActivityList({
 
           {/* Stats */}
           <div className="text-center text-sm text-base-content/70">
-            Hiển thị {dlv({ activities }, 'activities.length', 0)} / {total} hoạt động
+            Hiển thị {activities?.length || 0} / {total} hoạt động
           </div>
         </>
       ) : (

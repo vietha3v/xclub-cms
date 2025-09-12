@@ -53,23 +53,23 @@ export default function ClubDetailInfo({ club }: ClubDetailInfoProps) {
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Mô tả</label>
                 <p className="text-xs sm:text-sm text-base-content mt-1">
-                  {dlv(club, 'description') || 'Chưa có mô tả'}
+                  {club?.description || 'Chưa có mô tả'}
                 </p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Loại CLB</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{dlv(club, 'type')}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{club?.type}</p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Ngày thành lập</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{formatDate(dlv(club, 'foundedAt'))}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{formatDate(club?.foundedAt)}</p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Số thành viên tối đa</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{dlv(club, 'maxMembers') || 'Không giới hạn'}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{club?.maxMembers || 'Không giới hạn'}</p>
               </div>
             </div>
           </div>
@@ -82,33 +82,33 @@ export default function ClubDetailInfo({ club }: ClubDetailInfoProps) {
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Địa chỉ</label>
                 <p className="text-xs sm:text-sm text-base-content mt-1">
-                  {dlv(club, 'address') || 'Chưa cập nhật'}
+                  {club?.address || 'Chưa cập nhật'}
                 </p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Thành phố</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{dlv(club, 'city') || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{club?.city || 'N/A'}</p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Tỉnh/Thành phố</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{dlv(club, 'state') || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{club?.state || 'N/A'}</p>
               </div>
               
               <div>
                 <label className="text-xs sm:text-sm font-medium text-base-content/70">Quốc gia</label>
-                <p className="text-xs sm:text-sm text-base-content mt-1">{dlv(club, 'country') || 'N/A'}</p>
+                <p className="text-xs sm:text-sm text-base-content mt-1">{club?.country || 'N/A'}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Schedule */}
-        {dlv(club, 'schedule') && (
+        {club?.schedule && (
           <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-base-300">
             <h3 className="text-base sm:text-lg font-semibold text-base-content mb-2 sm:mb-3">Lịch hoạt động</h3>
-            <p className="text-xs sm:text-sm text-base-content">{dlv(club, 'schedule')}</p>
+            <p className="text-xs sm:text-sm text-base-content">{club.schedule}</p>
           </div>
         )}
 
@@ -118,21 +118,21 @@ export default function ClubDetailInfo({ club }: ClubDetailInfoProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="flex justify-between items-center p-2 sm:p-3 bg-base-200 rounded-lg">
               <span className="text-xs sm:text-sm text-base-content/70">Phí tháng</span>
-              <span className="text-xs sm:text-sm font-semibold">{formatCurrency(dlv(club, 'monthlyFee'))}</span>
+              <span className="text-xs sm:text-sm font-semibold">{formatCurrency(club?.monthlyFee)}</span>
             </div>
             <div className="flex justify-between items-center p-2 sm:p-3 bg-base-200 rounded-lg">
               <span className="text-xs sm:text-sm text-base-content/70">Phí năm</span>
-              <span className="text-xs sm:text-sm font-semibold">{formatCurrency(dlv(club, 'yearlyFee'))}</span>
+              <span className="text-xs sm:text-sm font-semibold">{formatCurrency(club?.yearlyFee)}</span>
             </div>
           </div>
         </div>
 
         {/* Rules */}
-        {dlv(club, 'rules') && (
+        {club?.rules && (
           <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-base-300">
             <h3 className="text-base sm:text-lg font-semibold text-base-content mb-2 sm:mb-3">Nội quy CLB</h3>
             <div className="prose max-w-none">
-              <p className="text-xs sm:text-sm text-base-content whitespace-pre-line">{dlv(club, 'rules')}</p>
+              <p className="text-xs sm:text-sm text-base-content whitespace-pre-line">{club.rules}</p>
             </div>
           </div>
         )}

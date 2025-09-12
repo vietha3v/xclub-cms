@@ -109,18 +109,18 @@ export default function RaceDetailParticipants({ raceId }: RaceDetailParticipant
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">👥 Người tham gia</h2>
           <div className="badge badge-primary badge-lg">
-            {dlv({ participants }, 'participants.length', 0)}
+            {participants?.length || 0}
           </div>
         </div>
 
-        {dlv({ participants }, 'participants.length', 0) === 0 ? (
+        {(!participants || participants.length === 0) ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">👥</div>
             <p className="text-base-content/70">Chưa có ai đăng ký tham gia giải chạy này</p>
           </div>
         ) : (
           <div className="list-container">
-            {dlv({ participants }, 'participants', []).map((participant) => (
+            {(participants || []).map((participant) => (
               <div key={participant.id} className="list-item">
                 <div className="list-item-avatar">
                   <span>
@@ -150,7 +150,7 @@ export default function RaceDetailParticipants({ raceId }: RaceDetailParticipant
           </div>
         )}
 
-        {dlv({ participants }, 'participants.length', 0) > 0 && (
+        {participants && participants.length > 0 && (
           <div className="divider"></div>
         )}
 

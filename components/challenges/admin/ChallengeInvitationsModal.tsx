@@ -30,7 +30,7 @@ export default function ChallengeInvitationsModal({
   const { showToast } = useToast();
 
   // API calls
-  const [{ data: invitationsData, loading, error }, refetch] = useAxios<ChallengeInvitation[]>(
+  const [{ data: invitationsData, loading, error }, refetch] = useAxios<{ data: ChallengeInvitation[] }>(
     `/api/challenges/${challenge.id}/invitations`
   );
 
@@ -52,7 +52,7 @@ export default function ChallengeInvitationsModal({
 
   useEffect(() => {
     if (invitationsData) {
-      setInvitations(invitationsData);
+      setInvitations(invitationsData.data || []);
     }
   }, [invitationsData]);
 

@@ -211,7 +211,7 @@ export default function ChallengeAnalyticsModal({
             <div className="stat-title">Hoàn thành</div>
             <div className="stat-value text-success">{analyticsData.stats.completedParticipants}</div>
             <div className="stat-desc">
-              {analyticsData.stats.completionRate.toFixed(1)}% tỷ lệ hoàn thành
+              {(typeof analyticsData.stats.completionRate === 'number' ? analyticsData.stats.completionRate : 0).toFixed(1)}% tỷ lệ hoàn thành
             </div>
           </div>
 
@@ -220,7 +220,7 @@ export default function ChallengeAnalyticsModal({
               <TrendingUp className="w-8 h-8" />
             </div>
             <div className="stat-title">Điểm trung bình</div>
-            <div className="stat-value text-warning">{analyticsData.stats.averageScore.toFixed(1)}</div>
+            <div className="stat-value text-warning">{(typeof analyticsData.stats.averageScore === 'number' ? analyticsData.stats.averageScore : 0).toFixed(1)}</div>
             <div className="stat-desc">
               Điểm cao nhất: {analyticsData.stats.highestScore}
             </div>

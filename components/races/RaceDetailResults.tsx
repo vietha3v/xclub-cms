@@ -123,18 +123,18 @@ export default function RaceDetailResults({ raceId }: RaceDetailResultsProps) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">🏆 Kết quả</h2>
           <div className="badge badge-primary badge-lg">
-            {dlv({ results }, 'results.length', 0)} người
+            {results?.length || 0} người
           </div>
         </div>
 
-        {dlv({ results }, 'results.length', 0) === 0 ? (
+        {(!results || results.length === 0) ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">🏆</div>
             <p className="text-base-content/70">Chưa có kết quả nào</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {dlv({ results }, 'results', []).map((result, index) => (
+            {(results || []).map((result, index) => (
               <div
                 key={result.id}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
@@ -185,7 +185,7 @@ export default function RaceDetailResults({ raceId }: RaceDetailResultsProps) {
           </div>
         )}
 
-        {dlv({ results }, 'results.length', 0) > 0 && (
+        {results && results.length > 0 && (
           <div className="divider"></div>
         )}
 

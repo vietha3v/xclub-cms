@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { getServerSession } from './auth';
 
 interface BackendApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -62,19 +63,21 @@ export async function callBackendApi(
   try {
     const { method = 'GET', body, headers = {} } = options;
     
-    // Lấy token từ request headers
-    let authHeader = request.headers.get('authorization');
+    // Lấy token từ NextAuth session
+    let authHeader: string | null = null;
     
-    // Nếu không có Authorization header, thử lấy từ cookies
-    if (!authHeader) {
-      const cookies = request.headers.get('cookie');
-      if (cookies) {
-        // Tìm access_token trong cookies
-        const accessTokenMatch = cookies.match(/access_token=([^;]+)/);
-        if (accessTokenMatch) {
-          authHeader = `Bearer ${accessTokenMatch[1]}`;
-        }
+    try {
+      const session = await getServerSession();
+      if (session?.accessToken) {
+        authHeader = `Bearer ${session.accessToken}`;
       }
+    } catch (error) {
+      console.warn('Failed to get session:', error);
+    }
+    
+    // Fallback: thử lấy từ request headers nếu không có session
+    if (!authHeader) {
+      authHeader = request.headers.get('authorization');
     }
     
     // Chuẩn bị headers cho backend
@@ -103,10 +106,10 @@ export async function callBackendApi(
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const response = await fetch(`${backendUrl}${endpoint}`, requestOptions);
     
-    // Nếu gặp 401, middleware đã xử lý refresh token
+    // Nếu gặp 401, NextAuth sẽ tự động refresh token
     // Chỉ cần trả về lỗi để frontend xử lý
     if (response.status === 401) {
-      console.log('Authentication failed, middleware should have handled refresh token');
+      console.log('Authentication failed - NextAuth will handle token refresh');
       return {
         success: false,
         status: 401,

@@ -33,7 +33,7 @@ export default function RaceFilters({
     <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
       {/* Type Filter */}
       <div className="flex flex-wrap gap-2">
-        {dlv({ types }, 'types', []).map((type) => (
+        {(types || []).map((type) => (
           <button
             key={type.key}
             onClick={() => onTypeChange(type.key)}

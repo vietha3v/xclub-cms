@@ -188,7 +188,7 @@ export default function ClubMemberManagement({
       console.error('Update role error:', error);
       showToast({
         type: 'error',
-        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi cập nhật vai trò'),
+        message: (error as any)?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật vai trò',
         title: 'Lỗi'
       });
     }
@@ -215,7 +215,7 @@ export default function ClubMemberManagement({
       console.error('Update status error:', error);
       showToast({
         type: 'error',
-        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi cập nhật trạng thái'),
+        message: (error as any)?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái',
         title: 'Lỗi'
       });
     }
@@ -246,7 +246,7 @@ export default function ClubMemberManagement({
       console.error('Remove member error:', error);
       showToast({
         type: 'error',
-        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi xóa thành viên'),
+        message: (error as any)?.response?.data?.message || 'Có lỗi xảy ra khi xóa thành viên',
         title: 'Lỗi'
       });
     }
@@ -360,13 +360,13 @@ export default function ClubMemberManagement({
               id: 'members',
               label: 'Thành viên',
               icon: '👥',
-              badge: dlv(members, 'length', 0)
+              badge: members?.length || 0
             },
             {
               id: 'pending',
               label: 'Chờ duyệt',
               icon: '⏳',
-              badge: dlv(pendingRequests, 'length', 0)
+              badge: pendingRequests?.length || 0
             }
           ]}
           activeTab={activeTab}
@@ -405,7 +405,7 @@ export default function ClubMemberManagement({
                     </tr>
                   </thead>
                   <tbody>
-                    {dlv(members, 'map', []).map((member: any, index: number) => (
+                    {members?.map((member: any, index: number) => (
                       <tr 
                         key={member.id} 
                         className="hover transition-all duration-200"
@@ -525,14 +525,14 @@ export default function ClubMemberManagement({
               <div className="alert alert-error">
                 <span>Lỗi: {pendingError.message || 'Không thể tải yêu cầu chờ duyệt'}</span>
               </div>
-            ) : dlv(pendingRequests, 'length', 0) === 0 ? (
+            ) : (!pendingRequests || pendingRequests.length === 0) ? (
               <div className="text-center py-8">
                 <UserPlus className="w-16 h-16 mx-auto mb-4 text-base-content/30" />
                 <p className="text-base-content/70">Không có yêu cầu tham gia nào</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {dlv(pendingRequests, 'map', []).map((request: any) => (
+                {pendingRequests?.map((request: any) => (
                   <div key={request.id} className="card bg-base-200 shadow-sm">
                     <div className="card-body p-4">
                       <div className="flex items-center justify-between">

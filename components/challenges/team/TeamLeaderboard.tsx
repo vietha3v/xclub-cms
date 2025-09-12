@@ -79,8 +79,9 @@ export default function TeamLeaderboard({ challengeId, leaderboard: propLeaderbo
     }
   };
 
-  const formatDistance = (distance: number) => {
-    return `${distance.toFixed(2)} km`;
+  const formatDistance = (distance: number | undefined) => {
+    const safeDistance = typeof distance === 'number' && !isNaN(distance) ? distance : 0;
+    return `${safeDistance.toFixed(2)} km`;
   };
 
   if (isLoading) {

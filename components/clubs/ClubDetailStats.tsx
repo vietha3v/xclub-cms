@@ -97,21 +97,21 @@ export default function ClubDetailStats({ club }: ClubDetailStatsProps) {
           <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
             <div className="flex justify-between">
               <span className="text-base-content/70">Ngày tạo</span>
-              <span>{new Date(dlv(club, 'createdAt')).toLocaleDateString('vi-VN')}</span>
+              <span>{new Date(club?.createdAt).toLocaleDateString('vi-VN')}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-base-content/70">Cập nhật cuối</span>
-              <span>{new Date(dlv(club, 'updatedAt')).toLocaleDateString('vi-VN')}</span>
+              <span>{new Date(club?.updatedAt).toLocaleDateString('vi-VN')}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-base-content/70">Trạng thái</span>
               <span className={`badge badge-xs sm:badge-sm ${
-                dlv(club, 'status') === 'active' ? 'badge-success' :
-                dlv(club, 'status') === 'pending' ? 'badge-warning' :
+                club?.status === 'active' ? 'badge-success' :
+                club?.status === 'pending' ? 'badge-warning' :
                 'badge-error'
               }`}>
-                {dlv(club, 'status') === 'active' ? 'Hoạt động' :
-                 dlv(club, 'status') === 'pending' ? 'Chờ duyệt' : 'Không hoạt động'}
+                {club?.status === 'active' ? 'Hoạt động' :
+                 club?.status === 'pending' ? 'Chờ duyệt' : 'Không hoạt động'}
               </span>
             </div>
           </div>

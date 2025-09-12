@@ -17,7 +17,7 @@ export default function ChallengesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [{ data: challengesData, loading, error }, refetch] = useAxios<{
-    challenges: Challenge[];
+    data: Challenge[];
     total: number;
     page: number;
     limit: number;
@@ -27,7 +27,7 @@ export default function ChallengesPage() {
     setIsVisible(true);
   }, []);
 
-  const challenges = challengesData?.challenges || [];
+  const challenges = challengesData?.data || [];
 
   const handleCreateSuccess = (challenge: Challenge) => {
     setShowCreateModal(false);

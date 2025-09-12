@@ -166,7 +166,7 @@ export default function ClubCard({ club, compact = false }: ClubCardProps) {
               <div className="flex items-center justify-between text-xs text-gray-500 flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <span className="whitespace-nowrap">📍 {club.city || 'N/A'}</span>
-                  <span className="whitespace-nowrap">👥 {formatMemberCount(dlv(club, 'memberCount', 0), dlv(club, 'maxMembers', 0))}</span>
+                  <span className="whitespace-nowrap">👥 {formatMemberCount(club?.memberCount || 0, club?.maxMembers || 0)}</span>
                 </div>
                 <span className="font-medium text-green-600 whitespace-nowrap">{formatFee(dlv(club, 'monthlyFee'))}</span>
               </div>

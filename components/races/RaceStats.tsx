@@ -9,9 +9,9 @@ interface RaceStatsProps {
 
 export default function RaceStats({ races }: RaceStatsProps) {
   // Chỉ hiển thị dữ liệu từ BE, không tính toán
-  const upcomingRaces = dlv({ races }, 'races.upcomingCount', 0);
-  const activeRaces = dlv({ races }, 'races.activeCount', 0);
-  const totalParticipants = dlv({ races }, 'races.totalParticipants', 0);
+  const upcomingRaces = races?.upcomingCount || 0;
+  const activeRaces = races?.activeCount || 0;
+  const totalParticipants = races?.totalParticipants || 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

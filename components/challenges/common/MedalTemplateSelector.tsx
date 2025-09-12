@@ -28,13 +28,14 @@ export default function MedalTemplateSelector() {
     }
   }, [response]);
 
-  const selectedTemplates = dlv(watch('medalTemplateIds'), '0', []) || [];
+  const selectedTemplateIds = watch('medalTemplateIds') || [];
+  const selectedTemplateId = selectedTemplateIds[0];
   
   const handleRadioChange = (templateId: string) => {
     setValue('medalTemplateIds', [templateId]);
   };
 
-  const selectedTemplate = dlv(templates, 'find', []).find((t: any) => t.id === dlv(selectedTemplates, '0', ''));
+  const selectedTemplate = templates?.find((t: any) => t.id === selectedTemplateId);
 
   if (loading) {
     return (
@@ -90,7 +91,7 @@ export default function MedalTemplateSelector() {
         <span className="label-text font-medium">Chọn huy chương</span>
       </label>
 
-      {dlv(templates, 'length', 0) === 0 ? (
+      {(!templates || templates.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="w-16 h-16 bg-base-200 rounded-full flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,11 +109,11 @@ export default function MedalTemplateSelector() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-base-300 scrollbar-track-transparent">
-          {dlv(templates, 'map', []).map((template: any, index: number) => (
+          {templates?.map((template: any, index: number) => (
           <div
             key={template.id}
             className={`relative card bg-base-100 border shadow-sm cursor-pointer transition-all duration-300 rounded-xl transform hover:scale-105 hover:-translate-y-1 ${
-              selectedTemplates.includes(template.id)
+              selectedTemplateId === template.id
                 ? 'ring-2 ring-primary bg-primary/5 border-primary scale-105 shadow-lg'
                 : 'border-base-300 hover:shadow-lg hover:border-primary/50'
             }`}
@@ -128,7 +129,7 @@ export default function MedalTemplateSelector() {
                 type="radio"
                 name="medal-template"
                 className="radio radio-primary radio-sm"
-                checked={selectedTemplates.includes(template.id)}
+                checked={selectedTemplateId === template.id}
                 onChange={() => handleRadioChange(template.id)}
                 onClick={(e) => e.stopPropagation()}
               />

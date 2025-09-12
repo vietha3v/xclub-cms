@@ -3,7 +3,6 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { tokenManager } from '@/lib/api';
 import { Bell, MessageCircle, User, LogOut, Settings, Trophy, BarChart3 } from 'lucide-react';
 
 interface AuthSectionProps {
@@ -45,14 +44,8 @@ export default function AuthSection({
 
   const handleSignOut = async () => {
     try {
-      // Bước 1: Xóa Next Auth session
-      await signOut({ redirect: false });
-      
-      // Bước 2: Xóa tất cả tokens từ tokenManager
-      tokenManager.clearTokens();
-      
-      // Bước 3: Redirect thủ công
-      window.location.href = '/';
+      // Xóa Next Auth session và redirect
+      await signOut({ redirect: true, callbackUrl: '/' });
     } catch (error) {
       console.error('Error signing out:', error);
     }

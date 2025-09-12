@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import useAxios from '@/hooks/useAxios';
 import { Challenge } from '@/types/challenge';
 import ChallengeCard from './ChallengeCard';
 import ChallengeCardMobile from './ChallengeCardMobile';
 import { LoadingWrapper, CardSkeleton } from '@/components/common/LoadingSkeleton';
 import ErrorState from '@/components/common/ErrorState';
-import dlv from 'dlv';
-import { useRouter } from 'next/navigation';
+import Paging from '@/components/common/Paging';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface ChallengeListProps {
@@ -16,46 +16,19 @@ interface ChallengeListProps {
 }
 
 export default function ChallengeList({}: ChallengeListProps) {
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const router = useRouter();
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadingRef = useRef<HTMLDivElement | null>(null);
 
   const [{ data: challengesData, loading: apiLoading, error: apiError }, refetch] = useAxios<{
-    challenges: Challenge[];
+    data: Challenge[];
     total: number;
     page: number;
     limit: number;
   }>('/api/challenges');
 
-  useEffect(() => {
-    if (challengesData) {
-      if (challengesData.page === 1) {
-        // First load or refresh
-        setChallenges(challengesData.challenges || []);
-      } else {
-        // Load more - append to existing challenges
-        setChallenges(prev => [...prev, ...(challengesData.challenges || [])]);
-      }
-      setCurrentPage(challengesData.page);
-      setHasMore(challengesData.challenges?.length === challengesData.limit);
-      setLoadingMore(false);
-    }
-  }, [challengesData]);
-
-  useEffect(() => {
-    if (apiError) {
-      setError('Không thể tải danh sách thử thách');
-      setLoadingMore(false);
-    }
-  }, [apiError]);
-
-  // Hiển thị tất cả challenges (không filter)
-  const filteredChallenges = challenges;
+  // Sử dụng trực tiếp data từ useAxios
+  const challenges = challengesData?.data || [];
+  const currentPage = challengesData?.page || 1;
+  const error = apiError ? 'Không thể tải danh sách thử thách' : null;
 
   if (apiLoading) {
     return (
@@ -84,7 +57,7 @@ export default function ChallengeList({}: ChallengeListProps) {
     );
   }
 
-  if (dlv(filteredChallenges, 'length', 0) === 0) {
+  if (!challenges || challenges.length === 0) {
     return (
       <div className="text-center py-12 sm:py-20 animate-fade-in-up">
         <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🔍</div>
@@ -105,7 +78,7 @@ export default function ChallengeList({}: ChallengeListProps) {
       {/* Header */}
       <div className="flex justify-between items-center mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
         <div className="text-xs sm:text-sm text-base-content/60 leading-tight">
-          Hiển thị {filteredChallenges.length} thử thách
+          Hiển thị {challenges.length} thử thách
         </div>
       </div>
 
@@ -113,7 +86,7 @@ export default function ChallengeList({}: ChallengeListProps) {
       <div className="space-y-2 sm:space-y-0">
         {/* Mobile: Vertical list */}
         <div className="block sm:hidden space-y-2">
-          {filteredChallenges.map((challenge: Challenge, index: number) => (
+          {challenges.map((challenge: Challenge, index: number) => (
             <div
               key={challenge.id}
               className="animate-fade-in-up"
@@ -129,7 +102,7 @@ export default function ChallengeList({}: ChallengeListProps) {
         
         {/* Desktop: Grid layout */}
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {filteredChallenges.map((challenge: Challenge, index: number) => (
+          {challenges.map((challenge: Challenge, index: number) => (
             <div
               key={challenge.id}
               className="animate-fade-in-up"
@@ -143,6 +116,20 @@ export default function ChallengeList({}: ChallengeListProps) {
           ))}
         </div>
       </div>
+
+      {/* Pagination */}
+      {challengesData && challengesData.total > challengesData.limit && (
+        <div className="mt-6">
+          <Paging
+            currentPage={currentPage}
+            totalPages={Math.ceil(challengesData.total / challengesData.limit)}
+            totalItems={challengesData.total}
+            itemsPerPage={challengesData.limit}
+            onPageChange={(page) => refetch({ url: `/api/challenges?page=${page}` })}
+            showItemsPerPageSelector={false}
+          />
+        </div>
+      )}
     </div>
   );
 }

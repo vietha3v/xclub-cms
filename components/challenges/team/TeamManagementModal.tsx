@@ -30,7 +30,7 @@ export default function TeamManagementModal({
   const [newMemberId, setNewMemberId] = useState('');
 
   // API hooks
-  const [{ data: teamsData, loading: teamsLoading }, fetchTeams] = useAxios<ChallengeTeam[]>(
+  const [{ data: teamsData, loading: teamsLoading }, fetchTeams] = useAxios<{ data: ChallengeTeam[] }>(
     `/api/challenges/${challengeId}/teams`,
     { manual: true }
   );
@@ -63,7 +63,7 @@ export default function TeamManagementModal({
 
   useEffect(() => {
     if (teamsData) {
-      setTeams(teamsData);
+      setTeams(teamsData.data || []);
     }
   }, [teamsData]);
 
@@ -232,7 +232,7 @@ export default function TeamManagementModal({
                               <Users className="w-4 h-4" />
                               {team.memberCount} thành viên
                             </span>
-                            <span>{team.totalDistance.toFixed(2)} km</span>
+                            <span>{(typeof team.totalDistance === 'number' ? team.totalDistance : 0).toFixed(2)} km</span>
                           </div>
                         </div>
                         {team.finalRank && (
@@ -321,7 +321,7 @@ export default function TeamManagementModal({
                         <div>
                           <h6 className="font-medium">{member.userId}</h6>
                           <div className="text-sm text-base-content/60">
-                            {member.contributedDistance.toFixed(2)} km • {member.activityCount} hoạt động
+                            {(typeof member.contributedDistance === 'number' ? member.contributedDistance : 0).toFixed(2)} km • {member.activityCount} hoạt động
                           </div>
                         </div>
                         <button 

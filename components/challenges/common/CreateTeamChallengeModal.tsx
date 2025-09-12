@@ -64,7 +64,7 @@ export default function CreateTeamChallengeModal({
       const challengeData: CreateChallengeDto = {
         ...data,
         category: ChallengeCategory.TEAM,
-        points: Number(dlv(data, 'points', 0)),
+        points: Number(data?.points || 0),
         timeLimit: timeLimitDays, // Tự động tính từ startDate và endDate
         autoApprovalPassword: data.autoApprovalPassword || undefined,
         clubId: clubId,

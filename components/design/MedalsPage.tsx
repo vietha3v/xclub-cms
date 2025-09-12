@@ -82,8 +82,8 @@ export default function MedalsPage() {
 
   const templates = dlv(response, 'data', []);
   const filteredTemplates: MedalTemplate[] = templates.filter((template: MedalTemplate) =>
-    dlv(template, 'name', '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dlv(template, 'description', '').toLowerCase().includes(searchTerm.toLowerCase())
+    (template?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (template?.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

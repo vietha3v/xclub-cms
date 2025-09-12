@@ -43,7 +43,7 @@ export default function CertificateCard({
       
       <div className="card-body">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="card-title text-lg">{dlv(template, 'name', '')}</h3>
+          <h3 className="card-title text-lg">{template?.name || ''}</h3>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
               ⋯
@@ -62,7 +62,7 @@ export default function CertificateCard({
                 </button>
               </li>
               <li>
-                <button onClick={() => onDelete(dlv(template, 'id', ''))}>
+                <button onClick={() => onDelete(template?.id || '')}>
                   <Trash2 className="w-4 h-4" />
                   Xóa
                 </button>
@@ -71,17 +71,17 @@ export default function CertificateCard({
           </div>
         </div>
         
-        {dlv(template, 'description', '') && (
+        {template?.description && (
           <p className="text-sm text-base-content/70 mb-3">
-            {dlv(template, 'description', '')}
+            {template.description}
           </p>
         )}
 
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="badge badge-primary badge-sm">
-            {dlv(template, 'type', '')}
+            {template?.type || ''}
           </span>
-          {dlv(template, 'isActive', false) && (
+          {template?.isActive && (
             <span className="badge badge-success badge-sm">
               Hoạt động
             </span>

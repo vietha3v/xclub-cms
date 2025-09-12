@@ -34,7 +34,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-be-vietnam-pro), Arial, Helvetica, sans-serif;
-  font-size: 14px; /* Base font size */
+  font-size: 14px !important; /* Base font size - force override */
   line-height: 1.5;
 }
 
@@ -120,10 +120,25 @@ body {
   animation: float 2s ease-in-out infinite;
 }
 
+/* Override Tailwind v4 font-size defaults */
+* {
+  font-size: inherit !important;
+}
+
+/* Override Tailwind text-size classes */
+.text-xs { font-size: 0.75rem !important; } /* 12px */
+.text-sm { font-size: 0.875rem !important; } /* 14px */
+.text-base { font-size: 1rem !important; } /* 16px */
+.text-lg { font-size: 1.125rem !important; } /* 18px */
+.text-xl { font-size: 1.25rem !important; } /* 20px */
+.text-2xl { font-size: 1.5rem !important; } /* 24px */
+.text-3xl { font-size: 1.875rem !important; } /* 30px */
+.text-4xl { font-size: 2.25rem !important; } /* 36px */
+
 /* Mobile font size adjustments */
 @media (max-width: 640px) {
   body {
-    font-size: 13px; /* Smaller base font on mobile */
+    font-size: 13px !important; /* Smaller base font on mobile */
   }
   
   h1 {
@@ -154,7 +169,7 @@ body {
 /* Desktop font size adjustments */
 @media (min-width: 641px) {
   body {
-    font-size: 14px; /* Standard base font */
+    font-size: 14px !important; /* Standard base font */
   }
   
   h1 {

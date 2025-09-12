@@ -133,7 +133,7 @@ export default function HomePage() {
         <section className="py-6 sm:py-8 md:py-10 lg:py-12 px-3 sm:px-4 md:px-6 bg-base-100/50 backdrop-blur-sm">
           <div className="container mx-auto">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
-              {dlv({ stats }, 'stats', []).map((stat, index) => (
+              {(stats || []).map((stat, index) => (
                 <div 
                   key={index}
                   className={`text-center transition-all duration-700 hover:scale-110 cursor-pointer group relative overflow-hidden rounded-xl p-4 sm:p-5 md:p-6 lg:p-8 bg-gradient-to-br from-base-100 to-base-200 hover:from-primary/5 hover:to-secondary/5 border border-base-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/10`}
@@ -164,7 +164,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-              {dlv({ features }, 'features', []).map((feature, index) => (
+              {(features || []).map((feature, index) => (
                 <Link 
                   key={index}
                   href={feature.link}

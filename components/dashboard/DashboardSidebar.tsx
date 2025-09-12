@@ -176,30 +176,32 @@ export default function DashboardSidebar({
           })}
         </nav>
 
-        {/* Design Navigation */}
-        <nav className="space-y-1 mt-2">
-          <div className="border-t border-base-300 my-2"></div>
-          {designNavigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 ${
-                  isActive
-                    ? 'bg-primary text-primary-content shadow-lg'
-                    : 'text-base-content hover:bg-base-200'
-                }`}
-                onClick={onMobileClose}
-              >
-                <div className="flex-shrink-0">
-                  {item.icon}
-                </div>
-                <span className="truncate">{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Design Navigation - chỉ hiển thị khi đã đăng nhập */}
+        {session && (
+          <nav className="space-y-1 mt-2">
+            <div className="border-t border-base-300 my-2"></div>
+            {designNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 ${
+                    isActive
+                      ? 'bg-primary text-primary-content shadow-lg'
+                      : 'text-base-content hover:bg-base-200'
+                  }`}
+                  onClick={onMobileClose}
+                >
+                  <div className="flex-shrink-0">
+                    {item.icon}
+                  </div>
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         {/* User Navigation */}
         <nav className="space-y-1 mt-2">

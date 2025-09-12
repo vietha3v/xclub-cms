@@ -8,6 +8,5 @@ export async function POST(request: NextRequest) {
     method: 'POST',
     body,
   });
-  
   return createNextResponse(result, 'OAuth callback thất bại');
 }

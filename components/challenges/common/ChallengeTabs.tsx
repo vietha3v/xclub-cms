@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Challenge, ChallengeCategory } from '@/types/challenge';
 import { Users, Trophy, Crown, Medal, Award, Clock, TrendingUp } from 'lucide-react';
 import useAxios from '@/hooks/useAxios';
+import { useChallengePermissions } from '@/hooks/useChallengePermissions';
 import { LoadingWrapper, CardSkeleton } from '@/components/common/LoadingSkeleton';
 import ErrorState from '@/components/common/ErrorState';
 
@@ -36,6 +37,9 @@ interface ChallengeLeaderboard {
 
 export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
   const [activeTab, setActiveTab] = useState<'participants' | 'leaderboard'>('participants');
+  
+  // Check permissions
+  const permissions = useChallengePermissions(challenge);
 
   // Lấy results data từ API
   const [{ data: resultsData, loading, error }, refetch] = useAxios<{
@@ -128,21 +132,27 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
     }
   };
 
-  const formatProgress = (progress: number) => {
+  const formatProgress = (progress: number | undefined) => {
+    if (typeof progress !== 'number' || isNaN(progress)) {
+      return '0.0%';
+    }
     return `${progress.toFixed(1)}%`;
   };
 
-  const formatScore = (score: number, unit: string) => {
-    if (unit.toLowerCase().includes('km') || unit.toLowerCase().includes('m')) {
-      return `${score.toFixed(1)} ${unit}`;
+  const formatScore = (score: number | undefined, unit: string | undefined) => {
+    const safeScore = typeof score === 'number' && !isNaN(score) ? score : 0;
+    const safeUnit = unit || 'điểm';
+    
+    if (safeUnit.toLowerCase().includes('km') || safeUnit.toLowerCase().includes('m')) {
+      return `${safeScore.toFixed(1)} ${safeUnit}`;
     }
-    if (unit.toLowerCase().includes('ngày') || unit.toLowerCase().includes('day')) {
-      return `${Math.round(score)} ${unit}`;
+    if (safeUnit.toLowerCase().includes('ngày') || safeUnit.toLowerCase().includes('day')) {
+      return `${Math.round(safeScore)} ${safeUnit}`;
     }
-    if (unit.toLowerCase().includes('lần') || unit.toLowerCase().includes('time')) {
-      return `${Math.round(score)} ${unit}`;
+    if (safeUnit.toLowerCase().includes('lần') || safeUnit.toLowerCase().includes('time')) {
+      return `${Math.round(safeScore)} ${safeUnit}`;
     }
-    return `${score.toFixed(1)} ${unit}`;
+    return `${safeScore.toFixed(1)} ${safeUnit}`;
   };
 
   return (
@@ -150,6 +160,7 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
       <div className="card-body p-0">
         {/* Tab Navigation */}
         <div className="tabs tabs-boxed bg-base-200 p-1 m-3 sm:m-4 mb-0">
+          {/* Participants tab - Hiển thị cho tất cả */}
           <button
             className={`tab tab-sm sm:tab-lg flex-1 ${activeTab === 'participants' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('participants')}
@@ -158,6 +169,8 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
             <span className="hidden sm:inline">Người tham gia ({participants.length})</span>
             <span className="sm:hidden">Tham gia ({participants.length})</span>
           </button>
+          
+          {/* Leaderboard tab - Hiển thị cho tất cả */}
           <button
             className={`tab tab-sm sm:tab-lg flex-1 ${activeTab === 'leaderboard' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('leaderboard')}
@@ -186,10 +199,10 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
                       <div className="avatar">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           {participant.avatar ? (
-                            <img src={participant.avatar} alt={participant.name} className="w-full h-full rounded-full object-cover" />
+                            <img src={participant.avatar} alt={participant.name || 'Participant'} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <span className="text-primary font-bold text-sm sm:text-lg">
-                              {participant.name.charAt(0).toUpperCase()}
+                              {participant.name?.charAt(0)?.toUpperCase() || '?'}
                             </span>
                           )}
                         </div>
@@ -198,7 +211,7 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-sm sm:text-base truncate">{participant.name}</h4>
+                          <h4 className="font-semibold text-sm sm:text-base truncate">{participant.name || 'Unknown Participant'}</h4>
                           {participant.rank && (
                             <div className="flex items-center gap-1">
                               {getRankIcon(participant.rank)}
@@ -254,10 +267,10 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
                       <div className="avatar">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                           {entry.avatar ? (
-                            <img src={entry.avatar} alt={entry.name} className="w-full h-full rounded-full object-cover" />
+                            <img src={entry.avatar} alt={entry.name || 'Participant'} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <span className="text-primary font-bold">
-                              {entry.name.charAt(0).toUpperCase()}
+                              {entry.name?.charAt(0)?.toUpperCase() || '?'}
                             </span>
                           )}
                         </div>
@@ -265,9 +278,9 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold truncate">{entry.name}</h4>
+                        <h4 className="font-semibold truncate">{entry.name || 'Unknown Participant'}</h4>
                         <div className="flex items-center gap-4 text-sm text-base-content/70">
-                          <span>{formatScore(entry.score, challenge.targetUnit)}</span>
+                          <span>{formatScore(entry.score, challenge?.targetUnit)}</span>
                           <span>{formatProgress(entry.progress)}</span>
                         </div>
                       </div>
@@ -275,7 +288,7 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
                       {/* Score */}
                       <div className="text-right">
                         <div className="font-bold text-lg">
-                          {formatScore(entry.score, challenge.targetUnit)}
+                          {formatScore(entry.score, challenge?.targetUnit)}
                         </div>
                         <div className="text-xs text-base-content/60">
                           {formatProgress(entry.progress)}
@@ -298,7 +311,7 @@ export default function ChallengeTabs({ challenge }: ChallengeTabsProps) {
                     <div>
                       <span className="text-base-content/60">Điểm cao nhất:</span>
                       <span className="font-semibold ml-2">
-                        {leaderboard.length > 0 ? formatScore(leaderboard[0].score, challenge.targetUnit) : '0'}
+                        {leaderboard.length > 0 ? formatScore(leaderboard[0].score, challenge?.targetUnit) : '0'}
                       </span>
                     </div>
                   </div>

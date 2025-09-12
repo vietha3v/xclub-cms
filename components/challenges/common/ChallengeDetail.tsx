@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import useAxios from '@/hooks/useAxios';
 import { Challenge } from '@/types/challenge';
+import { useChallengePermissions } from '@/hooks/useChallengePermissions';
 import { LoadingWrapper, CardSkeleton } from '@/components/common/LoadingSkeleton';
 import ErrorState from '@/components/common/ErrorState';
 import ChallengeDetailHeader from './ChallengeDetailHeader';
@@ -22,6 +23,9 @@ export default function ChallengeDetail() {
   const challengeId = params.id as string;
 
   const [{ data: challenge, loading, error }, refetch] = useAxios<Challenge>(`/api/challenges/${challengeId}`);
+  
+  // Check permissions when challenge data is loaded
+  const permissions = challenge ? useChallengePermissions(challenge) : null;
 
   useEffect(() => {
     setIsVisible(true);
@@ -114,19 +118,34 @@ export default function ChallengeDetail() {
 
               {/* Sidebar */}
               <div className="space-y-4 sm:space-y-6">
-                <ChallengeDetailActions 
-                  challenge={challenge}
-                  onChallengeUpdate={handleChallengeUpdate}
-                />
-                <ChallengeProgress 
-                  challenge={challenge}
-                  key={refreshKey}
-                />
-                <ChallengeRegistration 
-                  challenge={challenge}
-                  onRegistrationChange={handleRegistrationChange}
-                />
-                <ChallengeShareActions challenge={challenge} />
+                {/* Admin actions - Chỉ hiển thị cho Creator hoặc Club Manager */}
+                {(permissions?.canEdit || permissions?.canManageClub) && (
+                  <ChallengeDetailActions 
+                    challenge={challenge}
+                    onChallengeUpdate={handleChallengeUpdate}
+                  />
+                )}
+                
+                {/* Progress - Hiển thị cho tất cả */}
+                {permissions?.canViewProgress && (
+                  <ChallengeProgress 
+                    challenge={challenge}
+                    key={refreshKey}
+                  />
+                )}
+                
+                {/* Registration - Hiển thị cho tất cả */}
+                {permissions?.canJoin && (
+                  <ChallengeRegistration 
+                    challenge={challenge}
+                    onRegistrationChange={handleRegistrationChange}
+                  />
+                )}
+                
+                {/* Share actions - Hiển thị cho tất cả */}
+                {permissions?.canShare && (
+                  <ChallengeShareActions challenge={challenge} />
+                )}
               </div>
             </div>
           </div>

@@ -72,8 +72,8 @@ export default function CertificatesPage() {
 
   const templates = dlv(response, 'data', []);
   const filteredTemplates = templates.filter((template: any) =>
-    dlv(template, 'name', '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dlv(template, 'description', '').toLowerCase().includes(searchTerm.toLowerCase())
+    (template?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (template?.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -159,7 +159,7 @@ export default function CertificatesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTemplates.map((template: any) => (
             <CertificateCard
-              key={dlv(template, 'id', '')}
+              key={template?.id || ''}
               template={template}
               onEdit={handleEditTemplate}
               onDelete={handleDeleteTemplate}

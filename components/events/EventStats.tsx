@@ -9,9 +9,9 @@ interface EventStatsProps {
 
 export default function EventStats({ events }: EventStatsProps) {
   // Chỉ hiển thị dữ liệu từ BE, không tính toán
-  const upcomingEvents = dlv({ events }, 'events.upcomingCount', 0);
-  const activeEvents = dlv({ events }, 'events.activeCount', 0);
-  const totalParticipants = dlv({ events }, 'events.totalParticipants', 0);
+  const upcomingEvents = events?.upcomingCount || 0;
+  const activeEvents = events?.activeCount || 0;
+  const totalParticipants = events?.totalParticipants || 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -98,17 +98,20 @@ export default function ChallengeProgress({ challenge }: ChallengeProgressProps)
     }
   };
 
-  const formatProgressValue = (value: number, unit: string) => {
-    if (unit.toLowerCase().includes('km') || unit.toLowerCase().includes('m')) {
-      return `${value.toFixed(1)} ${unit}`;
+  const formatProgressValue = (value: number | undefined, unit: string | undefined) => {
+    const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
+    const safeUnit = unit || 'điểm';
+    
+    if (safeUnit.toLowerCase().includes('km') || safeUnit.toLowerCase().includes('m')) {
+      return `${safeValue.toFixed(1)} ${safeUnit}`;
     }
-    if (unit.toLowerCase().includes('ngày') || unit.toLowerCase().includes('day')) {
-      return `${Math.round(value)} ${unit}`;
+    if (safeUnit.toLowerCase().includes('ngày') || safeUnit.toLowerCase().includes('day')) {
+      return `${Math.round(safeValue)} ${safeUnit}`;
     }
-    if (unit.toLowerCase().includes('lần') || unit.toLowerCase().includes('time')) {
-      return `${Math.round(value)} ${unit}`;
+    if (safeUnit.toLowerCase().includes('lần') || safeUnit.toLowerCase().includes('time')) {
+      return `${Math.round(safeValue)} ${safeUnit}`;
     }
-    return `${value.toFixed(1)} ${unit}`;
+    return `${safeValue.toFixed(1)} ${safeUnit}`;
   };
 
   if (!userProgress) {
@@ -147,7 +150,7 @@ export default function ChallengeProgress({ challenge }: ChallengeProgressProps)
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium">Tiến độ hiện tại</span>
             <span className={`text-sm font-bold ${getProgressColor(userProgress.percentage)}`}>
-              {userProgress.percentage.toFixed(1)}%
+              {(typeof userProgress.percentage === 'number' ? userProgress.percentage : 0).toFixed(1)}%
             </span>
           </div>
           
@@ -214,7 +217,7 @@ export default function ChallengeProgress({ challenge }: ChallengeProgressProps)
             <div className="text-center">
               <h4 className="font-semibold text-primary mb-1">Tiếp tục cố gắng!</h4>
               <p className="text-sm text-base-content/70">
-                Bạn đã hoàn thành {userProgress.percentage.toFixed(1)}% mục tiêu. 
+                Bạn đã hoàn thành {(typeof userProgress.percentage === 'number' ? userProgress.percentage : 0).toFixed(1)}% mục tiêu. 
                 Còn {((challenge.targetValue - userProgress.currentValue) / challenge.targetValue * 100).toFixed(1)}% nữa để đạt được mục tiêu!
               </p>
             </div>

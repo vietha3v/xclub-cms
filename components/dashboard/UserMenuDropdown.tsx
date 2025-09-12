@@ -2,26 +2,16 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { tokenManager } from '@/lib/api';
 
 export default function UserMenuDropdown() {
   const { data: session } = useSession();
 
   const handleSignOut = async () => {
-    console.log('🚪 UserMenuDropdown - Starting sign out process');
     try {
-      // Bước 1: Xóa Next Auth session
-      await signOut({ redirect: false });
-      
-      // Bước 2: Xóa tất cả tokens từ tokenManager
-      tokenManager.clearTokens();
-      
-      console.log('✅ UserMenuDropdown - Sign out completed');
-      
-      // Bước 3: Redirect thủ công
-      window.location.href = '/';
+      // Xóa Next Auth session và redirect
+      await signOut({ redirect: true, callbackUrl: '/' });
     } catch (error) {
-      console.error('❌ UserMenuDropdown - Error signing out:', error);
+      console.error('Error signing out:', error);
     }
   };
 

@@ -115,7 +115,7 @@ export default function EditChallengeModal({
     try {
       const challengeData: UpdateChallengeDto = {
         ...data,
-        points: Number(dlv(data, 'points', 0)),
+        points: Number(data?.points || 0),
         autoApprovalPassword: data.autoApprovalPassword || undefined,
       };
 

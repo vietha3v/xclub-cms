@@ -49,7 +49,7 @@ export default function MyClubs() {
     );
   }
 
-  if (dlv({ clubsData }, 'clubsData.length', 0) === 0) {
+  if (!clubsData || clubsData.length === 0) {
     return (
       <div className="text-center py-20">
         <div className="text-6xl mb-6">🏢</div>

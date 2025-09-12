@@ -5,10 +5,8 @@ import { Play, Clock, Users, Trophy, Pause, CheckCircle, XCircle, Loader2, Edit,
 import useAxios from '@/hooks/useAxios';
 import { useToast } from '@/components/Toast';
 import { useState } from 'react';
-import EditChallengeModal from './EditChallengeModal';
-import ChallengeParticipantsModal from './ChallengeParticipantsModal';
-import ChallengeInvitationsModal from './ChallengeInvitationsModal';
-import ChallengeAnalyticsModal from './ChallengeAnalyticsModal';
+import { useChallengePermissions } from '@/hooks/useChallengePermissions';
+import AdvancedAdminModal from './AdvancedAdminModal';
 
 interface ChallengeDetailActionsProps {
   challenge: Challenge;
@@ -16,43 +14,55 @@ interface ChallengeDetailActionsProps {
 }
 
 export default function ChallengeDetailActions({ challenge, onChallengeUpdate }: ChallengeDetailActionsProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
-  const [showInvitationsModal, setShowInvitationsModal] = useState(false);
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [showAdvancedAdminModal, setShowAdvancedAdminModal] = useState(false);
   const { showToast } = useToast();
+  
+  // Check permissions
+  const permissions = useChallengePermissions(challenge);
 
   // API calls
-  const [, publishChallenge] = useAxios(`/api/challenges/${challenge.id}/publish`, { manual: true });
-  const [, changeStatus] = useAxios(`/api/challenges/${challenge.id}/status`, { manual: true });
+  const [{ loading: publishLoading }, publishChallenge] = useAxios({
+    url: `/api/challenges/${challenge.id}/publish`,
+    method: 'POST'
+  }, { manual: true });
+  const [{ loading: statusLoading }, changeStatus] = useAxios({
+    url: `/api/challenges/${challenge.id}/status`,
+    method: 'PATCH'
+  }, { manual: true });
+  
+  const isLoading = publishLoading || statusLoading;
 
   const handlePublish = async () => {
-    setIsLoading(true);
     try {
-      await publishChallenge({ method: 'POST' });
-      showToast('Thử thách đã được publish thành công!', 'success');
+      await publishChallenge();
+      showToast({
+        type: 'success',
+        message: 'Thử thách đã được publish thành công!'
+      });
       onChallengeUpdate?.();
     } catch (error) {
-      showToast('Có lỗi xảy ra khi publish thử thách', 'error');
-    } finally {
-      setIsLoading(false);
+      showToast({
+        type: 'error',
+        message: 'Có lỗi xảy ra khi publish thử thách'
+      });
     }
   };
 
   const handleChangeStatus = async (newStatus: ChallengeStatus) => {
-    setIsLoading(true);
     try {
       await changeStatus({ 
-        method: 'PATCH', 
         data: { status: newStatus } 
       });
-      showToast(`Trạng thái đã được thay đổi thành ${getStatusText(newStatus)}`, 'success');
+      showToast({
+        type: 'success',
+        message: `Trạng thái đã được thay đổi thành ${getStatusText(newStatus)}`
+      });
       onChallengeUpdate?.();
     } catch (error) {
-      showToast('Có lỗi xảy ra khi thay đổi trạng thái', 'error');
-    } finally {
-      setIsLoading(false);
+      showToast({
+        type: 'error',
+        message: 'Có lỗi xảy ra khi thay đổi trạng thái'
+      });
     }
   };
   const getStatusText = (status: ChallengeStatus) => {
@@ -94,8 +104,8 @@ export default function ChallengeDetailActions({ challenge, onChallengeUpdate }:
               </button>
             )}
 
-            {/* Admin actions */}
-            {challenge.status === ChallengeStatus.PUBLISHED && (
+            {/* Admin actions - Chỉ hiển thị cho Creator */}
+            {permissions.canPublishChallenge && challenge.status === ChallengeStatus.PUBLISHED && (
               <button 
                 className="btn btn-primary w-full"
                 onClick={handlePublish}
@@ -110,7 +120,7 @@ export default function ChallengeDetailActions({ challenge, onChallengeUpdate }:
               </button>
             )}
 
-            {challenge.status === ChallengeStatus.ACTIVE && (
+            {permissions.canChangeStatus && challenge.status === ChallengeStatus.ACTIVE && (
               <div className="flex gap-2">
                 <button 
                   className="btn btn-warning flex-1"
@@ -139,41 +149,22 @@ export default function ChallengeDetailActions({ challenge, onChallengeUpdate }:
               </div>
             )}
 
-            {/* Admin Management Buttons */}
-            <div className="divider my-4">Quản lý thử thách</div>
-            
-            <button 
-              className="btn btn-outline w-full"
-              onClick={() => setShowEditModal(true)}
-            >
-              <Edit className="w-4 h-4" />
-              Chỉnh sửa thử thách
-            </button>
+            {/* Admin Management Button - Chỉ hiển thị cho Creator và Club Manager */}
+            {(permissions.canEdit || permissions.canManageClub) && (
+              <>
+                <div className="divider my-4">Quản trị nâng cao</div>
+                
+                <button 
+                  className="btn btn-outline w-full"
+                  onClick={() => setShowAdvancedAdminModal(true)}
+                >
+                  <Settings className="w-4 h-4" />
+                  Quản trị nâng cao
+                </button>
+              </>
+            )}
 
-            <button 
-              className="btn btn-outline w-full"
-              onClick={() => setShowParticipantsModal(true)}
-            >
-              <Users className="w-4 h-4" />
-              Quản lý người tham gia
-            </button>
-
-            <button 
-              className="btn btn-outline w-full"
-              onClick={() => setShowInvitationsModal(true)}
-            >
-              <Mail className="w-4 h-4" />
-              Quản lý lời mời
-            </button>
-
-            <button 
-              className="btn btn-outline w-full"
-              onClick={() => setShowAnalyticsModal(true)}
-            >
-              <BarChart3 className="w-4 h-4" />
-              Phân tích chi tiết
-            </button>
-
+            {/* Common actions - Hiển thị cho tất cả */}
             <button className="btn btn-outline w-full">
               <Trophy className="w-4 h-4" />
               Xem bảng xếp hạng
@@ -209,45 +200,19 @@ export default function ChallengeDetailActions({ challenge, onChallengeUpdate }:
         </div>
       </div>
 
-      {/* Modals */}
-      {showEditModal && (
-        <EditChallengeModal
+      {/* Advanced Admin Modal */}
+      {showAdvancedAdminModal && (
+        <AdvancedAdminModal
           challenge={challenge}
-          onClose={() => setShowEditModal(false)}
-          onSuccess={() => {
-            setShowEditModal(false);
-            onChallengeUpdate?.();
-            showToast('Thử thách đã được cập nhật thành công!', 'success');
-          }}
-        />
-      )}
-
-      {showParticipantsModal && (
-        <ChallengeParticipantsModal
-          challenge={challenge}
-          onClose={() => setShowParticipantsModal(false)}
+          isOpen={showAdvancedAdminModal}
+          onClose={() => setShowAdvancedAdminModal(false)}
           onUpdate={() => {
             onChallengeUpdate?.();
-            showToast('Danh sách người tham gia đã được cập nhật!', 'success');
+            showToast({
+              type: 'success',
+              message: 'Cập nhật thành công!'
+            });
           }}
-        />
-      )}
-
-      {showInvitationsModal && (
-        <ChallengeInvitationsModal
-          challenge={challenge}
-          onClose={() => setShowInvitationsModal(false)}
-          onUpdate={() => {
-            onChallengeUpdate?.();
-            showToast('Danh sách lời mời đã được cập nhật!', 'success');
-          }}
-        />
-      )}
-
-      {showAnalyticsModal && (
-        <ChallengeAnalyticsModal
-          challenge={challenge}
-          onClose={() => setShowAnalyticsModal(false)}
         />
       )}
     </div>

@@ -75,7 +75,7 @@ export default function RaceList({ initialFilters = {} }: RaceListProps) {
         onFilterChange={handleFilterChange}
       />
 
-      {dlv(data, 'data') && dlv({ data }, 'data.length', 0) > 0 ? (
+      {data?.data && data.data.length > 0 ? (
         <div className="grid gap-4">
           {dlv(data, 'data', []).map((race: Race) => (
             <RaceCard 
