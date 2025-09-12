@@ -95,38 +95,42 @@ export const {
         token.refreshToken = user.refreshToken;
         token.roles = user.roles;
         token.provider = user.provider;
+        
+        // Lưu token vào storage để axiosInstance có thể sử dụng
+        if (typeof window !== 'undefined' && user.accessToken) {
+          tokenManager.saveTokens(user.accessToken, user.refreshToken || '', true);
+        }
       }
       
       // Xử lý OAuth providers
       if (account?.provider === 'google' || account?.provider === 'facebook') {
         try {
-          // Gọi API BE để xử lý OAuth
-          const oauthResponse = await authAPI.oauthCallback(
-            account.provider,
-            {
-              id: profile?.sub || profile?.id,
-              email: profile?.email,
-              name: profile?.name,
-              picture: profile?.picture,
-              provider: account.provider,
-            }
-          );
+          // Gọi BE API để tạo/tìm user và lấy JWT tokens
+          const result = await authAPI.oauthCallback(account.provider, profile);
           
-          token.accessToken = oauthResponse.access_token;
-          token.refreshToken = oauthResponse.refresh_token;
-          token.roles = oauthResponse.user.roles;
-          token.provider = oauthResponse.user.provider;
+          // Lưu thông tin từ BE API vào token
+          token.provider = account.provider;
+          token.roles = result.user.roles || ['user'];
+          token.accessToken = result.access_token;
+          token.refreshToken = result.refresh_token;
+          token.userId = result.user.id;
           
-          // Lưu token vào tokenManager
+          // Lưu token vào storage để axiosInstance có thể sử dụng
           if (typeof window !== 'undefined') {
-            tokenManager.saveTokens(
-              oauthResponse.access_token,
-              oauthResponse.refresh_token,
-              true
-            );
+            tokenManager.saveTokens(result.access_token, result.refresh_token, true);
           }
         } catch (error) {
           console.error('OAuth callback error:', error);
+          // Fallback về token từ NextAuth.js nếu BE API lỗi
+          token.provider = account.provider;
+          token.roles = ['user'];
+          token.accessToken = account.access_token;
+          token.refreshToken = account.refresh_token;
+          
+          // Vẫn lưu fallback token vào storage
+          if (typeof window !== 'undefined' && account.access_token) {
+            tokenManager.saveTokens(account.access_token, account.refresh_token || '', true);
+          }
         }
       }
       
@@ -196,21 +200,21 @@ export const {
   // Secret cho NextAuth - sử dụng mặc định cho development
   secret: process.env.NEXTAUTH_SECRET || 'x-club-development-secret-key-2024',
   
-  // URL cho NextAuth - sử dụng mặc định cho development
-  url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  // Trust host cho development
+  trustHost: true,
   
   // Debug environment variables
   debug: process.env.NODE_ENV === 'development',
   
   // Logging configuration
   logger: {
-    error(code, metadata) {
-      console.error('NextAuth Error:', { code, metadata });
+    error(error: Error) {
+      console.error('NextAuth Error:', error);
     },
-    warn(code) {
+    warn(code: string) {
       console.warn('NextAuth Warning:', code);
     },
-    debug(code, metadata) {
+    debug(code: string, metadata?: any) {
       console.log('NextAuth Debug:', { code, metadata });
     }
   },

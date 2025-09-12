@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Club, ClubMember } from '@/types/club';
 import useAxios from '@/hooks/useAxios';
+import { useToast } from '@/components/Toast';
+import Tabs, { TabItem } from '@/components/common/Tabs';
+import dlv from 'dlv';
 import { 
   Users, 
   UserPlus, 
@@ -27,6 +30,7 @@ type PendingRequest = ClubMember;
 export default function ClubMemberManagement({ 
   clubId
 }: ClubMemberManagementProps) {
+  const { showToast } = useToast();
   const [club, setClub] = useState<Club | null>(null);
   const [activeTab, setActiveTab] = useState<'members' | 'pending'>('members');
   const [selectedMember, setSelectedMember] = useState<ClubMember | null>(null);
@@ -96,30 +100,45 @@ export default function ClubMemberManagement({
     }
   }, [clubId, fetchMembers, fetchPendingRequests, isAdmin, isModerator]);
 
+  const [, executeApprove] = useAxios(
+    {
+      url: '',
+      method: 'PUT'
+    },
+    { manual: true }
+  );
+
   const handleApproveRequest = async (request: PendingRequest) => {
     try {
-      // Tạo API call động cho user cụ thể
-      const response = await fetch(`/api/clubs/${clubId}/members/${request.userId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'active' })
+      await executeApprove({
+        url: `/api/clubs/${clubId}/members/${request.userId}/status`,
+        data: { status: 'active' }
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to approve request');
-      }
       
-      alert('Đã duyệt yêu cầu tham gia');
+      showToast({
+        type: 'success',
+        message: 'Đã duyệt yêu cầu tham gia',
+        title: 'Thành công'
+      });
       fetchPendingRequests();
       fetchMembers();
-      onUpdate?.();
     } catch (error: unknown) {
       console.error('Approve request error:', error);
-      alert('Có lỗi xảy ra khi duyệt yêu cầu');
+      showToast({
+        type: 'error',
+        message: 'Có lỗi xảy ra khi duyệt yêu cầu',
+        title: 'Lỗi'
+      });
     }
   };
+
+  const [, executeReject] = useAxios(
+    {
+      url: '',
+      method: 'DELETE'
+    },
+    { manual: true }
+  );
 
   const handleRejectRequest = async (request: PendingRequest) => {
     if (!confirm('Bạn có chắc chắn muốn từ chối yêu cầu này?')) {
@@ -127,25 +146,24 @@ export default function ClubMemberManagement({
     }
 
     try {
-      // Tạo API call động để xóa member
-      const response = await fetch(`/api/clubs/${clubId}/members/${request.userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ reason: 'Yêu cầu bị từ chối' })
+      await executeReject({
+        url: `/api/clubs/${clubId}/members/${request.userId}`,
+        data: { reason: 'Yêu cầu bị từ chối' }
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to reject request');
-      }
       
-      alert('Đã từ chối yêu cầu tham gia');
+      showToast({
+        type: 'success',
+        message: 'Đã từ chối yêu cầu tham gia',
+        title: 'Thành công'
+      });
       fetchPendingRequests();
-      onUpdate?.();
     } catch (error: unknown) {
       console.error('Reject request error:', error);
-      alert('Có lỗi xảy ra khi từ chối yêu cầu');
+      showToast({
+        type: 'error',
+        message: 'Có lỗi xảy ra khi từ chối yêu cầu',
+        title: 'Lỗi'
+      });
     }
   };
 
@@ -158,14 +176,21 @@ export default function ClubMemberManagement({
         data: { role: newRole }
       });
       
-      alert('Đã cập nhật vai trò thành viên');
+      showToast({
+        type: 'success',
+        message: 'Đã cập nhật vai trò thành viên',
+        title: 'Thành công'
+      });
       setShowRoleModal(false);
       setSelectedMember(null);
       fetchMembers();
-      onUpdate?.();
     } catch (error: unknown) {
       console.error('Update role error:', error);
-      alert(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật vai trò');
+      showToast({
+        type: 'error',
+        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi cập nhật vai trò'),
+        title: 'Lỗi'
+      });
     }
   };
 
@@ -178,14 +203,21 @@ export default function ClubMemberManagement({
         data: { status: newStatus }
       });
       
-      alert('Đã cập nhật trạng thái thành viên');
+      showToast({
+        type: 'success',
+        message: 'Đã cập nhật trạng thái thành viên',
+        title: 'Thành công'
+      });
       setShowStatusModal(false);
       setSelectedMember(null);
       fetchMembers();
-      onUpdate?.();
     } catch (error: unknown) {
       console.error('Update status error:', error);
-      alert(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
+      showToast({
+        type: 'error',
+        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi cập nhật trạng thái'),
+        title: 'Lỗi'
+      });
     }
   };
 
@@ -202,13 +234,21 @@ export default function ClubMemberManagement({
         data: { reason: 'Bị xóa bởi admin' }
       });
       
-      alert('Đã xóa thành viên');
+      showToast({
+        type: 'success',
+        message: 'Đã xóa thành viên',
+        title: 'Thành công'
+      });
       setShowMemberActions(false);
       setSelectedMember(null);
       fetchMembers();
     } catch (error: unknown) {
       console.error('Remove member error:', error);
-      alert(error.response?.data?.message || 'Có lỗi xảy ra khi xóa thành viên');
+      showToast({
+        type: 'error',
+        message: dlv(error as any, 'response.data.message', 'Có lỗi xảy ra khi xóa thành viên'),
+        title: 'Lỗi'
+      });
     }
   };
 
@@ -288,41 +328,53 @@ export default function ClubMemberManagement({
   }
 
   if (!canManageMembers) {
-    return (
-      <div className="card bg-base-100 shadow-sm">
-        <div className="card-body text-center">
-          <h2 className="text-2xl font-bold mb-4">Không có quyền</h2>
-          <p className="text-base-content/70">
-            Bạn không có quyền quản lý thành viên của CLB này.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
+    <>
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title text-xl">
             <Users className="w-5 h-5" />
             Quản lý thành viên
           </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('members')}
-              className={`btn btn-sm ${activeTab === 'members' ? 'btn-primary' : 'btn-outline'}`}
-            >
-              Thành viên ({members?.length || 0})
-            </button>
-            <button
-              onClick={() => setActiveTab('pending')}
-              className={`btn btn-sm ${activeTab === 'pending' ? 'btn-primary' : 'btn-outline'}`}
-            >
-              Chờ duyệt ({pendingRequests?.length || 0})
-            </button>
-          </div>
         </div>
+
+        <Tabs
+          tabs={[
+            {
+              id: 'members',
+              label: 'Thành viên',
+              icon: '👥',
+              badge: dlv(members, 'length', 0)
+            },
+            {
+              id: 'pending',
+              label: 'Chờ duyệt',
+              icon: '⏳',
+              badge: dlv(pendingRequests, 'length', 0)
+            }
+          ]}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as 'members' | 'pending')}
+          variant="default"
+          size="md"
+          fullWidth={false}
+        />
 
         {activeTab === 'members' && (
           <div className="space-y-4">
@@ -335,7 +387,7 @@ export default function ClubMemberManagement({
               <div className="alert alert-error">
                 <span>Lỗi: {membersError.message || 'Không thể tải danh sách thành viên'}</span>
               </div>
-            ) : !members || !Array.isArray(members) || members.length === 0 ? (
+            ) : dlv(members, 'length', 0) === 0 ? (
               <div className="text-center py-8">
                 <Users className="w-16 h-16 mx-auto mb-4 text-base-content/30" />
                 <p className="text-base-content/70">Chưa có thành viên nào</p>
@@ -345,17 +397,24 @@ export default function ClubMemberManagement({
                 <table className="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Tên thành viên</th>
-                      <th>Vai trò</th>
-                      <th>Ngày tham gia</th>
-                      <th>Trạng thái</th>
+                      <th className="hidden sm:table-cell">Tên thành viên</th>
+                      <th className="hidden md:table-cell">Vai trò</th>
+                      <th className="hidden lg:table-cell">Ngày tham gia</th>
+                      <th className="hidden sm:table-cell">Trạng thái</th>
                       <th>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.isArray(members) && members.map((member) => (
-                      <tr key={member.id} className="hover">
-                        <td>
+                    {dlv(members, 'map', []).map((member: any, index: number) => (
+                      <tr 
+                        key={member.id} 
+                        className="hover transition-all duration-200"
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                          animation: 'fadeInUp 0.5s ease-out forwards'
+                        }}
+                      >
+                        <td className="sm:table-cell">
                           <div className="flex items-center gap-3">
                             <div className="avatar">
                               <div className="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
@@ -368,7 +427,7 @@ export default function ClubMemberManagement({
                                 )}
                               </div>
                             </div>
-                            <div>
+                            <div className="hidden sm:block">
                               <div className="font-medium">
                                 {member.user.firstName} {member.user.lastName}
                               </div>
@@ -376,9 +435,14 @@ export default function ClubMemberManagement({
                                 {member.user.email}
                               </div>
                             </div>
+                            <div className="sm:hidden">
+                              <div className="font-medium text-sm">
+                                {member.user.firstName} {member.user.lastName}
+                              </div>
+                            </div>
                           </div>
                         </td>
-                        <td>
+                        <td className="hidden md:table-cell">
                           <div className="flex items-center gap-2">
                             {getRoleIcon(member.role)}
                             <span className={`badge badge-sm ${getRoleColor(member.role)}`}>
@@ -386,12 +450,12 @@ export default function ClubMemberManagement({
                             </span>
                           </div>
                         </td>
-                        <td>
+                        <td className="hidden lg:table-cell">
                           <span className="text-sm">
                             {new Date(member.joinedAt).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
-                        <td>
+                        <td className="hidden sm:table-cell">
                           <span className={`badge badge-sm ${member.status === 'active' ? 'badge-success' : 'badge-warning'}`}>
                             {member.status === 'active' ? 'Hoạt động' : 'Tạm khóa'}
                           </span>
@@ -461,14 +525,14 @@ export default function ClubMemberManagement({
               <div className="alert alert-error">
                 <span>Lỗi: {pendingError.message || 'Không thể tải yêu cầu chờ duyệt'}</span>
               </div>
-            ) : !pendingRequests || pendingRequests.length === 0 ? (
+            ) : dlv(pendingRequests, 'length', 0) === 0 ? (
               <div className="text-center py-8">
                 <UserPlus className="w-16 h-16 mx-auto mb-4 text-base-content/30" />
                 <p className="text-base-content/70">Không có yêu cầu tham gia nào</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {pendingRequests.map((request) => (
+                {dlv(pendingRequests, 'map', []).map((request: any) => (
                   <div key={request.id} className="card bg-base-200 shadow-sm">
                     <div className="card-body p-4">
                       <div className="flex items-center justify-between">
@@ -645,5 +709,6 @@ export default function ClubMemberManagement({
         )}
       </div>
     </div>
+    </>
   );
 }

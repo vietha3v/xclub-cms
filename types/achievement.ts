@@ -1,182 +1,167 @@
-export interface Achievement {
-  id: string;
-  achievementCode: string;
-  name: string;
-  description: string;
-  type: AchievementType;
-  category: AchievementCategory;
-  level: AchievementLevel;
-  icon: string;
-  badge: string;
-  points: number;
-  requirements: AchievementRequirement[];
-  rewards: AchievementReward[];
-  isActive: boolean;
-  isPublic: boolean;
-  isRepeatable: boolean;
-  maxCompletions?: number;
-  cooldownPeriod?: number; // in days
-  startDate?: Date;
-  endDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-}
+// Achievement Types
 
 export enum AchievementType {
-  DISTANCE = 'distance',
-  TIME = 'time',
-  SPEED = 'speed',
-  FREQUENCY = 'frequency',
-  STREAK = 'streak',
-  SOCIAL = 'social',
   CHALLENGE = 'challenge',
-  EVENT = 'event',
-  SPECIAL = 'special'
-}
-
-export enum AchievementCategory {
-  RUNNING = 'running',
-  CYCLING = 'cycling',
-  SWIMMING = 'swimming',
-  GENERAL = 'general',
-  SOCIAL = 'social',
-  CLUB = 'club',
-  EVENT = 'event'
-}
-
-export enum AchievementLevel {
-  BRONZE = 'bronze',
-  SILVER = 'silver',
-  GOLD = 'gold',
-  PLATINUM = 'platinum',
-  DIAMOND = 'diamond'
-}
-
-export interface AchievementRequirement {
-  id: string;
-  type: RequirementType;
-  operator: RequirementOperator;
-  value: number;
-  unit?: string;
-  period?: string; // daily, weekly, monthly, yearly, all_time
-  conditions?: Record<string, unknown>;
-}
-
-export enum RequirementType {
-  DISTANCE = 'distance',
-  TIME = 'time',
-  SPEED = 'speed',
-  PACE = 'pace',
-  FREQUENCY = 'frequency',
+  ACTIVITY = 'activity',
   STREAK = 'streak',
-  CALORIES = 'calories',
-  ELEVATION = 'elevation',
-  ACTIVITIES = 'activities',
-  PARTICIPANTS = 'participants',
-  SOCIAL_INTERACTIONS = 'social_interactions'
-}
-
-export enum RequirementOperator {
-  EQUALS = 'equals',
-  GREATER_THAN = 'greater_than',
-  LESS_THAN = 'less_than',
-  GREATER_THAN_OR_EQUAL = 'greater_than_or_equal',
-  LESS_THAN_OR_EQUAL = 'less_than_or_equal',
-  BETWEEN = 'between',
-  CONTAINS = 'contains'
-}
-
-export interface AchievementReward {
-  id: string;
-  type: RewardType;
-  value: number;
-  description: string;
-  isActive: boolean;
-}
-
-export enum RewardType {
-  POINTS = 'points',
-  BADGE = 'badge',
-  TITLE = 'title',
-  DISCOUNT = 'discount',
-  GIFT = 'gift',
+  MILESTONE = 'milestone',
+  SPECIAL = 'special',
   CUSTOM = 'custom'
+}
+
+export enum AchievementStatus {
+  EARNED = 'earned',
+  PENDING = 'pending',
+  LOCKED = 'locked'
 }
 
 export interface UserAchievement {
   id: string;
   userId: string;
   achievementId: string;
-  achievement: Achievement;
-  progress: number;
-  isCompleted: boolean;
-  completedAt?: Date;
-  progressData: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
+  achievementName: string;
+  achievementDescription?: string;
+  achievementType: AchievementType;
+  status: AchievementStatus;
+  earnedAt?: string;
+  points: number;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamAchievement {
+  id: string;
+  teamId: string;
+  achievementId: string;
+  achievementName: string;
+  achievementDescription?: string;
+  achievementType: AchievementType;
+  status: AchievementStatus;
+  earnedAt?: string;
+  points: number;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description?: string;
+  type: AchievementType;
+  points: number;
+  icon?: string;
+  color?: string;
+  requirements: AchievementRequirements;
+  rewards: AchievementRewards;
+  isPublic: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AchievementRequirements {
+  minLevel?: number;
+  maxLevel?: number;
+  requiredChallenges?: string[];
+  requiredActivities?: string[];
+  requiredTeams?: string[];
+  minScore?: number;
+  minDistance?: number;
+  minTime?: number;
+  minStreak?: number;
+  minWins?: number;
+  custom?: Record<string, any>;
+}
+
+export interface AchievementRewards {
+  points: number;
+  medals?: string[];
+  certificates?: string[];
+  badges?: string[];
+  titles?: string[];
+  custom?: Record<string, any>;
 }
 
 export interface CreateAchievementDto {
   name: string;
-  description: string;
+  description?: string;
   type: AchievementType;
-  category: AchievementCategory;
-  level: AchievementLevel;
-  icon: string;
-  badge: string;
   points: number;
-  requirements: Omit<AchievementRequirement, 'id'>[];
-  rewards: Omit<AchievementReward, 'id'>[];
-  isActive: boolean;
-  isPublic: boolean;
-  isRepeatable: boolean;
-  maxCompletions?: number;
-  cooldownPeriod?: number;
-  startDate?: Date;
-  endDate?: Date;
+  icon?: string;
+  color?: string;
+  requirements: AchievementRequirements;
+  rewards: AchievementRewards;
+  isPublic?: boolean;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface UpdateAchievementDto extends Partial<CreateAchievementDto> {}
+export interface UpdateAchievementDto {
+  name?: string;
+  description?: string;
+  type?: AchievementType;
+  points?: number;
+  icon?: string;
+  color?: string;
+  requirements?: AchievementRequirements;
+  rewards?: AchievementRewards;
+  isPublic?: boolean;
+  isActive?: boolean;
+  sortOrder?: number;
+}
 
 export interface QueryAchievementDto {
   page?: number;
   limit?: number;
   search?: string;
   type?: AchievementType;
-  category?: AchievementCategory;
-  level?: AchievementLevel;
-  isActive?: boolean;
   isPublic?: boolean;
-  isRepeatable?: boolean;
+  isActive?: boolean;
+  userId?: string;
+  teamId?: string;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }
 
-export interface AchievementResponse {
-  achievements: Achievement[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface UserAchievementResponse {
-  userAchievements: UserAchievement[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+export interface AchievementProgress {
+  id: string;
+  achievementId: string;
+  userId: string;
+  teamId?: string;
+  progress: number;
+  maxProgress: number;
+  isCompleted: boolean;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AchievementStats {
   totalAchievements: number;
-  activeAchievements: number;
-  completedAchievements: number;
+  earnedAchievements: number;
+  pendingAchievements: number;
+  lockedAchievements: number;
   totalPoints: number;
-  achievementsByType: Record<AchievementType, number>;
-  achievementsByCategory: Record<AchievementCategory, number>;
-  achievementsByLevel: Record<AchievementLevel, number>;
-  recentAchievements: UserAchievement[];
+  averageProgress: number;
+  topAchievements: Achievement[];
+  recentEarnings: (UserAchievement | TeamAchievement)[];
+}
+
+export interface AchievementDisplay {
+  id: string;
+  name: string;
+  description?: string;
+  type: AchievementType;
+  points: number;
+  icon?: string;
+  color?: string;
+  status: AchievementStatus;
+  earnedAt?: string;
+  progress?: number;
+  maxProgress?: number;
+  isCompleted: boolean;
+  metadata?: Record<string, any>;
 }

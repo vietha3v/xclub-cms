@@ -63,6 +63,8 @@ export interface Challenge {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  medalTemplateIds?: string[];
+  certificateTemplateIds?: string[];
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;
@@ -233,6 +235,8 @@ export interface CreateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  medalTemplateIds?: string[];
+  certificateTemplateIds?: string[];
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;
@@ -273,6 +277,8 @@ export interface UpdateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  medalTemplateIds?: string[];
+  certificateTemplateIds?: string[];
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;

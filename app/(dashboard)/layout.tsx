@@ -26,7 +26,7 @@ export default function DashboardLayout({
           onMobileClose={() => setIsMobileMenuOpen(false)}
         />
         <main className="flex-1 overflow-y-auto lg:ml-0">
-          <div className="p-2 sm:p-6">
+          <div className="p-2 sm:p-4">
             {children}
           </div>
         </main>

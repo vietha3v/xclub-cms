@@ -1,163 +1,96 @@
-export interface Activity {
-  id: string;
-  activityCode: string;
-  name: string;
-  description?: string;
-  type: ActivityType;
-  sportType: string;
-  status: ActivityStatus;
-  visibility: ActivityVisibility;
-  isPublic: boolean;
-  userId: string;
-  source: string;
-  sourceActivityId: string;
-  lastSyncedAt?: Date;
-  startTime: Date;
-  endTime?: Date;
-  duration: number;
-  elapsedTime: number;
-  movingTime?: number;
-  distance: number;
-  averageSpeed?: number;
-  maxSpeed?: number;
-  averagePace?: number;
-  averageHeartRate?: number;
-  maxHeartRate?: number;
-  calories?: number;
-  elevationGain?: number;
-  elevationLoss?: number;
-  totalElevationGain?: number;
-  maxElevation?: number;
-  minElevation?: number;
-  kilojoules?: number;
-  averageWatts?: number;
-  maxWatts?: number;
-  weightedAverageWatts?: number;
-  deviceWatts?: boolean;
-  startLatitude?: number;
-  startLongitude?: number;
-  endLatitude?: number;
-  endLongitude?: number;
-  startLocation?: string;
-  endLocation?: string;
-  equipment?: string;
-  gearId?: string;
-  deviceName?: string;
-  uploadId?: string;
-  temperature?: number;
-  humidity?: number;
-  windSpeed?: number;
-  roadCondition?: string;
-  trainer?: boolean;
-  commute?: boolean;
-  manual?: boolean;
-  private?: boolean;
-  flagged?: boolean;
-  workoutType?: number;
-  gpsData?: Record<string, unknown>;
-  heartRateData?: Record<string, unknown>;
-  powerData?: Record<string, unknown>;
-  cadenceData?: Record<string, unknown>;
-  speedData?: Record<string, unknown>;
-  elevationData?: Record<string, unknown>;
-  weather?: Record<string, unknown>;
-  challengeId?: string;
-  eventId?: string;
-  raceId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Activity Types
 
 export enum ActivityType {
-  RUNNING = 'Run',
-  WALKING = 'Walk',
-  HIKING = 'Hike',
-  TRAIL_RUNNING = 'TrailRun',
-  JOGGING = 'Jog',
-  CYCLING = 'Ride',
-  MOUNTAIN_BIKING = 'MountainBikeRide',
-  SWIMMING = 'Swim',
-  YOGA = 'Yoga',
-  WEIGHT_TRAINING = 'WeightTraining',
-  OTHER = 'Other'
+  CHALLENGE = 'challenge',
+  ACHIEVEMENT = 'achievement',
+  TEAM_JOIN = 'team_join',
+  TEAM_LEAVE = 'team_leave',
+  CHALLENGE_COMPLETE = 'challenge_complete',
+  CHALLENGE_WIN = 'challenge_win',
+  MEDAL_EARNED = 'medal_earned',
+  CERTIFICATE_EARNED = 'certificate_earned',
+  STREAK_ACHIEVED = 'streak_achieved',
+  MILESTONE_REACHED = 'milestone_reached',
+  CUSTOM = 'custom'
 }
 
 export enum ActivityStatus {
-  SYNCED = 'synced',
-  PROCESSING = 'processing',
-  ERROR = 'error'
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  ARCHIVED = 'archived'
 }
 
-export enum ActivityVisibility {
-  PRIVATE = 'private',
-  FRIENDS = 'friends',
-  CLUB = 'club',
-  PUBLIC = 'public'
+export interface Activity {
+  id: string;
+  name: string;
+  description?: string;
+  type: ActivityType;
+  status: ActivityStatus;
+  points: number;
+  requirements: ActivityRequirements;
+  rewards: ActivityRewards;
+  isPublic: boolean;
+  isRepeatable: boolean;
+  maxAttempts?: number;
+  cooldownHours?: number;
+  startDate?: string;
+  endDate?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ActivityRequirements {
+  minLevel?: number;
+  maxLevel?: number;
+  requiredChallenges?: string[];
+  requiredAchievements?: string[];
+  requiredTeams?: string[];
+  minScore?: number;
+  minDistance?: number;
+  minTime?: number;
+  minStreak?: number;
+  custom?: Record<string, any>;
+}
+
+export interface ActivityRewards {
+  points: number;
+  medals?: string[];
+  certificates?: string[];
+  badges?: string[];
+  titles?: string[];
+  custom?: Record<string, any>;
 }
 
 export interface CreateActivityDto {
   name: string;
   description?: string;
   type: ActivityType;
-  sportType: string;
-  startTime: Date;
-  endTime?: Date;
-  duration: number;
-  elapsedTime: number;
-  movingTime?: number;
-  distance: number;
-  averageSpeed?: number;
-  maxSpeed?: number;
-  averagePace?: number;
-  averageHeartRate?: number;
-  maxHeartRate?: number;
-  calories?: number;
-  elevationGain?: number;
-  elevationLoss?: number;
-  totalElevationGain?: number;
-  maxElevation?: number;
-  minElevation?: number;
-  kilojoules?: number;
-  averageWatts?: number;
-  maxWatts?: number;
-  weightedAverageWatts?: number;
-  deviceWatts?: boolean;
-  startLatitude?: number;
-  startLongitude?: number;
-  endLatitude?: number;
-  endLongitude?: number;
-  startLocation?: string;
-  endLocation?: string;
-  equipment?: string;
-  gearId?: string;
-  deviceName?: string;
-  uploadId?: string;
-  temperature?: number;
-  humidity?: number;
-  windSpeed?: number;
-  roadCondition?: string;
-  trainer?: boolean;
-  commute?: boolean;
-  manual?: boolean;
-  private?: boolean;
-  flagged?: boolean;
-  workoutType?: number;
-  gpsData?: Record<string, unknown>;
-  heartRateData?: Record<string, unknown>;
-  powerData?: Record<string, unknown>;
-  cadenceData?: Record<string, unknown>;
-  speedData?: Record<string, unknown>;
-  elevationData?: Record<string, unknown>;
-  weather?: Record<string, unknown>;
-  challengeId?: string;
-  eventId?: string;
-  raceId?: string;
+  points: number;
+  requirements: ActivityRequirements;
+  rewards: ActivityRewards;
+  isPublic?: boolean;
+  isRepeatable?: boolean;
+  maxAttempts?: number;
+  cooldownHours?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
-export interface UpdateActivityDto extends Partial<CreateActivityDto> {
-  status?: ActivityStatus;
-  visibility?: ActivityVisibility;
+export interface UpdateActivityDto {
+  name?: string;
+  description?: string;
+  type?: ActivityType;
+  points?: number;
+  requirements?: ActivityRequirements;
+  rewards?: ActivityRewards;
   isPublic?: boolean;
+  isRepeatable?: boolean;
+  maxAttempts?: number;
+  cooldownHours?: number;
+  startDate?: string;
+  endDate?: string;
+  status?: ActivityStatus;
 }
 
 export interface QueryActivityDto {
@@ -165,49 +98,47 @@ export interface QueryActivityDto {
   limit?: number;
   search?: string;
   type?: ActivityType;
-  sportType?: string;
   status?: ActivityStatus;
-  visibility?: ActivityVisibility;
-  userId?: string;
-  source?: string;
-  startDate?: string;
-  endDate?: string;
-  minDistance?: number;
-  maxDistance?: number;
-  minDuration?: number;
-  maxDuration?: number;
-  challengeId?: string;
-  eventId?: string;
-  raceId?: string;
+  isPublic?: boolean;
+  isRepeatable?: boolean;
+  createdBy?: string;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }
 
-export interface ActivityStats {
-  totalActivities: number;
-  totalDistance: number;
-  totalDuration: number;
-  totalCalories: number;
-  averageDistance: number;
-  averageDuration: number;
-  averagePace: number;
-  bestPace: number;
-  longestDistance: number;
-  longestDuration: number;
-  activitiesByType: Record<ActivityType, number>;
-  activitiesByMonth: Array<{
-    month: string;
-    count: number;
-    distance: number;
-    duration: number;
-  }>;
-  recentActivities: Activity[];
+export interface ActivityProgress {
+  id: string;
+  activityId: string;
+  userId: string;
+  teamId?: string;
+  progress: number;
+  maxProgress: number;
+  isCompleted: boolean;
+  completedAt?: string;
+  attempts: number;
+  lastAttemptAt?: string;
+  nextAttemptAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ActivityResponse {
-  activities: Activity[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+export interface ActivityCompletion {
+  id: string;
+  activityId: string;
+  userId: string;
+  teamId?: string;
+  completedAt: string;
+  pointsEarned: number;
+  rewardsEarned: ActivityRewards;
+  metadata?: Record<string, any>;
+}
+
+export interface ActivityStats {
+  totalActivities: number;
+  activeActivities: number;
+  completedActivities: number;
+  totalPoints: number;
+  averageProgress: number;
+  topActivities: Activity[];
+  recentCompletions: ActivityCompletion[];
 }

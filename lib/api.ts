@@ -175,7 +175,11 @@ export const tokenManager = {
 
   // Kiểm tra có token không
   hasToken: (): boolean => {
-    return !!(this.getAccessToken());
+    try {
+      return Boolean((this as any).getAccessToken());
+    } catch {
+      return false;
+    }
   },
 
   // Kiểm tra token hết hạn
@@ -188,3 +192,4 @@ export const tokenManager = {
     }
   },
 };
+

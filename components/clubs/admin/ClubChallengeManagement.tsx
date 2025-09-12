@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trophy, Target, Award, Users, Edit, Trash2, Eye } from 'lucide-react';
 import useAxios from '@/hooks/useAxios';
 import { Challenge, ChallengeStatus } from '@/types/challenge';
-import UnifiedChallengeModal from '@/components/challenges/UnifiedChallengeModal';
+import { UnifiedChallengeModal } from '@/components/challenges/common';
 
 interface ClubChallengeManagementProps {
   clubId: string;

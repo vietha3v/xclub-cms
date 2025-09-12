@@ -17,7 +17,10 @@ import {
   LogOut,
   Home,
   MessageCircle,
-  Bell
+  Bell,
+  Palette,
+  Award,
+  FileText
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -73,6 +76,19 @@ export default function DashboardSidebar({
     },
   ];
 
+  const designNavigation = [
+    {
+      name: 'Thiết kế huy chương',
+      href: '/design/medals',
+      icon: <Award className="w-5 h-5" />,
+    },
+    {
+      name: 'Thiết kế giấy chứng nhận',
+      href: '/design/certificates',
+      icon: <FileText className="w-5 h-5" />,
+    },
+  ];
+
   const userNavigation = [
     {
       name: 'Hồ sơ cá nhân',
@@ -106,6 +122,7 @@ export default function DashboardSidebar({
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
         w-64
         bg-base-100 border-r border-base-300 min-h-screen shadow-xl lg:shadow-none
+        overflow-y-auto
       `}>
         <div className="p-4 sm:p-6">
 
@@ -135,10 +152,8 @@ export default function DashboardSidebar({
           </div>
 
         {/* Main Navigation */}
-        <nav className="space-y-1 sm:space-y-2">
-          <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-3">
-            Menu chính
-          </h4>
+        <nav className="space-y-1">
+          <div className="border-t border-base-300 my-2"></div>
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -161,11 +176,34 @@ export default function DashboardSidebar({
           })}
         </nav>
 
+        {/* Design Navigation */}
+        <nav className="space-y-1 mt-2">
+          <div className="border-t border-base-300 my-2"></div>
+          {designNavigation.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 ${
+                  isActive
+                    ? 'bg-primary text-primary-content shadow-lg'
+                    : 'text-base-content hover:bg-base-200'
+                }`}
+                onClick={onMobileClose}
+              >
+                <div className="flex-shrink-0">
+                  {item.icon}
+                </div>
+                <span className="truncate">{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
         {/* User Navigation */}
-        <nav className="space-y-1 sm:space-y-2 mt-6 sm:mt-8">
-          <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-3">
-            Tài khoản
-          </h4>
+        <nav className="space-y-1 mt-2">
+          <div className="border-t border-base-300 my-2"></div>
           {userNavigation.map((item) => {
             const isActive = pathname === item.href;
             return (
