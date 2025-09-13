@@ -73,20 +73,7 @@ export default function MedalTemplateSelector() {
   }
 
   return (
-    <>
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-      <div className="space-y-3">
+    <div className="space-y-3">
       <label className="label">
         <span className="label-text font-medium">Chọn huy chương</span>
       </label>
@@ -108,20 +95,17 @@ export default function MedalTemplateSelector() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-base-300 scrollbar-track-transparent">
+        <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-base-300 scrollbar-track-transparent pb-2 snap-x snap-mandatory">
           {templates?.map((template: any, index: number) => (
           <div
             key={template.id}
-            className={`relative card bg-base-100 border shadow-sm cursor-pointer transition-all duration-300 rounded-xl transform hover:scale-105 hover:-translate-y-1 ${
+            className={`relative card bg-base-100 border shadow-sm cursor-pointer transition-all duration-300 rounded-xl transform hover:scale-105 hover:-translate-y-1 snap-start flex-shrink-0 animate-fade-in-up ${
               selectedTemplateId === template.id
                 ? 'ring-2 ring-primary bg-primary/5 border-primary scale-105 shadow-lg'
                 : 'border-base-300 hover:shadow-lg hover:border-primary/50'
             }`}
             onClick={() => handleRadioChange(template.id)}
-            style={{
-              animationDelay: `${index * 50}ms`,
-              animation: 'fadeInUp 0.5s ease-out forwards'
-            }}
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Radio Button - Top Right Corner */}
             <div className="absolute top-2 right-2 z-10">
@@ -135,25 +119,26 @@ export default function MedalTemplateSelector() {
               />
             </div>
 
-            <div className="card-body p-4 text-center">
-              {/* Medal Preview - Square 80x80 */}
-              <div className="flex justify-center mb-3">
-                <div className="w-20 h-20 overflow-hidden rounded-lg border border-base-300">
+            <div className="card-body p-0 text-center min-w-[120px]">
+              {/* Medal Preview - Tràn viền */}
+              <div className="flex justify-center mb-2">
+                <div className="w-24 h-24 overflow-hidden rounded-lg">
                   <MedalPreview 
                     template={template} 
-                    className="w-full h-full"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
 
               {/* Medal Info */}
-              <h4 className="font-medium text-sm truncate">{template.name}</h4>
+              <div className="px-3 pb-3">
+                <h4 className="font-medium text-xs truncate">{template.name}</h4>
+              </div>
             </div>
           </div>
           ))}
         </div>
       )}
     </div>
-    </>
   );
 }

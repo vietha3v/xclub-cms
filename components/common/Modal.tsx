@@ -63,29 +63,29 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-base-content/20"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm bg-base-content/20"
       onClick={handleBackdropClick}
     >
       <div
-        className={`bg-base-100 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} h-[70vh] flex flex-col ${className}`}
+        className={`bg-base-100 rounded-2xl shadow-2xl w-full sm:w-2/3 max-h-[90vh] flex flex-col ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-base-300 flex-shrink-0">
-          <h2 className="text-2xl font-bold text-base-content">{title}</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-base-300 flex-shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-base-content">{title}</h2>
           {showCloseButton && (
             <button
               onClick={onClose}
               className="btn btn-ghost btn-sm btn-circle"
               aria-label="Đóng modal"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           )}
         </div>
 
         {/* Body - Scrollable */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 max-h-[calc(90vh-120px)]">
           {children}
         </div>
 

@@ -36,8 +36,12 @@ const defaultHtmlTemplate = `<!DOCTYPE html>
 <head>
   <style>
     .medal {
-      width: 200px;
-      height: 200px;
+      width: 100%;
+      height: 100%;
+      min-width: 200px;
+      min-height: 200px;
+      max-width: 100%;
+      max-height: 100%;
       border-radius: 50%;
       background: linear-gradient(45deg, #FFD700, #FFA500);
       border: 5px solid #FFD700;
@@ -48,27 +52,32 @@ const defaultHtmlTemplate = `<!DOCTYPE html>
       color: #333;
       font-family: 'Arial', sans-serif;
       position: relative;
+      box-sizing: border-box;
     }
     
     .medal-icon {
-      font-size: 60px;
-      margin-bottom: 10px;
+      font-size: 30%;
+      margin-bottom: 5%;
+      line-height: 1;
     }
     
     .medal-text {
-      font-size: 14px;
+      font-size: 7%;
       font-weight: bold;
       text-align: center;
+      width: 80%;
     }
     
     .medal-name {
-      font-size: 16px;
-      margin-bottom: 5px;
+      font-size: 8%;
+      margin-bottom: 2%;
+      line-height: 1.2;
     }
     
     .medal-achievement {
-      font-size: 12px;
+      font-size: 6%;
       opacity: 0.8;
+      line-height: 1.2;
     }
   </style>
 </head>

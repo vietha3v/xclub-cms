@@ -43,17 +43,19 @@ export default function MedalPreview({
   const previewHtml = generatePreviewHtml();
 
   return (
-    <div className={`medal-preview ${className}`}>
-      <div 
-        className="w-full h-full flex items-center justify-center"
-        style={{
-          transform: 'scale(0.3)',
-          transformOrigin: 'center',
-          maxWidth: '100%',
-          overflow: 'visible'
-        }}
-        dangerouslySetInnerHTML={{ __html: previewHtml }}
-      />
-    </div>
+    <div 
+      className={`medal-preview ${className}`}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%'
+      }}
+      dangerouslySetInnerHTML={{ 
+        __html: previewHtml.replace(
+          'class="medal"',
+          'class="medal" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform: scale(0.7); transform-origin: center;"'
+        )
+      }}
+    />
   );
 }

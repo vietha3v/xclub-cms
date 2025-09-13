@@ -38,6 +38,11 @@ export interface Challenge {
   visibility: ChallengeVisibility;
   category: ChallengeCategory;
   clubId?: string;
+  createdByClubId?: string;
+  invitedClubs?: Array<{
+    clubId: string;
+    maxParticipants: number;
+  }>;
   eventId?: string;
   createdBy: string;
   startDate: string;
@@ -63,8 +68,18 @@ export interface Challenge {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  hasMedals?: boolean;
+  hasCertificates?: boolean;
+  hasDigitalCertificate?: boolean;
   medalTemplateIds?: string[];
   certificateTemplateIds?: string[];
+  distanceCategories?: Array<{
+    id: string;
+    value: number;
+    unit: string;
+    name?: string;
+    difficulty: string;
+  }>;
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;
@@ -211,6 +226,11 @@ export interface CreateChallengeDto {
   visibility?: ChallengeVisibility;
   category?: ChallengeCategory;
   clubId?: string;
+  createdByClubId?: string;
+  invitedClubs?: Array<{
+    clubId: string;
+    maxParticipants: number;
+  }>;
   eventId?: string;
   startDate: string;
   endDate: string;
@@ -235,8 +255,18 @@ export interface CreateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  hasMedals?: boolean;
+  hasCertificates?: boolean;
+  hasDigitalCertificate?: boolean;
   medalTemplateIds?: string[];
   certificateTemplateIds?: string[];
+  distanceCategories?: Array<{
+    id: string;
+    value: number;
+    unit: string;
+    name?: string;
+    difficulty: string;
+  }>;
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;
@@ -277,8 +307,18 @@ export interface UpdateChallengeDto {
   maxDistance?: number;
   achievementId?: string;
   points?: number;
+  hasMedals?: boolean;
+  hasCertificates?: boolean;
+  hasDigitalCertificate?: boolean;
   medalTemplateIds?: string[];
   certificateTemplateIds?: string[];
+  distanceCategories?: Array<{
+    id: string;
+    value: number;
+    unit: string;
+    name?: string;
+    difficulty: string;
+  }>;
   conditions?: Record<string, unknown>;
   rewards?: Record<string, unknown>;
   rules?: string;
